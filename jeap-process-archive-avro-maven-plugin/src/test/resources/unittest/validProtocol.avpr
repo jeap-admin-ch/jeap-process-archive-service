@@ -1,0 +1,16 @@
+{
+  "namespace": "ch.admin.bit.jeap.processarchive.avro.test.protocol",
+  "protocol": "AvroProtocolTestProtocol",
+  "types": [
+    {
+      "type": "record",
+      "name": "Test",
+      "fields": [
+        {
+          "name": "test",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

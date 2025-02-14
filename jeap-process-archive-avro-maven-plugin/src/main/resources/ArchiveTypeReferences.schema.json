@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Archive Type Reference",
+  "description": "Archive type reference file",
+  "type": "object",
+  "properties": {
+    "repoUrl": {
+      "type": "string",
+      "pattern": "https?://.*"
+    },
+    "branch": {
+      "type": "string"
+    },
+    "archiveTypes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "system": {
+            "type": "string",
+            "pattern": "[A-Za-z0-9_.-]+"
+          },
+          "name": {
+            "type": "string",
+            "pattern": "[A-Za-z0-9_.-]+"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "system"
+        ]
+      },
+      "uniqueItems": true,
+      "minItems": 0
+    }
+  },
+  "required": [
+    "repoUrl",
+    "archiveTypes"
+  ],
+  "oneOf": [
+    {
+      "required": [
+        "commit"
+      ]
+    },
+    {
+      "required": [
+        "branch"
+      ]
+    }
+  ]
+}

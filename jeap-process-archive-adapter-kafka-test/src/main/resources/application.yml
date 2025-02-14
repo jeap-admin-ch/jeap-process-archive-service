@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: jeap-process-archive-service
+logging.level:
+  org.apache.kafka: error
+  org.apache.zookeeper: error
+  kafka: error

@@ -1,0 +1,6 @@
+protocol IdlTestProtocol {
+
+  record IdlTest {
+    string test;
+  }
+}

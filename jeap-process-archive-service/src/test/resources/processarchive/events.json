@@ -1,0 +1,22 @@
+{
+  "events": [
+    {
+      "eventName": "TestDomainEvent",
+      "topicName": "test-event-1",
+      "referenceProvider": "ch.admin.bit.jeap.processarchive.service.test.TestReferenceProvider",
+      "uri": "${test.service.uri}"
+    },
+    {
+      "eventName": "TestDomain2Event",
+      "topicName": "test-event-2",
+      "condition": "ch.admin.bit.jeap.test.processarchive.TestCondition",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.service.test.TestDomainEventDataProvider"
+    },
+    {
+      "eventName": "TestDomain3Event",
+      "topicName": "test-event-3",
+      "correlationProvider": "ch.admin.bit.jeap.processarchive.service.test.TestCorrelationProvider",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.service.test.TestDomainEvent3DataProvider"
+    }
+  ]
+}

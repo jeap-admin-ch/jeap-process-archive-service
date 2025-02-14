@@ -1,0 +1,7 @@
+@namespace("ch.admin.bit.jeap.processarchive.test")
+protocol DecreeReferenceProtocol {
+  record DecreeReference {
+    string type;
+    string id;
+  }
+}

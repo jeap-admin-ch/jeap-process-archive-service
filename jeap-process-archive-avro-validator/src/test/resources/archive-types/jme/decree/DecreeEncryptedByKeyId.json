@@ -1,0 +1,17 @@
+{
+  "archiveType": "DecreeEncryptedByKeyId",
+  "system": "JME",
+  "referenceIdType": "ch.admin.bit.jeap.audit.type.JmeDecreeArchive",
+  "description": "archive type example for a decree",
+  "documentationUrl": "https://foo/bar",
+  "expirationDays": 30,
+  "encryptionKey": {
+    "keyId": "test-key"
+  },
+  "versions": [
+    {
+      "version": 1,
+      "schema": "DecreeEncryptedByKeyId_v1.avdl"
+    }
+  ]
+}

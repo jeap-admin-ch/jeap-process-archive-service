@@ -1,0 +1,159 @@
+{
+  "title": "Archive Type Descriptor",
+  "description": "JSON schema for archive type descriptors, including versions and avro schema reference",
+  "$ref": "#/definitions/ArchiveTypeDescriptor",
+  "definitions": {
+    "ArchiveTypeDescriptor": {
+      "type": "object",
+      "properties": {
+        "archiveType": {
+          "type": "string",
+          "pattern": "[A-Za-z0-9_-]+"
+        },
+        "system": {
+          "type": "string",
+          "pattern": "[A-Z0-9_-]+"
+        },
+        "referenceIdType": {
+          "type": "string",
+          "pattern": "[A-Za-z0-9.]+"
+        },
+        "description": {
+          "type": "string"
+        },
+        "documentationUrl": {
+          "$ref": "#/definitions/url"
+        },
+        "expirationDays": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "encryption": {
+          "$ref": "#/definitions/EncryptionKeyReference"
+        },
+        "encryptionKey": {
+          "$ref": "#/definitions/EncryptionKeyId"
+        },
+        "versions": {
+          "$ref": "#/definitions/Versions"
+        }
+      },
+      "required": [
+        "archiveType",
+        "system",
+        "referenceIdType",
+        "description",
+        "expirationDays",
+        "versions"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "encryption",
+              "encryptionKey"
+            ]
+          }
+        ]
+      },
+      "additionalProperties": false
+    },
+    "Versions": {
+      "type": "array",
+      "minItems": 0,
+      "prefixItems": [
+        {
+          "$ref": "#/definitions/Version"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/VersionWithCompatibility"
+      }
+    },
+    "Version": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "schema": {
+          "type": "string",
+          "pattern": "^.+\\.avdl$"
+        }
+      },
+      "required": [
+        "version",
+        "schema"
+      ],
+      "additionalProperties": false
+    },
+    "VersionWithCompatibility": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "schema": {
+          "type": "string",
+          "pattern": "^.+\\.avdl$"
+        },
+        "compatibilityMode": {
+          "$ref": "#/definitions/compatibilityMode"
+        },
+        "compatibleVersion": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "version",
+        "schema",
+        "compatibilityMode"
+      ],
+      "additionalProperties": false
+    },
+    "compatibilityMode": {
+      "type": "string",
+      "enum": [
+        "BACKWARD",
+        "FORWARD",
+        "FULL",
+        "NONE"
+      ]
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^http(s)?://.*$"
+    },
+    "EncryptionKeyReference": {
+      "type": "object",
+      "properties": {
+        "secretEnginePath": {
+          "type": "string"
+        },
+        "keyName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "secretEnginePath",
+        "keyName"
+      ],
+      "additionalProperties": false
+    },
+    "EncryptionKeyId": {
+      "type": "object",
+      "properties": {
+        "keyId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "keyId"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,8 @@
+@namespace("ch.admin.bit.jeap.processarchive.test.avro")
+protocol TestProtocol {
+
+  record TestRecord {
+    long id;
+    string payload;
+  }
+}

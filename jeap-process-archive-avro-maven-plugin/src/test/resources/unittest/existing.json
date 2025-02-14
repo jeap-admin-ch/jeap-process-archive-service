@@ -1,0 +1,11 @@
+{
+  "repoUrl": "https://foo/bar/",
+  "branch": "master",
+  "archiveTypes": [
+    {
+      "system": "JME",
+      "name": "Decree",
+      "version": 1
+    }
+  ]
+}

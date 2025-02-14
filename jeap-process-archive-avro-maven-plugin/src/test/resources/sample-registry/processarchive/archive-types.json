@@ -1,0 +1,11 @@
+{
+  "repoUrl": "https://bitbucket.bit.admin.ch/projects/BIT_JME/repos/jme-archive-type-registry/",
+  "branch": "master",
+  "archiveTypes": [
+    {
+      "system": "JME",
+      "name": "Decree",
+      "version": 3
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "events": [
+    {
+      "eventName": "JmeRaceStartedEvent",
+      "topicName": "jme-race-started",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestDomainEventArchiveDataProvider"
+    },
+    {
+      "eventName": "JmeRaceMobileCheckpointPassedEvent",
+      "topicName": "jme-race-mobilecheckpoint-passed",
+      "referenceProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestReferenceProvider",
+      "uri": "${jme.event-service.uri}/api/v1/archive/JmeRaceMobileCheckpointPassedEvent",
+      "oauthClientId": "my-pas-service"
+    },
+    {
+      "eventName": "eventWithCluster",
+      "topicName": "topic-cluster",
+      "clusterName": "cluster-name",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestDomainEventArchiveDataProvider"
+    },
+    {
+      "eventName": "eventWithCondition",
+      "topicName": "topic-cluster",
+      "clusterName": "cluster-name",
+      "condition": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestCondition",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestDomainEventArchiveDataProvider"
+    },
+    {
+      "eventName": "eventWithConditionRemoteData",
+      "topicName": "jme-race-mobilecheckpoint-passed",
+      "referenceProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestReferenceProvider",
+      "uri": "${jme.event-service.uri}/api/v1/archive/JmeRaceMobileCheckpointPassedEvent",
+      "condition": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestCondition",
+      "oauthClientId": "my-pas-service"
+    },
+    {
+      "eventName": "eventWithCorrelationProvider",
+      "topicName": "jme-race-started",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestDomainEventArchiveDataProvider",
+      "correlationProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestCorrelationProvider"
+    }
+  ]
+}

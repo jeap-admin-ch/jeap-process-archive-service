@@ -1,0 +1,27 @@
+server:
+  servlet:
+    context-path: /jeap-process-archive-service
+  port: 8082
+
+jeap:
+  swagger:
+    status: open
+  messaging:
+    kafka:
+      username: user
+      password: user-secret
+      error-topic-name: "jme-eventprocessing-failed"
+      bootstrap-servers: "http://localhost:9092"
+      schema-registry-url: "http://localhost:7781"
+      security-protocol: PLAINTEXT
+  monitor:
+    prometheus:
+      password: "{noop}secret"
+
+jme:
+  event-service:
+    uri: "http://localhost"
+
+spring:
+  application:
+    name: jeap-process-archive-service

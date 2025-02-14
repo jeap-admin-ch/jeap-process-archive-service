@@ -1,0 +1,8 @@
+{
+  "repoUrl": "https://foo/bar/",
+  "branch": "master",
+  "systems": [
+    "foo",
+    "bar"
+  ]
+}

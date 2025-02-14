@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "namespace": "ch.admin.bit.jeap.processarchive.test.schema",
+  "name": "AvroSchemaTest",
+  "fields": [
+    {
+      "name": "test",
+      "type": "string"
+    }
+  ]
+}

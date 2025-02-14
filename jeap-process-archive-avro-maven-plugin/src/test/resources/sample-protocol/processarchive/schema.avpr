@@ -1,0 +1,16 @@
+{
+  "namespace": "ch.admin.bit.jeap.processarchive.test.protocol",
+  "protocol": "TestProtocol",
+  "types": [
+    {
+      "type": "record",
+      "name": "TestRecord",
+      "fields": [
+        {
+          "name": "test",
+          "type": "string"
+        }
+      ]
+    }
+  ]
+}

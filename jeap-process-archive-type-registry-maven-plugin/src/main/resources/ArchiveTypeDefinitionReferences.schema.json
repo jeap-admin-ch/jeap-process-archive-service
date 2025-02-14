@@ -1,0 +1,45 @@
+{
+  "title": "System Archive Type Definition Reference",
+  "description": "System Archive type definition reference file",
+  "type": "object",
+  "properties": {
+    "repoUrl": {
+      "type": "string",
+      "pattern": "https?://.*"
+    },
+    "commit": {
+      "type": "string",
+      "minLength": 1
+    },
+    "branch": {
+      "type": "string",
+      "minLength": 1
+    },
+    "systems": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "pattern": "[a-z0-9_.-]+"
+      },
+      "uniqueItems": true,
+      "minItems": 1
+    }
+  },
+  "required": [
+    "repoUrl",
+    "systems"
+  ],
+  "oneOf": [
+    {
+      "required": [
+        "commit"
+      ]
+    },
+    {
+      "required": [
+        "branch"
+      ]
+    }
+  ]
+}
