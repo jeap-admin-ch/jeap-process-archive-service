@@ -11,14 +11,11 @@ import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArch
 import ch.admin.bit.jeap.processarchive.test.decree.v3.Decree;
 import ch.admin.bit.jeap.processarchive.test.decree.v3.DecreeReference;
 import ch.admin.bit.jeap.processcontext.event.test.TestDomainEvent;
-import com.github.tomakehurst.wiremock.WireMockServer;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecord;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,13 +27,14 @@ import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Instant;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.timeout;
@@ -51,12 +49,11 @@ import static org.mockito.Mockito.verify;
         "jeap.processarchive.archivedartifact.system-id=com.test.System",
         "jeap.processarchive.archivedartifact.system-name=test"})
 @ContextConfiguration(classes = {HashProviderTestConfig.class})
+@EnableWireMock(@ConfigureWireMock(port = 12332))
 class ArchiveServiceRemoteDataExtractorIT extends KafkaIntegrationTestBase {
 
     private static final String DOMAIN_EVENT_TOPIC = "test-event-1";
     private static final String REFERENCE_ID = "dataId-1234";
-
-    private static WireMockServer wireMockServer;
 
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
@@ -76,7 +73,7 @@ class ArchiveServiceRemoteDataExtractorIT extends KafkaIntegrationTestBase {
         String contentType = "avro/binary";
         String weather = "sunny";
         byte[] payload = createPayload();
-        wireMockServer.stubFor(get(urlEqualTo("/testdata/" + REFERENCE_ID)).willReturn(aResponse()
+        stubFor(get(urlEqualTo("/testdata/" + REFERENCE_ID)).willReturn(aResponse()
                 .withHeader("Content-Type", contentType)
                 .withHeader("Archive-Data-System", system)
                 .withHeader("Archive-Data-Schema", schema)
@@ -121,17 +118,6 @@ class ArchiveServiceRemoteDataExtractorIT extends KafkaIntegrationTestBase {
         datumWriter.write(data, encoder);
         encoder.flush();
         return outputStream.toByteArray();
-    }
-
-    @BeforeAll
-    static void startWiremock() {
-        wireMockServer = new WireMockServer(options().port(12332));
-        wireMockServer.start();
-    }
-
-    @AfterAll
-    static void stopWiremock() {
-        wireMockServer.stop();
     }
 
     private TestDomainEvent createTestEvent() {

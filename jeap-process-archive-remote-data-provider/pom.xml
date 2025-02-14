@@ -11,11 +11,6 @@
 
     <artifactId>jeap-process-archive-remote-data-provider</artifactId>
 
-    <properties>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
-        <wiremock.version>2.35.0</wiremock.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ch.admin.bit.jeap</groupId>
@@ -51,8 +46,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.tomakehurst</groupId>
-            <artifactId>wiremock-jre8-standalone</artifactId>
+            <groupId>org.wiremock.integrations</groupId>
+            <artifactId>wiremock-spring-boot</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

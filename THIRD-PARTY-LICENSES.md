@@ -65,7 +65,7 @@ Apache License Version 2.0
  * jackson-coreutils - [com.github.java-json-tools:jackson-coreutils](https://github.com/java-json-tools/jackson-coreutils)
  * msg-simple - [com.github.java-json-tools:msg-simple](https://github.com/java-json-tools/msg-simple)
  * JCIP Annotations under Apache License - [com.github.stephenc.jcip:jcip-annotations](http://stephenc.github.com/jcip-annotations)
- * WireMock - [com.github.tomakehurst:wiremock-jre8-standalone](http://wiremock.org)
+* WireMock - [org.wiremock:wiremock](http://wiremock.org)
  * proto-google-common-protos - [com.google.api.grpc:proto-google-common-protos](https://github.com/googleapis/java-iam/proto-google-common-protos)
  * FindBugs-jsr305 - [com.google.code.findbugs:jsr305](http://findbugs.sourceforge.net/)
  * Gson - [com.google.code.gson:gson](https://github.com/google/gson)

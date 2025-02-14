@@ -7,23 +7,22 @@ import ch.admin.bit.jeap.processarchive.domain.event.DomainEventListenerAdapter;
 import ch.admin.bit.jeap.processarchive.domain.event.DomainEventReceiver;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveDataReference;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.EnableWireMock;
 
 import java.nio.charset.StandardCharsets;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@EnableWireMock
 class HttpRemoteDataProviderIT {
 
     private static final String TEST_REMOTE_PAYLOAD = "test-remote-payload";
@@ -38,11 +37,11 @@ class HttpRemoteDataProviderIT {
     private DomainEventListenerAdapter domainEventListenerAdapter;
     @MockitoBean
     private ArchivedArtifactCreatedEventProducer archivedArtifactCreatedEventProducer;
-
     @Autowired
     private HttpRemoteDataProvider httpRemoteDataProvider;
 
-    private static WireMockServer wireMockServer;
+    @Value("${wiremock.server.baseUrl}")
+    private String wiremockBaseUrl;
 
     @Test
     void when_referenceWithVersionFoundAndValidResponse_then_shouldCreateArchiveData() {
@@ -91,7 +90,7 @@ class HttpRemoteDataProviderIT {
         String schemaVersion = "2";
         String contentType = MediaType.APPLICATION_XML_VALUE;
         String weather = "sunny";
-        wireMockServer.stubFor(get(urlEqualTo(getEndpointPath(reference)))
+        stubFor(get(urlEqualTo(getEndpointPath(reference)))
                 .willReturn(aResponse()
                         .withHeader("Content-Type", contentType)
                         .withHeader("Archive-Data-System", system)
@@ -135,7 +134,7 @@ class HttpRemoteDataProviderIT {
         // given
         final ArchiveDataReference reference = ArchiveDataReference.builder().id("dataId-456").version(5).build();
         String contentType = MediaType.APPLICATION_XML_VALUE;
-        wireMockServer.stubFor(get(urlEqualTo(getEndpointPath(reference))).willReturn(aResponse()
+        stubFor(get(urlEqualTo(getEndpointPath(reference))).willReturn(aResponse()
                 .withHeader("Content-Type", contentType)
                 // No schema header
                 .withBody(TEST_REMOTE_PAYLOAD)
@@ -151,19 +150,8 @@ class HttpRemoteDataProviderIT {
         }
     }
 
-    @BeforeAll
-    static void startWiremock() {
-        wireMockServer = new WireMockServer(options().dynamicPort());
-        wireMockServer.start();
-    }
-
-    @AfterAll
-    static void stopWiremock() {
-        wireMockServer.stop();
-    }
-
     private String getEndpointTemplateUnversioned() {
-        return "http://localhost:" + wireMockServer.port() + "/testdata/{id}";
+        return wiremockBaseUrl + "/testdata/{id}";
     }
 
     private String getEndpointTemplateVersioned() {
