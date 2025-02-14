@@ -24,20 +24,6 @@
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <!-- prevent the plugin from failing the build when it encounters errors in javadoc comments
-                         (which sometimes seems to happen in message type classes created from avro) -->
-                    <configuration>
-                        <failOnError>false</failOnError>
-                        <doclint>none</doclint>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <!-- Disable all license plugin executions from the parent to avoid instances of the service
              inheriting these plugin executions. -->

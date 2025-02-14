@@ -223,6 +223,16 @@
                     <artifactId>maven-plugin-plugin</artifactId>
                     <version>${maven-plugin-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <!-- prevent the plugin from failing the build when it encounters errors in javadoc comments
+                         (which sometimes seems to happen in message type classes created from avro) -->
+                    <configuration>
+                        <failOnError>false</failOnError>
+                        <doclint>none</doclint>
+                    </configuration>
+                </plugin>
           </plugins>
         </pluginManagement>
         <plugins>
