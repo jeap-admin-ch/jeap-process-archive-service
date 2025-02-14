@@ -1,11 +1,11 @@
 {
-  "repoUrl": "http://test/test",
+  "repoUrl": "http://localhost:12324",
   "branch": "master",
   "archiveTypes": [
     {
-      "system": "JME",
+      "system": "JEAP",
       "name": "Decree",
-      "version": 3
+      "version": 1
     }
   ]
 }

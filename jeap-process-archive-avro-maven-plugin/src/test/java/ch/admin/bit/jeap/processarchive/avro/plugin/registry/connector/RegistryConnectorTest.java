@@ -120,12 +120,10 @@ class RegistryConnectorTest {
     }
 
     private static String loadResource(String path) {
-        byte[] bytes = null;
         try {
-            bytes = RegistryConnectorTest.class.getResourceAsStream(path).readAllBytes();
+            return new String(RegistryConnectorTest.class.getResourceAsStream(path).readAllBytes());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return new String(bytes);
     }
 }
