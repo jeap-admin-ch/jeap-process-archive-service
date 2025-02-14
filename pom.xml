@@ -210,7 +210,12 @@
                         </archive>
                     </configuration>
                 </plugin>
-            </plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-plugin-plugin</artifactId>
+                    <version>${maven-plugin-plugin.version}</version>
+                </plugin>
+          </plugins>
         </pluginManagement>
         <plugins>
             <!-- Check third-party license compliance -->
@@ -224,14 +229,5 @@
                 <artifactId>license-maven-plugin</artifactId>
             </plugin>
         </plugins>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-plugin-plugin</artifactId>
-                    <version>${maven-plugin-plugin.version}</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
     </build>
 </project>
