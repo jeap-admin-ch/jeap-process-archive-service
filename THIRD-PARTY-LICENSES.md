@@ -53,6 +53,7 @@ Apache License Version 2.0
  * jackson-databind - [com.fasterxml.jackson.core:jackson-databind](https://github.com/FasterXML/jackson)
  * Jackson dataformat: CBOR - [com.fasterxml.jackson.dataformat:jackson-dataformat-cbor](https://github.com/FasterXML/jackson-dataformats-binary)
  * Jackson-dataformat-CSV - [com.fasterxml.jackson.dataformat:jackson-dataformat-csv](https://github.com/FasterXML/jackson-dataformats-text)
+ * Jackson-dataformat-YAML - [com.fasterxml.jackson.dataformat:jackson-dataformat-yaml](https://github.com/FasterXML/jackson-dataformats-text)
  * Jackson datatype: jdk8 - [com.fasterxml.jackson.datatype:jackson-datatype-jdk8](https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jdk8)
  * Jackson datatype: JSR310 - [com.fasterxml.jackson.datatype:jackson-datatype-jsr310](https://github.com/FasterXML/jackson-modules-java8/jackson-datatype-jsr310)
  * Jackson-module-parameter-names - [com.fasterxml.jackson.module:jackson-module-parameter-names](https://github.com/FasterXML/jackson-modules-java8/jackson-module-parameter-names)
@@ -64,8 +65,9 @@ Apache License Version 2.0
  * btf - [com.github.java-json-tools:btf](https://github.com/java-json-tools/btf)
  * jackson-coreutils - [com.github.java-json-tools:jackson-coreutils](https://github.com/java-json-tools/jackson-coreutils)
  * msg-simple - [com.github.java-json-tools:msg-simple](https://github.com/java-json-tools/msg-simple)
+ * Handlebars - [com.github.jknack:handlebars](https://github.com/jknack/handlebars.java/handlebars)
+ * Handlebars Helpers - [com.github.jknack:handlebars-helpers](https://github.com/jknack/handlebars.java/handlebars-helpers)
  * JCIP Annotations under Apache License - [com.github.stephenc.jcip:jcip-annotations](http://stephenc.github.com/jcip-annotations)
-* WireMock - [org.wiremock:wiremock](http://wiremock.org)
  * proto-google-common-protos - [com.google.api.grpc:proto-google-common-protos](https://github.com/googleapis/java-iam/proto-google-common-protos)
  * FindBugs-jsr305 - [com.google.code.findbugs:jsr305](http://findbugs.sourceforge.net/)
  * Gson - [com.google.code.gson:gson](https://github.com/google/gson)
@@ -111,6 +113,7 @@ Apache License Version 2.0
  * Apache Commons Codec - [commons-codec:commons-codec](https://commons.apache.org/proper/commons-codec/)
  * Apache Commons Collections - [commons-collections:commons-collections](http://commons.apache.org/collections/)
  * Commons Digester - [commons-digester:commons-digester](http://commons.apache.org/digester/)
+ * Apache Commons FileUpload - [commons-fileupload:commons-fileupload](https://commons.apache.org/proper/commons-fileupload/)
  * Apache Commons IO - [commons-io:commons-io](https://commons.apache.org/proper/commons-io/)
  * Apache Commons Validator - [commons-validator:commons-validator](http://commons.apache.org/proper/commons-validator/)
  * utils - [io.confluent:common-utils](https://confluent.io/common-utils)
@@ -176,6 +179,7 @@ Apache License Version 2.0
  * Byte Buddy (without dependencies) - [net.bytebuddy:byte-buddy](https://bytebuddy.net/byte-buddy)
  * Byte Buddy agent - [net.bytebuddy:byte-buddy-agent](https://bytebuddy.net/byte-buddy-agent)
  * Java Native Access - [net.java.dev.jna:jna](https://github.com/java-native-access/jna)
+ * json-unit-core - [net.javacrumbs.json-unit:json-unit-core](https://github.com/lukas-krecan/JsonUnit/json-unit-core)
  * Logstash Logback Encoder - [net.logstash.logback:logstash-logback-encoder](https://github.com/logstash/logstash-logback-encoder)
  * Logstash Logback Encoder - [net.logstash.logback:logstash-logback-encoder](https://github.com/logfellow/logstash-logback-encoder)
  * ASM based accessors helper used by json-smart - [net.minidev:accessors-smart](https://urielch.github.io/)
@@ -326,9 +330,13 @@ Apache License Version 2.0
  * spring-security-oauth2-resource-server - [org.springframework.security:spring-security-oauth2-resource-server](https://spring.io/projects/spring-security)
  * spring-security-web - [org.springframework.security:spring-security-web](https://spring.io/projects/spring-security)
  * Spring Vault Core - [org.springframework.vault:spring-vault-core](https://projects.spring.io/spring-vault/spring-vault-core/)
+ * WireMock - [org.wiremock:wiremock](http://wiremock.org)
+ * WireMock - [org.wiremock:wiremock-jetty12](http://wiremock.org)
  * WireMock - [org.wiremock:wiremock-standalone](http://wiremock.org)
+ * wiremock-spring-boot - [org.wiremock.integrations:wiremock-spring-boot](https://github.com/wiremock/wiremock-spring-boot)
  * snappy-java - [org.xerial.snappy:snappy-java](https://github.com/xerial/snappy-java)
  * org.xmlunit:xmlunit-core - [org.xmlunit:xmlunit-core](https://www.xmlunit.org/)
+ * org.xmlunit:xmlunit-placeholders - [org.xmlunit:xmlunit-placeholders](https://www.xmlunit.org/xmlunit-placeholders/)
  * SnakeYAML - [org.yaml:snakeyaml](https://bitbucket.org/snakeyaml/snakeyaml)
  * AWS Java SDK :: Annotations - [software.amazon.awssdk:annotations](https://aws.amazon.com/sdkforjava/core/annotations)
  * AWS Java SDK :: Arns - [software.amazon.awssdk:arns](https://aws.amazon.com/sdkforjava)
@@ -361,6 +369,30 @@ Apache License Version 2.0
  * AWS Glue Schema Registry common - [software.amazon.glue:schema-registry-common](https://aws.amazon.com/glue)
  * AWS Glue Schema Registry Serializer Deserializer - [software.amazon.glue:schema-registry-serde](https://aws.amazon.com/glue)
  * Amazon MSK Library for AWS Identity and Access Management - [software.amazon.msk:aws-msk-iam-auth](https://docs.aws.amazon.com/msk/latest/developerguide/iam-access-control.html)
+
+Apache Software License - Version 2.0
+-------------------------------
+
+ * Core :: ALPN :: Client - [org.eclipse.jetty:jetty-alpn-client](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-client)
+ * Core :: ALPN :: Java Client - [org.eclipse.jetty:jetty-alpn-java-client](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-java-client)
+ * Core :: ALPN :: Java Server - [org.eclipse.jetty:jetty-alpn-java-server](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-java-server)
+ * Core :: ALPN :: Server - [org.eclipse.jetty:jetty-alpn-server](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-server)
+ * Core :: HTTP Client - [org.eclipse.jetty:jetty-client](https://jetty.org/jetty-core/jetty-client)
+ * Core :: EE Common - [org.eclipse.jetty:jetty-ee](https://jetty.org/jetty-core/jetty-ee)
+ * Core :: HTTP - [org.eclipse.jetty:jetty-http](https://jetty.org/jetty-core/jetty-http)
+ * Core :: IO - [org.eclipse.jetty:jetty-io](https://jetty.org/jetty-core/jetty-io)
+ * Core :: Proxy - [org.eclipse.jetty:jetty-proxy](https://jetty.org/jetty-core/jetty-proxy)
+ * Core :: Security - [org.eclipse.jetty:jetty-security](https://jetty.org/jetty-core/jetty-security)
+ * Core :: Server - [org.eclipse.jetty:jetty-server](https://jetty.org/jetty-core/jetty-server)
+ * Core :: Sessions - [org.eclipse.jetty:jetty-session](https://jetty.org/jetty-core/jetty-session)
+ * Core :: Utilities - [org.eclipse.jetty:jetty-util](https://jetty.org/jetty-core/jetty-util)
+ * Core :: XML - [org.eclipse.jetty:jetty-xml](https://jetty.org/jetty-core/jetty-xml)
+ * EE10 :: Servlet - [org.eclipse.jetty.ee10:jetty-ee10-servlet](https://jetty.org/jetty-ee10/jetty-ee10-servlet)
+ * EE10 :: Utility Servlets and Filters - [org.eclipse.jetty.ee10:jetty-ee10-servlets](https://jetty.org/jetty-ee10/jetty-ee10-servlets)
+ * EE10 :: WebApp - [org.eclipse.jetty.ee10:jetty-ee10-webapp](https://jetty.org/jetty-ee10/jetty-ee10-webapp)
+ * Core :: HTTP2 :: Common - [org.eclipse.jetty.http2:jetty-http2-common](https://jetty.org/jetty-core/jetty-http2/jetty-http2-common)
+ * Core :: HTTP2 :: HPACK - [org.eclipse.jetty.http2:jetty-http2-hpack](https://jetty.org/jetty-core/jetty-http2/jetty-http2-hpack)
+ * Core :: HTTP2 :: Server - [org.eclipse.jetty.http2:jetty-http2-server](https://jetty.org/jetty-core/jetty-http2/jetty-http2-server)
 
 BSD
 -------------------------------
@@ -399,6 +431,30 @@ Eclipse Distribution License - v 1.0
 
  * Jakarta Activation API - [jakarta.activation:jakarta.activation-api](https://github.com/jakartaee/jaf-api)
  * Jakarta XML Binding API - [jakarta.xml.bind:jakarta.xml.bind-api](https://github.com/jakartaee/jaxb-api/jakarta.xml.bind-api)
+
+Eclipse Public License - Version 2.0
+-------------------------------
+
+ * Core :: ALPN :: Client - [org.eclipse.jetty:jetty-alpn-client](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-client)
+ * Core :: ALPN :: Java Client - [org.eclipse.jetty:jetty-alpn-java-client](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-java-client)
+ * Core :: ALPN :: Java Server - [org.eclipse.jetty:jetty-alpn-java-server](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-java-server)
+ * Core :: ALPN :: Server - [org.eclipse.jetty:jetty-alpn-server](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-server)
+ * Core :: HTTP Client - [org.eclipse.jetty:jetty-client](https://jetty.org/jetty-core/jetty-client)
+ * Core :: EE Common - [org.eclipse.jetty:jetty-ee](https://jetty.org/jetty-core/jetty-ee)
+ * Core :: HTTP - [org.eclipse.jetty:jetty-http](https://jetty.org/jetty-core/jetty-http)
+ * Core :: IO - [org.eclipse.jetty:jetty-io](https://jetty.org/jetty-core/jetty-io)
+ * Core :: Proxy - [org.eclipse.jetty:jetty-proxy](https://jetty.org/jetty-core/jetty-proxy)
+ * Core :: Security - [org.eclipse.jetty:jetty-security](https://jetty.org/jetty-core/jetty-security)
+ * Core :: Server - [org.eclipse.jetty:jetty-server](https://jetty.org/jetty-core/jetty-server)
+ * Core :: Sessions - [org.eclipse.jetty:jetty-session](https://jetty.org/jetty-core/jetty-session)
+ * Core :: Utilities - [org.eclipse.jetty:jetty-util](https://jetty.org/jetty-core/jetty-util)
+ * Core :: XML - [org.eclipse.jetty:jetty-xml](https://jetty.org/jetty-core/jetty-xml)
+ * EE10 :: Servlet - [org.eclipse.jetty.ee10:jetty-ee10-servlet](https://jetty.org/jetty-ee10/jetty-ee10-servlet)
+ * EE10 :: Utility Servlets and Filters - [org.eclipse.jetty.ee10:jetty-ee10-servlets](https://jetty.org/jetty-ee10/jetty-ee10-servlets)
+ * EE10 :: WebApp - [org.eclipse.jetty.ee10:jetty-ee10-webapp](https://jetty.org/jetty-ee10/jetty-ee10-webapp)
+ * Core :: HTTP2 :: Common - [org.eclipse.jetty.http2:jetty-http2-common](https://jetty.org/jetty-core/jetty-http2/jetty-http2-common)
+ * Core :: HTTP2 :: HPACK - [org.eclipse.jetty.http2:jetty-http2-hpack](https://jetty.org/jetty-core/jetty-http2/jetty-http2-hpack)
+ * Core :: HTTP2 :: Server - [org.eclipse.jetty.http2:jetty-http2-server](https://jetty.org/jetty-core/jetty-http2/jetty-http2-server)
 
 Eclipse Public License v2.0
 -------------------------------
@@ -497,6 +553,11 @@ Public Domain
  * AOP alliance - [aopalliance:aopalliance](http://aopalliance.sourceforge.net)
  * HdrHistogram - [org.hdrhistogram:HdrHistogram](http://hdrhistogram.github.io/HdrHistogram/)
  * LatencyUtils - [org.latencyutils:LatencyUtils](http://latencyutils.github.io/LatencyUtils/)
+
+The BSD 3-Clause License
+-------------------------------
+
+ * org.xmlunit:xmlunit-legacy - [org.xmlunit:xmlunit-legacy](https://www.xmlunit.org/)
 
 WTFPL
 -------------------------------
