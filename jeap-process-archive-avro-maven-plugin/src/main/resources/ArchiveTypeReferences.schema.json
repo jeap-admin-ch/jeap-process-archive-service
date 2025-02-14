@@ -6,7 +6,7 @@
   "properties": {
     "repoUrl": {
       "type": "string",
-      "pattern": "https?://.*"
+      "pattern": "(https?|file)://.*"
     },
     "branch": {
       "type": "string"

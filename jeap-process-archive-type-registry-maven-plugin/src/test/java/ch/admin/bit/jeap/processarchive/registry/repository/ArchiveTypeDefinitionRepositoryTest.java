@@ -4,6 +4,8 @@ import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.GitRefere
 import org.apache.maven.monitor.logging.DefaultLog;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.util.FileUtils;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,37 +15,59 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Objects;
 
+import static org.apache.commons.io.FileUtils.copyDirectory;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ArchiveTypeDefinitionRepositoryTest {
 
+    private static String commitRef;
     private File tempDir;
+
+    private static String gitUrl;
+
+    @BeforeAll
+    static void createRepo() throws Exception {
+        File repoDir = Files.createTempDirectory("test-git-service").toFile();
+        repoDir.deleteOnExit();
+
+        copyDirectory(new File("src/test/resources/valid"), repoDir);
+
+        Git newRepo = Git.init()
+                .setDirectory(repoDir)
+                .setInitialBranch("main")
+                .call();
+        newRepo.add()
+                .addFilepattern(".")
+                .call();
+        RevCommit initialRevision = newRepo.commit()
+                .setMessage("Initial revision")
+                .call();
+        commitRef = initialRevision.getId().getName();
+        newRepo.close();
+        gitUrl = "file://" + repoDir.getAbsolutePath();
+    }
 
     @Test
     void copyArchiveTypeDefinitions_atCommitHash() throws Exception {
-        String gitUrl = "https://bitbucket.bit.admin.ch/scm/bit_jme/jme-archive-type-registry.git";
-        String commitReference = "380a6cf2637";
         File outputDir = new File(tempDir, "archive-types");
 
         ArchiveTypeDefinitionRepository.builder()
                 .outputDirectory(outputDir)
                 .repoUrl(gitUrl)
-                .gitReference(GitReference.ofCommit(commitReference))
+                .gitReference(GitReference.ofCommit(commitRef))
                 .log(new DefaultLog(new ConsoleLogger()))
                 .build()
-                .copyArchiveTypeDefinitions(List.of("jme"));
+                .copyArchiveTypeDefinitions(List.of("test"));
 
-        assertTrue(new File(outputDir, "jme").exists());
-        assertTrue(new File(outputDir, "jme/_common").exists());
-        assertTrue(new File(outputDir, "jme/decree/Decree.json").exists());
+        assertTrue(new File(outputDir, "test").exists());
+        assertTrue(new File(outputDir, "test/_common").exists());
+        assertTrue(new File(outputDir, "test/decree/Decree.json").exists());
     }
 
     @Test
     void copyArchiveTypeDefinitions_atBranch() throws Exception {
-        String gitUrl = "https://bitbucket.bit.admin.ch/scm/bit_jme/jme-archive-type-registry.git";
-        String branch = "master";
+        String branch = "main";
         File outputDir = new File(tempDir, "archive-types");
 
         ArchiveTypeDefinitionRepository.builder()
@@ -52,24 +76,16 @@ class ArchiveTypeDefinitionRepositoryTest {
                 .gitReference(GitReference.ofBranch(branch))
                 .log(new DefaultLog(new ConsoleLogger()))
                 .build()
-                .copyArchiveTypeDefinitions(List.of("jme"));
+                .copyArchiveTypeDefinitions(List.of("test"));
 
-        assertTrue(new File(outputDir, "jme").exists());
-        assertTrue(new File(outputDir, "jme/_common").exists());
-        assertTrue(new File(outputDir, "jme/decree/Decree.json").exists());
+        assertTrue(new File(outputDir, "test").exists());
+        assertTrue(new File(outputDir, "test/_common").exists());
+        assertTrue(new File(outputDir, "test/decree/Decree.json").exists());
     }
 
     @BeforeEach
     void createTempDir() throws IOException {
         tempDir = Files.createTempDirectory(getClass().getSimpleName()).toFile();
-    }
-
-    @BeforeAll
-    static void setupTruststore() {
-        String filePath = Objects.requireNonNull(Thread.currentThread()
-                .getContextClassLoader().getResource("truststore.jks")).getFile();
-        System.setProperty("javax.net.ssl.trustStore", filePath);
-        System.setProperty("javax.net.ssl.trustStorePassword", "changeit");
     }
 
     @AfterEach

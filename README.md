@@ -1,6 +1,10 @@
 # jEAP Process Archive Service
 
-https://confluence.bit.admin.ch/display/JEAP/Process-Archive+How-To
+The jEAP Process Archive Service (PAS) is a service template library that provides a way to archive artifacts pertaining
+to a process. Such artifacts might be required to be archived for audit purposes or due to business requirements.
+
+Process artifact archival is triggered by domain events, and artifacts can either be derived from the event's payload
+or fetched from a business service using its REST API.
 
 ## Attributions
 

@@ -1,7 +1,7 @@
 {
-  "repoUrl": "https://bitbucket.bit.admin.ch/scm/BIT_JME/jme-archive-type-registry.git",
-  "branch": "master",
+  "repoUrl": "TEST_REPO_URL",
+  "branch": "main",
   "systems": [
-    "jme"
+    "test"
   ]
 }

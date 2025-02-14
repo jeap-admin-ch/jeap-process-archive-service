@@ -9,7 +9,6 @@ import org.apache.avro.Schema;
 import org.apache.avro.compiler.specific.SpecificCompiler;
 import org.apache.avro.generic.GenericData;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -35,7 +34,7 @@ public class AvroCompiler {
      * @param onlyIfFileChanged Recompile only if this file has changed. Can be null, in this case recompile always.
      * @throws IOException If onlyIfFileChanged cannot be read
      */
-    public void compileSchema(Schema schema, @Nullable File onlyIfFileChanged) throws IOException {
+    public void compileSchema(Schema schema, File onlyIfFileChanged) throws IOException {
         SpecificCompiler compiler = new SpecificCompiler(schema);
         configureCompiler(compiler);
         compiler.compileToDestination(onlyIfFileChanged, outputDirectory);
@@ -48,7 +47,7 @@ public class AvroCompiler {
      * @param onlyIfFileChanged Recompile only if this file has changed. Can be null, in this case recompile always.
      * @throws IOException If onlyIfFileChanged cannot be read
      */
-    public void compileProtocol(Protocol protocol, @Nullable File onlyIfFileChanged) throws IOException {
+    public void compileProtocol(Protocol protocol, File onlyIfFileChanged) throws IOException {
         SpecificCompiler compiler = new SpecificCompiler(protocol);
         configureCompiler(compiler);
         compiler.compileToDestination(onlyIfFileChanged, outputDirectory);

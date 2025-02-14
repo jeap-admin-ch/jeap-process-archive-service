@@ -88,7 +88,7 @@ public class RegistryConnector {
             if (connection.getResponseCode() >= 300) {
                 throw RegistryConnectorException.statusCode(connection.getResponseCode(), url);
             }
-            if (!connection.getContentType().equals("text/plain;charset=UTF-8")) {
+            if (!connection.getContentType().startsWith("text/plain")) {
                 throw RegistryConnectorException.notPlainText(connection.getContentType(), url);
             }
             return converter.convert(connection.getInputStream());
