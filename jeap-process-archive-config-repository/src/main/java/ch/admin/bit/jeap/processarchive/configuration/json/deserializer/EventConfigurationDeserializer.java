@@ -60,6 +60,7 @@ public class EventConfigurationDeserializer {
                     .domainEventArchiveDataProvider(Instances.newInstance(domainEventArchiveDataReader))
                     .archiveDataCondition(Instances.newInstance(condition))
                     .correlationProvider(Instances.newInstance(correlationProvider))
+                    .featureFlag(eventRefDefinition.getFeatureFlag())
                     .build();
         }
 
@@ -78,6 +79,7 @@ public class EventConfigurationDeserializer {
                 .dataReaderEndpoint(dataReaderEndpoint)
                 .oauthClientId(oauthClientId)
                 .meterRegistry(meterRegistry)
+                .featureFlag(eventRefDefinition.getFeatureFlag())
                 .build();
     }
 
