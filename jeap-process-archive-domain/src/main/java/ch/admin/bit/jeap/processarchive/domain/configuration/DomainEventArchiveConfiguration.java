@@ -18,6 +18,7 @@ public abstract class DomainEventArchiveConfiguration {
     private final String clusterName;
     ArchiveDataCondition<Message> archiveDataCondition;
     MessageCorrelationProvider<Message> correlationProvider;
+    private final String featureFlag;
 
     public abstract ArchiveDataFactory getArchiveDataFactory();
 

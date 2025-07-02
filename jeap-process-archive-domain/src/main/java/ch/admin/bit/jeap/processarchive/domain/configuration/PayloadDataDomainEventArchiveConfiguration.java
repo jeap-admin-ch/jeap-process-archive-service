@@ -24,8 +24,9 @@ public class PayloadDataDomainEventArchiveConfiguration extends DomainEventArchi
                                                        String clusterName,
                                                        ArchiveDataCondition<Message> archiveDataCondition,
                                                        @NonNull DomainEventArchiveDataProvider<DomainEvent> domainEventArchiveDataProvider,
-                                                       MessageCorrelationProvider<Message> correlationProvider) {
-        super(eventName, topicName, clusterName, archiveDataCondition, correlationProvider);
+                                                       MessageCorrelationProvider<Message> correlationProvider,
+                                                       String featureFlag) {
+        super(eventName, topicName, clusterName, archiveDataCondition, correlationProvider, featureFlag);
         this.domainEventArchiveDataProvider = domainEventArchiveDataProvider;
     }
 

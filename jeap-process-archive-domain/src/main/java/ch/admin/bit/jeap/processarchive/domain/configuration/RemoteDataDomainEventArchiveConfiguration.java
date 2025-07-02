@@ -35,8 +35,9 @@ public class RemoteDataDomainEventArchiveConfiguration extends DomainEventArchiv
                                                       @NonNull String dataReaderEndpoint,
                                                       String oauthClientId,
                                                       @NonNull MeterRegistry meterRegistry,
-                                                      MessageCorrelationProvider<Message> correlationProvider) {
-        super(eventName, topicName, clusterName, archiveDataCondition, correlationProvider);
+                                                      MessageCorrelationProvider<Message> correlationProvider,
+                                                      String featureFlag) {
+        super(eventName, topicName, clusterName, archiveDataCondition, correlationProvider, featureFlag);
         this.remoteArchiveDataProvider = remoteArchiveDataProvider;
         this.archiveDataCondition = archiveDataCondition;
         this.referenceProvider = referenceProvider;
