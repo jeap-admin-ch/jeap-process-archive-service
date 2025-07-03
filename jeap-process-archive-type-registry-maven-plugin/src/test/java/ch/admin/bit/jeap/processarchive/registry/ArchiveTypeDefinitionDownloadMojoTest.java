@@ -16,7 +16,10 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +27,7 @@ import java.nio.file.Files;
 
 import static org.apache.commons.io.FileUtils.copyDirectory;
 
+@ExtendWith(SystemStubsExtension.class)
 class ArchiveTypeDefinitionDownloadMojoTest extends AbstractMojoTestCase {
     private final static File RESOURCES_DIR = new File("src/test/resources/");
 
@@ -67,6 +71,19 @@ class ArchiveTypeDefinitionDownloadMojoTest extends AbstractMojoTestCase {
 
     @Test
     void registryDownload_atCommit(@TempDir File tmpDir) throws Exception {
+        File testDir = new File(RESOURCES_DIR, "registryDownloadAtCommit");
+        FileUtils.copyDirectory(testDir, tmpDir);
+        setTestArchiveRepoUrlAndCommitRef(tmpDir);
+        Mojo target = open(tmpDir);
+
+        target.execute();
+
+        assertTypeDefinitionsDownloaded(tmpDir);
+    }
+
+    @Test
+    void registryDownload_atCommit_withGitToken(@TempDir File tmpDir, EnvironmentVariables env) throws Exception {
+        env.set("ARCHIVE_TYPE_REPO_GIT_TOKEN", "test-token-value");
         File testDir = new File(RESOURCES_DIR, "registryDownloadAtCommit");
         FileUtils.copyDirectory(testDir, tmpDir);
         setTestArchiveRepoUrlAndCommitRef(tmpDir);

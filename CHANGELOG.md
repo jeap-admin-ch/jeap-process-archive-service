@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.15.0] - 2025-07-03
+
+### Changed
+
+- Support for Git token authentication when accessing a remote repository in the archive type registry maven plugins
+- Support for using the system's Git installation when accessing a remote repository without a Git token in the archive type registry maven plugins
+- Update parent from 26.63.0 to 26.67.0
+
 ## [8.14.0] - 2025-07-03
 
 ### Changed

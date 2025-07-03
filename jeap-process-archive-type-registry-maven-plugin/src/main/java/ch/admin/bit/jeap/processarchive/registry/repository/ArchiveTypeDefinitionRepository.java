@@ -1,12 +1,12 @@
 package ch.admin.bit.jeap.processarchive.registry.repository;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.GitReference;
+import ch.admin.bit.jeap.processarchive.registry.git.GitClient;
+import ch.admin.bit.jeap.processarchive.registry.git.GitClientException;
 import lombok.Builder;
 import lombok.NonNull;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.logging.Log;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Constants;
 
 import java.io.File;
@@ -20,7 +20,7 @@ public class ArchiveTypeDefinitionRepository {
     @NonNull
     private final File outputDirectory;
     @NonNull
-    private final String repoUrl;
+    GitClient gitClient;
     @NonNull
     private final GitReference gitReference;
     @NonNull
@@ -57,23 +57,15 @@ public class ArchiveTypeDefinitionRepository {
     }
 
     private File cloneRegistryToDirectory() {
-        log.info(String.format("Checkout %s at %s to %s", repoUrl, gitReference, outputDirectory));
-
         try {
             File tempDir = Files.createTempDirectory("archivetyperegistry").toFile();
             FileUtils.forceDeleteOnExit(tempDir);
-
-            Git git = Git.cloneRepository()
-                    .setURI(repoUrl)
-                    .setDirectory(tempDir)
-                    .call();
             String checkoutAt = gitReference.isCommit() ? gitReference.getCommit() :
                     Constants.DEFAULT_REMOTE_NAME + "/" + gitReference.getBranch();
-            git.checkout()
-                    .setName(checkoutAt)
-                    .call();
+            log.info(String.format("Checkout %s at %s to %s", gitClient.getGitUrl(), checkoutAt, tempDir));
+            gitClient.cloneAtCheckout(checkoutAt, tempDir);
             return tempDir;
-        } catch (IOException | GitAPIException e) {
+        } catch (IOException | GitClientException e) {
             throw RepositoryException.unableToClone(e);
         }
     }

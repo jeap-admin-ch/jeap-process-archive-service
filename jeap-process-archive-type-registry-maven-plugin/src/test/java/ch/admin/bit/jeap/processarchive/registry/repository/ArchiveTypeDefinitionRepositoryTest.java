@@ -1,7 +1,9 @@
 package ch.admin.bit.jeap.processarchive.registry.repository;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.GitReference;
+import ch.admin.bit.jeap.processarchive.registry.git.GitClient;
 import org.apache.maven.monitor.logging.DefaultLog;
+import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
 import org.codehaus.plexus.util.FileUtils;
 import org.eclipse.jgit.api.Git;
@@ -50,13 +52,15 @@ class ArchiveTypeDefinitionRepositoryTest {
 
     @Test
     void copyArchiveTypeDefinitions_atCommitHash() throws Exception {
+        Log log = new DefaultLog(new ConsoleLogger());
         File outputDir = new File(tempDir, "archive-types");
+        GitClient gitClient = new GitClient(gitUrl, "GIT_TOKEN",log);
 
         ArchiveTypeDefinitionRepository.builder()
                 .outputDirectory(outputDir)
-                .repoUrl(gitUrl)
+                .gitClient(gitClient)
                 .gitReference(GitReference.ofCommit(commitRef))
-                .log(new DefaultLog(new ConsoleLogger()))
+                .log(log)
                 .build()
                 .copyArchiveTypeDefinitions(List.of("test"));
 
@@ -69,12 +73,14 @@ class ArchiveTypeDefinitionRepositoryTest {
     void copyArchiveTypeDefinitions_atBranch() throws Exception {
         String branch = "main";
         File outputDir = new File(tempDir, "archive-types");
+        Log log = new DefaultLog(new ConsoleLogger());
+        GitClient gitClient = new GitClient(gitUrl, "GIT_TOKEN", log);
 
         ArchiveTypeDefinitionRepository.builder()
                 .outputDirectory(outputDir)
-                .repoUrl(gitUrl)
+                .gitClient(gitClient)
                 .gitReference(GitReference.ofBranch(branch))
-                .log(new DefaultLog(new ConsoleLogger()))
+                .log(log)
                 .build()
                 .copyArchiveTypeDefinitions(List.of("test"));
 

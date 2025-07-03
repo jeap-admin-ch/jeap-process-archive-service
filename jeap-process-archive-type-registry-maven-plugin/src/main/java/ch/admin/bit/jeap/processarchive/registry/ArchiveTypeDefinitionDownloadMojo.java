@@ -1,6 +1,7 @@
 package ch.admin.bit.jeap.processarchive.registry;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.GitReference;
+import ch.admin.bit.jeap.processarchive.registry.git.GitClient;
 import ch.admin.bit.jeap.processarchive.registry.repository.ArchiveTypeDefinitionReferences;
 import ch.admin.bit.jeap.processarchive.registry.repository.ArchiveTypeDefinitionReferencesReader;
 import ch.admin.bit.jeap.processarchive.registry.repository.ArchiveTypeDefinitionRepository;
@@ -22,16 +23,20 @@ public class ArchiveTypeDefinitionDownloadMojo extends AbstractMojo {
     @Parameter(name = "referencesFile", defaultValue = "${basedir}/src/main/processarchive/archive-type-definition-references.json")
     private File referencesFile;
 
+    @Parameter(name= "archiveTypeRepoGitTokenEnvVariableName", defaultValue = "ARCHIVE_TYPE_REPO_GIT_TOKEN")
+    private String archiveTypeRepoGitTokenEnvVariableName;
+
     @Override
     public void execute() throws MojoFailureException {
         try {
             ArchiveTypeDefinitionReferences references = ArchiveTypeDefinitionReferencesReader.read(referencesFile);
 
             GitReference gitReference = references.getGitReference();
+            GitClient gitClient = new GitClient(references.getRepoUrl(), archiveTypeRepoGitTokenEnvVariableName, getLog());
 
             ArchiveTypeDefinitionRepository.builder()
                     .outputDirectory(outputDirectory)
-                    .repoUrl(references.getRepoUrl())
+                    .gitClient(gitClient)
                     .gitReference(gitReference)
                     .log(getLog())
                     .build()
@@ -40,4 +45,5 @@ public class ArchiveTypeDefinitionDownloadMojo extends AbstractMojo {
             throw new MojoFailureException("Failed to copy archive type definitions: " + e.getMessage(), e);
         }
     }
+
 }
