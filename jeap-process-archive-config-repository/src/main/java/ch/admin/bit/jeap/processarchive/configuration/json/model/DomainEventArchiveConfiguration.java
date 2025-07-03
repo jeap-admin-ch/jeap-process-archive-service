@@ -14,5 +14,6 @@ public class DomainEventArchiveConfiguration {
     private String uri;
     private String oauthClientId;
     private String correlationProvider;
+    private String featureFlag;
 
 }

@@ -11,6 +11,8 @@ import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.togglz.core.manager.FeatureManager;
+import org.togglz.core.util.NamedFeature;
 
 import java.util.List;
 
@@ -24,6 +26,7 @@ public class DomainEventArchiveService {
     private final List<ArtifactArchivedListener> artifactArchivedListener;
     private final ArchiveDataObjectStore archiveDataObjectStore;
     private final ArchiveDataSchemaValidationService validationService;
+    private final FeatureManager featureManager;
 
     @Timed(value = "jeap_pas_archive_domain_event", description = "Archive DomainEvent from fetch to commit")
     public void archive(DomainEventArchiveConfiguration configuration, DomainEvent event) {
@@ -51,7 +54,19 @@ public class DomainEventArchiveService {
 
         ArchivedArtifact archivedArtifact = archiveArtifact(archiveData, schema, processId, createArchiveArtifactIdempotenceId(event));
 
-        artifactArchivedListener.forEach(listener -> listener.onArtifactArchived(archivedArtifact));
+        if (isFeatureFlagActive(configuration)) {
+            artifactArchivedListener.forEach(listener -> listener.onArtifactArchived(archivedArtifact));
+        }
+
+    }
+
+    private boolean isFeatureFlagActive(DomainEventArchiveConfiguration configuration) {
+        if (configuration.getFeatureFlag() != null) {
+            boolean active = featureManager.isActive(new NamedFeature(configuration.getFeatureFlag()));
+            log.debug("FeatureFlag={} eventName={} state={}", configuration.getFeatureFlag(), configuration.getEventName(), active);
+            return active;
+        }
+        return true;
     }
 
     private ArchivedArtifact archiveArtifact(ArchiveData archiveData, ArchiveDataSchema schema, String processId, String idempotenceId) {
