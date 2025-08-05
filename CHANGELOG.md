@@ -10,6 +10,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Update parent from 26.71.0 to 26.72.0
+- update file-management from 3.0.0 to 3.2.0
+- update json-schema-validator from 1.4.0 to 1.5.8
+- update org.eclipse.jgit from 6.9.0.202403050737-r to 7.3.0.202506031305-r
+- update maven.api from 3.8.8 to 3.9.11
+- update maven-plugin-plugin from 3.15.0 to 3.15.1
+- remove commons-io from pom.xml
+- update wiremock from 3.12.0 to 3.13.1
+- update wiremock-spring-boot from 3.7.0 to 3.10.0
 
 ## [8.17.0] - 2025-07-25
 

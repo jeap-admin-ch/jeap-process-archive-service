@@ -76,17 +76,14 @@ Apache License Version 2.0
  * proto-google-common-protos - [com.google.api.grpc:proto-google-common-protos](https://github.com/googleapis/java-iam/proto-google-common-protos)
  * FindBugs-jsr305 - [com.google.code.findbugs:jsr305](http://findbugs.sourceforge.net/)
  * Gson - [com.google.code.gson:gson](https://github.com/google/gson)
- * error-prone annotations - [com.google.errorprone:error_prone_annotations](http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations)
  * error-prone annotations - [com.google.errorprone:error_prone_annotations](https://errorprone.info/error_prone_annotations)
  * error-prone annotations - [com.google.errorprone:error_prone_annotations](https://errorprone.info/error_prone_annotations)
  * Guava InternalFutureFailureAccess and InternalFutures - [com.google.guava:failureaccess](https://github.com/google/guava/failureaccess)
  * Guava InternalFutureFailureAccess and InternalFutures - [com.google.guava:failureaccess](https://github.com/google/guava/failureaccess)
- * Guava: Google Core Libraries for Java - [com.google.guava:guava](https://github.com/google/guava/guava)
  * Guava: Google Core Libraries for Java - [com.google.guava:guava](https://github.com/google/guava)
  * Guava: Google Core Libraries for Java - [com.google.guava:guava](https://github.com/google/guava)
  * Guava ListenableFuture only - [com.google.guava:listenablefuture](https://github.com/google/guava/listenablefuture)
  * Google Guice - Core Library - [com.google.inject:guice](https://github.com/google/guice/guice)
- * J2ObjC Annotations - [com.google.j2objc:j2objc-annotations](https://github.com/google/j2objc/)
  * J2ObjC Annotations - [com.google.j2objc:j2objc-annotations](https://github.com/google/j2objc/)
  * J2ObjC Annotations - [com.google.j2objc:j2objc-annotations](https://github.com/google/j2objc/)
  * Jimfs - [com.google.jimfs:jimfs](https://github.com/google/jimfs/jimfs)
@@ -221,25 +218,25 @@ Apache License Version 2.0
  * Apache Kafka - [org.apache.kafka:kafka_2.13](https://kafka.apache.org)
  * Apache Log4j API - [org.apache.logging.log4j:log4j-api](https://logging.apache.org/log4j/2.x/log4j/log4j-api/)
  * Log4j API to SLF4J Adapter - [org.apache.logging.log4j:log4j-to-slf4j](https://logging.apache.org/log4j/2.x/log4j/log4j-to-slf4j/)
- * Maven Artifact - [org.apache.maven:maven-artifact](https://maven.apache.org/ref/3.8.8/maven-artifact/)
- * Maven Builder Support - [org.apache.maven:maven-builder-support](https://maven.apache.org/ref/3.8.8/maven-builder-support/)
- * Maven Compat - [org.apache.maven:maven-compat](https://maven.apache.org/ref/3.8.8/maven-compat/)
- * Maven Core - [org.apache.maven:maven-core](https://maven.apache.org/ref/3.8.8/maven-core/)
- * Maven Model - [org.apache.maven:maven-model](https://maven.apache.org/ref/3.8.8/maven-model/)
- * Maven Model Builder - [org.apache.maven:maven-model-builder](https://maven.apache.org/ref/3.8.8/maven-model-builder/)
- * Maven Plugin API - [org.apache.maven:maven-plugin-api](https://maven.apache.org/ref/3.8.8/maven-plugin-api/)
- * Maven Repository Metadata Model - [org.apache.maven:maven-repository-metadata](https://maven.apache.org/ref/3.8.8/maven-repository-metadata/)
- * Maven Artifact Resolver Provider - [org.apache.maven:maven-resolver-provider](https://maven.apache.org/ref/3.8.8/maven-resolver-provider/)
- * Maven Settings - [org.apache.maven:maven-settings](https://maven.apache.org/ref/3.8.8/maven-settings/)
- * Maven Settings Builder - [org.apache.maven:maven-settings-builder](https://maven.apache.org/ref/3.8.8/maven-settings-builder/)
+ * Maven Artifact - [org.apache.maven:maven-artifact](https://maven.apache.org/ref/3.9.11/maven-artifact/)
+ * Maven Builder Support - [org.apache.maven:maven-builder-support](https://maven.apache.org/ref/3.9.11/maven-builder-support/)
+ * Maven Compat - [org.apache.maven:maven-compat](https://maven.apache.org/ref/3.9.11/maven-compat/)
+ * Maven Core - [org.apache.maven:maven-core](https://maven.apache.org/ref/3.9.11/maven-core/)
+ * Maven Model - [org.apache.maven:maven-model](https://maven.apache.org/ref/3.9.11/maven-model/)
+ * Maven Model Builder - [org.apache.maven:maven-model-builder](https://maven.apache.org/ref/3.9.11/maven-model-builder/)
+ * Maven Plugin API - [org.apache.maven:maven-plugin-api](https://maven.apache.org/ref/3.9.11/maven-plugin-api/)
+ * Maven Repository Metadata Model - [org.apache.maven:maven-repository-metadata](https://maven.apache.org/ref/3.9.11/maven-repository-metadata/)
+ * Maven Artifact Resolver Provider - [org.apache.maven:maven-resolver-provider](https://maven.apache.org/ref/3.9.11/maven-resolver-provider/)
+ * Maven Settings - [org.apache.maven:maven-settings](https://maven.apache.org/ref/3.9.11/maven-settings/)
+ * Maven Settings Builder - [org.apache.maven:maven-settings-builder](https://maven.apache.org/ref/3.9.11/maven-settings-builder/)
  * Maven Plugin Testing Mechanism - [org.apache.maven.plugin-testing:maven-plugin-testing-harness](http://maven.apache.org/plugin-testing/maven-plugin-testing-harness/)
  * Maven Plugin Tools Java Annotations - [org.apache.maven.plugin-tools:maven-plugin-annotations](https://maven.apache.org/plugin-tools/maven-plugin-annotations)
  * Maven Artifact Resolver API - [org.apache.maven.resolver:maven-resolver-api](https://maven.apache.org/resolver/maven-resolver-api/)
  * Maven Artifact Resolver Implementation - [org.apache.maven.resolver:maven-resolver-impl](https://maven.apache.org/resolver/maven-resolver-impl/)
+ * Maven Artifact Resolver Named Locks - [org.apache.maven.resolver:maven-resolver-named-locks](https://maven.apache.org/resolver/maven-resolver-named-locks/)
  * Maven Artifact Resolver SPI - [org.apache.maven.resolver:maven-resolver-spi](https://maven.apache.org/resolver/maven-resolver-spi/)
  * Maven Artifact Resolver Utilities - [org.apache.maven.resolver:maven-resolver-util](https://maven.apache.org/resolver/maven-resolver-util/)
- * Apache Maven File Management API - [org.apache.maven.shared:file-management](http://maven.apache.org/shared/file-management/)
- * Apache Maven Shared I/O API - [org.apache.maven.shared:maven-shared-io](http://maven.apache.org/shared/maven-shared-io/)
+ * Apache Maven File Management API - [org.apache.maven.shared:file-management](https://maven.apache.org/shared/file-management/)
  * Apache Maven Shared Utils - [org.apache.maven.shared:maven-shared-utils](https://maven.apache.org/shared/maven-shared-utils/)
  * Apache Maven Wagon :: API - [org.apache.maven.wagon:wagon-provider-api](https://maven.apache.org/wagon/wagon-provider-api)
  * tomcat-embed-core - [org.apache.tomcat.embed:tomcat-embed-core](https://tomcat.apache.org/)
@@ -255,12 +252,12 @@ Apache License Version 2.0
  * jose4j - [org.bitbucket.b_c:jose4j](https://bitbucket.org/b_c/jose4j/)
  * Plexus Archiver Component - [org.codehaus.plexus:plexus-archiver](http://plexus.codehaus.org/plexus-components/plexus-archiver)
  * Plexus Cipher: encryption/decryption Component - [org.codehaus.plexus:plexus-cipher](https://codehaus-plexus.github.io/plexus-cipher/)
- * Plexus Classworlds - [org.codehaus.plexus:plexus-classworlds](http://codehaus-plexus.github.io/plexus-classworlds/)
- * Plexus :: Component Annotations - [org.codehaus.plexus:plexus-component-annotations](http://codehaus-plexus.github.io/plexus-containers/plexus-component-annotations/)
- * Plexus Interpolation API - [org.codehaus.plexus:plexus-interpolation](http://codehaus-plexus.github.io/plexus-interpolation/)
+ * Plexus Classworlds - [org.codehaus.plexus:plexus-classworlds](https://codehaus-plexus.github.io/plexus-classworlds/)
+ * Plexus :: Component Annotations (deprecated) - [org.codehaus.plexus:plexus-component-annotations](https://codehaus-plexus.github.io/plexus-containers/plexus-component-annotations/)
+ * Plexus Interpolation API - [org.codehaus.plexus:plexus-interpolation](https://codehaus-plexus.github.io/plexus-pom/plexus-interpolation/)
  * Plexus IO Components - [org.codehaus.plexus:plexus-io](http://plexus.codehaus.org/plexus-components/plexus-io)
  * Plexus Security Dispatcher Component - [org.codehaus.plexus:plexus-sec-dispatcher](https://codehaus-plexus.github.io/plexus-sec-dispatcher/)
- * Plexus Common Utilities - [org.codehaus.plexus:plexus-utils](http://codehaus-plexus.github.io/plexus-utils/)
+ * Plexus Common Utilities - [org.codehaus.plexus:plexus-utils](https://codehaus-plexus.github.io/plexus-utils/)
  * Hibernate Validator Engine - [org.hibernate.validator:hibernate-validator](http://hibernate.org/validator/hibernate-validator)
  * Javassist - [org.javassist:javassist](http://www.javassist.org/)
  * JBoss Logging 3 - [org.jboss.logging:jboss-logging](http://www.jboss.org)
@@ -442,16 +439,12 @@ BSD License 3
  * Hamcrest - [org.hamcrest:hamcrest](http://hamcrest.org/JavaHamcrest/)
  * Hamcrest Core - [org.hamcrest:hamcrest-core](http://hamcrest.org/JavaHamcrest/)
  * asm - [org.ow2.asm:asm](http://asm.ow2.io/)
+ * asm - [org.ow2.asm:asm](http://asm.ow2.io/)
 
 Bouncy Castle Licence
 -------------------------------
 
  * Bouncy Castle Provider - [org.bouncycastle:bcprov-jdk18on](https://www.bouncycastle.org/download/bouncy-castle-java/)
-
-CDDL + GPLv2 with classpath exception
--------------------------------
-
- * javax.annotation API - [javax.annotation:javax.annotation-api](http://jcp.org/en/jsr/detail?id=250)
 
 Eclipse Distribution License - v 1.0
 -------------------------------
@@ -504,8 +497,12 @@ Eclipse Public License, Version 1.0
  * Logback Classic Module - [ch.qos.logback:logback-classic](http://logback.qos.ch/logback-classic)
  * Logback Core Module - [ch.qos.logback:logback-core](http://logback.qos.ch/logback-core)
  * JUnit - [junit:junit](http://junit.org)
- * org.eclipse.sisu.inject - [org.eclipse.sisu:org.eclipse.sisu.inject](http://www.eclipse.org/sisu/org.eclipse.sisu.inject/)
- * org.eclipse.sisu.plexus - [org.eclipse.sisu:org.eclipse.sisu.plexus](http://www.eclipse.org/sisu/org.eclipse.sisu.plexus/)
+
+Eclipse Public License, Version 2.0
+-------------------------------
+
+ * org.eclipse.sisu:org.eclipse.sisu.inject - [org.eclipse.sisu:org.eclipse.sisu.inject](https://eclipse.dev/sisu/org.eclipse.sisu.inject/)
+ * org.eclipse.sisu:org.eclipse.sisu.plexus - [org.eclipse.sisu:org.eclipse.sisu.plexus](https://eclipse.dev/sisu/org.eclipse.sisu.plexus/)
 
 GNU General Public License, version 2
 -------------------------------
@@ -517,7 +514,6 @@ GNU General Public License, version 2 (GPL2), with the classpath exception
 
  * Jakarta Annotations API - [jakarta.annotation:jakarta.annotation-api](https://projects.eclipse.org/projects/ee4j.ca)
  * Jakarta Servlet - [jakarta.servlet:jakarta.servlet-api](https://projects.eclipse.org/projects/ee4j.servlet)
- * Checker Qual - [org.checkerframework:checker-compat-qual](http://checkerframework.org)
 
 GNU Lesser General Public License
 -------------------------------
@@ -556,10 +552,7 @@ MIT License
  * Logstash Logback Encoder - [net.logstash.logback:logstash-logback-encoder](https://github.com/logfellow/logstash-logback-encoder)
  * JOpt Simple - [net.sf.jopt-simple:jopt-simple](http://jopt-simple.github.io/jopt-simple)
  * argparse4j - [net.sourceforge.argparse4j:argparse4j](http://argparse4j.github.io)
- * Checker Qual - [org.checkerframework:checker-compat-qual](http://checkerframework.org)
  * Checker Qual - [org.checkerframework:checker-qual](https://checkerframework.org/)
- * Checker Qual - [org.checkerframework:checker-qual](https://checkerframework.org/)
- * Animal Sniffer Annotations - [org.codehaus.mojo:animal-sniffer-annotations](http://mojo.codehaus.org/animal-sniffer/animal-sniffer-annotations)
  * mockito-core - [org.mockito:mockito-core](https://github.com/mockito/mockito)
  * mockito-junit-jupiter - [org.mockito:mockito-junit-jupiter](https://github.com/mockito/mockito)
  * PCollections - [org.pcollections:pcollections](https://github.com/hrldcpr/pcollections)
