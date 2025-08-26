@@ -258,7 +258,7 @@ Apache License Version 2.0
  * Plexus IO Components - [org.codehaus.plexus:plexus-io](http://plexus.codehaus.org/plexus-components/plexus-io)
  * Plexus Security Dispatcher Component - [org.codehaus.plexus:plexus-sec-dispatcher](https://codehaus-plexus.github.io/plexus-sec-dispatcher/)
  * Plexus Common Utilities - [org.codehaus.plexus:plexus-utils](https://codehaus-plexus.github.io/plexus-utils/)
- * Hibernate Validator Engine - [org.hibernate.validator:hibernate-validator](http://hibernate.org/validator/hibernate-validator)
+ * Hibernate Validator Engine - [org.hibernate.validator:hibernate-validator](https://hibernate.org/validator)
  * Javassist - [org.javassist:javassist](http://www.javassist.org/)
  * JBoss Logging 3 - [org.jboss.logging:jboss-logging](http://www.jboss.org)
  * IntelliJ IDEA Annotations - [org.jetbrains:annotations](http://www.jetbrains.org)
