@@ -1,8 +1,0 @@
-[
-  {
-    "javaInterface": "ch.admin.bit.jeap.processarchive.avro.plugin.interfaces.InterfaceToolTest.FatClass",
-    "schemas": [
-      "ch.admin.bit.jeap.processarchive.avro.test.schema.TestRecord"
-    ]
-  }
-]

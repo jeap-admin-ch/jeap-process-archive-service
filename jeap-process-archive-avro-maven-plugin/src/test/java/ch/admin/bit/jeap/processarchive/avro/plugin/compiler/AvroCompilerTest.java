@@ -1,6 +1,5 @@
 package ch.admin.bit.jeap.processarchive.avro.plugin.compiler;
 
-import ch.admin.bit.jeap.processarchive.avro.plugin.interfaces.InterfaceTool;
 import org.apache.avro.Protocol;
 import org.apache.avro.Schema;
 import org.apache.commons.io.FileUtils;
@@ -24,7 +23,6 @@ class AvroCompilerTest {
         return AvroCompiler.builder()
                 .sourceEncoding(Charset.defaultCharset().name())
                 .outputDirectory(outputDirectory.toFile())
-                .additionalTool(new InterfaceTool(new File("test")))
                 .build();
     }
 

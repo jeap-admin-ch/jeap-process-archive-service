@@ -1,9 +1,6 @@
 package ch.admin.bit.jeap.processarchive.avro.plugin.compiler;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.RequiredArgsConstructor;
-import lombok.Singular;
+import lombok.*;
 import org.apache.avro.Protocol;
 import org.apache.avro.Schema;
 import org.apache.avro.compiler.specific.SpecificCompiler;
@@ -17,11 +14,12 @@ import java.util.List;
  * Compiler for AVRO files. Basically a wrapper for {@link SpecificCompiler}, use to preconfigure this compiler
  * with some share settings
  */
-@Builder
+@Builder(toBuilder = true)
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class AvroCompiler {
     private static final String TEMPLATE_DIRECTORY = "/velocity-templates/";
     private final String sourceEncoding;
+    @Getter
     private final File outputDirectory;
     @Singular
     private final List<Object> additionalTools;

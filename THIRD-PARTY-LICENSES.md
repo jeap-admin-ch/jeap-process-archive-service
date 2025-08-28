@@ -237,6 +237,7 @@ Apache License Version 2.0
  * Maven Artifact Resolver SPI - [org.apache.maven.resolver:maven-resolver-spi](https://maven.apache.org/resolver/maven-resolver-spi/)
  * Maven Artifact Resolver Utilities - [org.apache.maven.resolver:maven-resolver-util](https://maven.apache.org/resolver/maven-resolver-util/)
  * Apache Maven File Management API - [org.apache.maven.shared:file-management](https://maven.apache.org/shared/file-management/)
+* Apache Maven Invoker - [org.apache.maven.shared:maven-invoker](https://maven.apache.org/shared/maven-invoker/)
  * Apache Maven Shared Utils - [org.apache.maven.shared:maven-shared-utils](https://maven.apache.org/shared/maven-shared-utils/)
  * Apache Maven Wagon :: API - [org.apache.maven.wagon:wagon-provider-api](https://maven.apache.org/wagon/wagon-provider-api)
  * tomcat-embed-core - [org.apache.tomcat.embed:tomcat-embed-core](https://tomcat.apache.org/)
@@ -565,6 +566,8 @@ MIT License
  * Testcontainers :: JUnit Jupiter Extension - [org.testcontainers:junit-jupiter](https://testcontainers.org)
  * Testcontainers Core - [org.testcontainers:testcontainers](https://testcontainers.org)
  * System Stubs Core - [uk.org.webcompere:system-stubs-core](https://github.com/webcompere/system-stubs/system-stubs-core/)
+* System Stubs
+  JUnit4 - [uk.org.webcompere:system-stubs-junit4](https://github.com/webcompere/system-stubs/system-stubs-junit4/)
  * System Stubs Jupiter - [uk.org.webcompere:system-stubs-jupiter](https://github.com/webcompere/system-stubs/system-stubs-jupiter/)
 
 MPL 1.1

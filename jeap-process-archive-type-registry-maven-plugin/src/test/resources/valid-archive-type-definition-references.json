@@ -1,8 +1,0 @@
-{
-  "repoUrl": "https://foo/bar/",
-  "commit": "023423fasdf2",
-  "systems": [
-    "foo",
-    "bar"
-  ]
-}

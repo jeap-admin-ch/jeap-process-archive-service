@@ -9,4 +9,6 @@ public class ArchiveTypeVersion {
     Integer version;
     @NonNull
     String schema;
+    String compatibilityMode;
+    Integer compatibleVersion;
 }

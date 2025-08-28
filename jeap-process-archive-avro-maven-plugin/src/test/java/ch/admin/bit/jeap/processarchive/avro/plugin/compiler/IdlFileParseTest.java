@@ -14,7 +14,7 @@ class IdlFileParseTest {
     @Test
     void valid() throws IOException, ParseException {
         final File testDirectory = new File("src/test/resources/unittest/");
-        final ImportClassLoader importClassLoader = new ImportClassLoader(new File("src/test/resources/sample-registry/processarchive"), Collections.emptyList());
+        final ImportClassLoader importClassLoader = new ImportClassLoader(new File("src/test/resources/idl-parse-sample-registry/processarchive"), Collections.emptyList());
         IdlFileParser target = new IdlFileParser(importClassLoader);
         Protocol protocol = target.parseIdlFile(new File(testDirectory, "valid-idl.avdl"));
         assertNotNull(protocol);

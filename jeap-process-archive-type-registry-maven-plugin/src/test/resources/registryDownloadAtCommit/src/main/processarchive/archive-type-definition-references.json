@@ -1,7 +1,0 @@
-{
-  "repoUrl": "TEST_REPO_URL",
-  "commit": "TEST_COMMIT_REF",
-  "systems": [
-    "test"
-  ]
-}

@@ -6,6 +6,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 
 import static org.junit.Assert.assertFalse;
@@ -22,7 +23,14 @@ public class IdlMojoTest extends AbstractAvroMojoTest {
         // act
         myMojo.execute();
         // assert
-        final List<String> filenames = readAllFiles(new File(testDirectory, "target/generated-sources"));
+        File outputDir = new File(testDirectory, "target/generated-sources");
+        final List<String> filenames = readAllFiles(outputDir);
+
+        for (String filename : filenames) {
+            System.out.println("File: " + filename);
+            System.out.println(Files.readString(outputDir.toPath().resolve(filename)));
+        }
+
         assertFalse(filenames.isEmpty());
     }
 }

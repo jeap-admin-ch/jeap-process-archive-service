@@ -3,7 +3,7 @@ package ch.admin.bit.jeap.processarchive.avro.plugin.mojo;
 import ch.admin.bit.jeap.processarchive.avro.plugin.compiler.AvroCompiler;
 import ch.admin.bit.jeap.processarchive.avro.plugin.compiler.IdlFileParser;
 import ch.admin.bit.jeap.processarchive.avro.plugin.compiler.ImportClassLoader;
-import ch.admin.bit.jeap.processarchive.avro.plugin.interfaces.InterfaceTool;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.metadata.ArchiveTypeMetadata;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +25,6 @@ import java.io.IOException;
  */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class AbstractAvroMojo extends AbstractMojo {
-    private static final String INTERFACES_FILENAME = "interfaces.json";
     @Getter(AccessLevel.PROTECTED)
     @Parameter(name = "sourceDirectory", defaultValue = "${basedir}/src/main/processarchive")
     @SuppressWarnings("unused")
@@ -46,11 +45,10 @@ public abstract class AbstractAvroMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         ensureDirectoryExists(sourceDirectory);
         String sourceEncoding = project.getProperties().getProperty("project.build.sourceEncoding");
-        InterfaceTool interfaceTool = createInterfaceTool();
         AvroCompiler avroCompiler = AvroCompiler.builder()
+                .additionalTool(createArchiveTypeMetadata())
                 .sourceEncoding(sourceEncoding)
                 .outputDirectory(outputDirectory)
-                .additionalTool(interfaceTool)
                 .enableDecimalLogicalType(enableDecimalLogicalType)
                 .build();
         for (String filename : getIncludedFiles()) {
@@ -61,6 +59,16 @@ public abstract class AbstractAvroMojo extends AbstractMojo {
         project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
     }
 
+    private ArchiveTypeMetadata createArchiveTypeMetadata() {
+        return ArchiveTypeMetadata.builder()
+                .archiveTypeName("IdlTestType")
+                .archiveTypeVersion(1)
+                .systemName("test")
+                .referenceIdType("referenceIdType")
+                .expirationDays(365)
+                .build();
+    }
+
     private void ensureDirectoryExists(File sourceDirectory) throws MojoExecutionException {
         boolean hasSourceDir = null != sourceDirectory && sourceDirectory.isDirectory();
         if (!hasSourceDir) {
@@ -68,14 +76,6 @@ public abstract class AbstractAvroMojo extends AbstractMojo {
         }
     }
 
-    private InterfaceTool createInterfaceTool() throws MojoExecutionException {
-        File interfacesFile = new File(sourceDirectory, INTERFACES_FILENAME);
-        try {
-            return new InterfaceTool(interfacesFile);
-        } catch (IOException e) {
-            throw new MojoExecutionException("Could not open interfaces file", e);
-        }
-    }
 
     private String[] getIncludedFiles() {
         FileSetManager fileSetManager = new FileSetManager();
@@ -86,7 +86,6 @@ public abstract class AbstractAvroMojo extends AbstractMojo {
         for (String include : getIncludedFileNames()) {
             fs.addInclude("**/" + include);
         }
-        fs.addExclude("**/" + INTERFACES_FILENAME);
         return fileSetManager.getIncludedFiles(fs);
     }
 
