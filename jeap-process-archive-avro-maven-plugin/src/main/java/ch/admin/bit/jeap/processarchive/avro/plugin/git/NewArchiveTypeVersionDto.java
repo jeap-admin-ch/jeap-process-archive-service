@@ -1,7 +1,7 @@
 package ch.admin.bit.jeap.processarchive.avro.plugin.git;
 
 
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeDescriptor;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeDescriptor;
 
 import java.nio.file.Path;
 import java.util.StringJoiner;

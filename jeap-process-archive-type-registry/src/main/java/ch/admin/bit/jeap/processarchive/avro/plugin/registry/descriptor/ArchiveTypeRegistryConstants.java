@@ -1,4 +1,4 @@
-package ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector;
+package ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor;
 
 import lombok.experimental.UtilityClass;
 

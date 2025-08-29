@@ -1,7 +1,7 @@
 package ch.admin.bit.jeap.processarchive.registry.verifier.system;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.compiler.ImportClassLoader;
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeRegistryConstants;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeRegistryConstants;
 import ch.admin.bit.jeap.processarchive.registry.verifier.ValidationContext;
 import ch.admin.bit.jeap.processarchive.registry.verifier.common.ValidationResult;
 import org.apache.commons.io.FileUtils;

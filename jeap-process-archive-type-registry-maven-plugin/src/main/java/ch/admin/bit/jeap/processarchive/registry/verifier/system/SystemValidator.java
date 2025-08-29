@@ -1,6 +1,6 @@
 package ch.admin.bit.jeap.processarchive.registry.verifier.system;
 
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeRegistryConstants;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeRegistryConstants;
 import ch.admin.bit.jeap.processarchive.registry.verifier.FileNotChangedValidator;
 import ch.admin.bit.jeap.processarchive.registry.verifier.ValidationContext;
 import ch.admin.bit.jeap.processarchive.registry.verifier.archivetype.ArchiveTypeValidator;

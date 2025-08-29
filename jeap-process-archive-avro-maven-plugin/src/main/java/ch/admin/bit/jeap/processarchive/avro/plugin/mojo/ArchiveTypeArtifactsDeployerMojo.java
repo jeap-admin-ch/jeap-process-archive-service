@@ -1,7 +1,7 @@
 package ch.admin.bit.jeap.processarchive.avro.plugin.mojo;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.helper.MavenDeployer;
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeRegistryConstants;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeRegistryConstants;
 import lombok.Setter;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;

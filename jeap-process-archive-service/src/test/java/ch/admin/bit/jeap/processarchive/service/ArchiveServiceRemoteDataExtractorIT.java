@@ -1,5 +1,7 @@
 package ch.admin.bit.jeap.processarchive.service;
 
+import ch.admin.bit.jeap.crypto.api.KeyIdCryptoService;
+import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
@@ -11,6 +13,7 @@ import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArch
 import ch.admin.bit.jeap.processarchive.test.decree.v3.Decree;
 import ch.admin.bit.jeap.processarchive.test.decree.v3.DecreeReference;
 import ch.admin.bit.jeap.processcontext.event.test.TestDomainEvent;
+import ch.admin.bit.jeap.test.processarchive.TestTypeLoaderConfig;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
@@ -22,10 +25,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.wiremock.spring.ConfigureWireMock;
 import org.wiremock.spring.EnableWireMock;
@@ -48,7 +51,7 @@ import static org.mockito.Mockito.verify;
         "jeap.processarchive.archivedartifact.event-topic=event-topic",
         "jeap.processarchive.archivedartifact.system-id=com.test.System",
         "jeap.processarchive.archivedartifact.system-name=test"})
-@ContextConfiguration(classes = {HashProviderTestConfig.class})
+@Import({HashProviderTestConfig.class, TestTypeLoaderConfig.class})
 @EnableWireMock(@ConfigureWireMock(port = 12332))
 class ArchiveServiceRemoteDataExtractorIT extends KafkaIntegrationTestBase {
 
@@ -63,6 +66,10 @@ class ArchiveServiceRemoteDataExtractorIT extends KafkaIntegrationTestBase {
     private ArtifactArchivedListener artifactArchivedListener;
     @Captor
     private ArgumentCaptor<ArchivedArtifact> archivedArtifactArgumentCaptor;
+    @MockitoBean
+    private KeyReferenceCryptoService keyReferenceCryptoService;
+    @MockitoBean
+    private KeyIdCryptoService keyIdCryptoService;
 
     @Test
     void when_eventReceived_then_shouldArchiveDataFromPayload() throws Exception {

@@ -9,7 +9,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(classes = {ArchiveTypeRepository.class, ArchiveTypeLoader.class}, properties = {"spring.cloud.vault.enabled=false"})
+@SpringBootTest(classes = {ArchiveTypeRepository.class, ArchiveTypeLoader.class, TestArchiveTypeProvider.class}, properties = {"spring.cloud.vault.enabled=false"})
 class ArchiveTypeRepositoryTest {
 
     @Autowired
@@ -19,7 +19,21 @@ class ArchiveTypeRepositoryTest {
     private ArchiveCryptoService archiveCryptoService;
 
     @Test
-    void requireArchiveType() {
+    void requireArchiveType_v1() {
+        ArchiveTypeId schemaId = ArchiveTypeId.builder()
+                .system("JME")
+                .name("Decree")
+                .version(1)
+                .build();
+
+        ArchiveType archiveType = repository.requireArchiveType(schemaId);
+
+        assertEquals("Decree", archiveType.getSchema().getName());
+        assertEquals("jme-process-archive-example-key", archiveType.getEncryptionKey().getKeyId());
+    }
+
+    @Test
+    void requireArchiveType_v2() {
         ArchiveTypeId schemaId = ArchiveTypeId.builder()
                 .system("JME")
                 .name("Decree")
@@ -29,34 +43,8 @@ class ArchiveTypeRepositoryTest {
         ArchiveType archiveType = repository.requireArchiveType(schemaId);
 
         assertEquals("Decree", archiveType.getSchema().getName());
-    }
-
-    @Test
-    void requireArchiveType_encrypted() {
-        ArchiveTypeId schemaId = ArchiveTypeId.builder()
-                .system("JME")
-                .name("DecreeEncrypted")
-                .version(1)
-                .build();
-
-        ArchiveType archiveType = repository.requireArchiveType(schemaId);
-
-        assertEquals("DecreeEncrypted", archiveType.getSchema().getName());
-        assertEquals("transit/jme", archiveType.getEncryption().getSecretEnginePath());
-    }
-
-    @Test
-    void requireArchiveType_encryptedByKeyId() {
-        ArchiveTypeId schemaId = ArchiveTypeId.builder()
-                .system("JME")
-                .name("DecreeEncryptedByKeyId")
-                .version(1)
-                .build();
-
-        ArchiveType archiveType = repository.requireArchiveType(schemaId);
-
-        assertEquals("DecreeEncryptedByKeyId", archiveType.getSchema().getName());
-        assertEquals("test-key", archiveType.getEncryptionKey().getKeyId());
+        assertEquals("secret/engine", archiveType.getEncryption().getSecretEnginePath());
+        assertEquals("key-name", archiveType.getEncryption().getKeyName());
     }
 
     @Test

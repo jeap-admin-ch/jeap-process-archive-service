@@ -1,7 +1,7 @@
 package ch.admin.bit.jeap.processarchive.avro.plugin.registry.metadata;
 
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeDescriptor;
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeVersion;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeDescriptor;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeVersion;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

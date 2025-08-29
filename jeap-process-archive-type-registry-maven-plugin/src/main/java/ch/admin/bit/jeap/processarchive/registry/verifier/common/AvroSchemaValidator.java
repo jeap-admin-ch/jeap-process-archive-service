@@ -2,7 +2,7 @@ package ch.admin.bit.jeap.processarchive.registry.verifier.common;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.compiler.IdlFileParser;
 import ch.admin.bit.jeap.processarchive.avro.plugin.compiler.ImportClassLoader;
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeRegistryConstants;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeRegistryConstants;
 import ch.admin.bit.jeap.processarchive.registry.verifier.ValidationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;

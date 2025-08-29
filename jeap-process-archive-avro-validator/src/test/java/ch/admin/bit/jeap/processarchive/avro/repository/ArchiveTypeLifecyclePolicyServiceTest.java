@@ -20,7 +20,7 @@ class ArchiveTypeLifecyclePolicyServiceTest {
 
     @BeforeEach
     void beforeEach() throws IOException {
-        ArchiveTypeLoader loader = new ArchiveTypeLoader();
+        ArchiveTypeLoader loader = new ArchiveTypeLoader(new TestArchiveTypeProvider());
         ArchiveTypeRepository repo = new ArchiveTypeRepository(loader, mock(ArchiveCryptoService.class));
         repo.initialize();
         lifecyclePolicyService = new ArchiveTypeLifecyclePolicyService(repo);
@@ -33,15 +33,15 @@ class ArchiveTypeLifecyclePolicyServiceTest {
 
         assertEquals("Decree", lifecyclePolicy.getArchiveTypeName());
         assertEquals("JME", lifecyclePolicy.getSystemName());
-        assertEquals(30, lifecyclePolicy.getCurrentVersionExpirationDays());
-        assertEquals(30, lifecyclePolicy.getPreviousVersionExpirationDays());
-        assertEquals(30, lifecyclePolicy.getRetainDays());
+        assertEquals(60, lifecyclePolicy.getCurrentVersionExpirationDays());
+        assertEquals(60, lifecyclePolicy.getPreviousVersionExpirationDays());
+        assertEquals(60, lifecyclePolicy.getRetainDays());
     }
 
     @Test
     void getAllLifecyclePolicies() {
         List<LifecyclePolicy> allPolicies = lifecyclePolicyService.getAllLifecyclePolicies();
-        assertEquals(3, allPolicies.size());
+        assertEquals(2, allPolicies.size());
         assertEquals("Decree", allPolicies.get(0).getArchiveTypeName());
     }
 

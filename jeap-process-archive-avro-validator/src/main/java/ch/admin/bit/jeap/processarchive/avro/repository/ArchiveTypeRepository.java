@@ -86,7 +86,7 @@ public class ArchiveTypeRepository {
 
     List<ArchiveType> findAll() {
         List<ArchiveType> all = new ArrayList<>(archiveTypes.values());
-        all.sort(Comparator.comparing(ArchiveType::getName));
+        all.sort(Comparator.comparing(ArchiveType::getName).thenComparing(ArchiveType::getVersion));
         return all;
     }
 

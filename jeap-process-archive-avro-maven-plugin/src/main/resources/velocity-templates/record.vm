@@ -28,6 +28,7 @@ import org.apache.avro.message.BinaryMessageDecoder;
 import org.apache.avro.message.SchemaStore;
 #if ($!archivetypemetadata && $archivetypemetadata.shouldGenerateFor($schema))
 import java.util.Map;
+import static java.util.Map.entry;
 #end
 #end
 #if (${this.gettersReturnOptional} || ${this.createOptionalGetters})import java.util.Optional;#end
@@ -55,7 +56,7 @@ static {
 #end
 
 #if ($!archivetypemetadata && $archivetypemetadata.shouldGenerateFor($schema))
-public static final String ARCHIVE_TYPE_VERSION = "${archivetypemetadata.archiveTypeVersion}";
+public static final int ARCHIVE_TYPE_VERSION = ${archivetypemetadata.archiveTypeVersion};
 public static final String ARCHIVE_TYPE_NAME = "${archivetypemetadata.archiveTypeName}";
 public static final String SYSTEM_NAME = "${archivetypemetadata.systemName}";
 public static final String REFERENCE_ID_TYPE = "${archivetypemetadata.referenceIdType}";
@@ -86,35 +87,36 @@ public static final String ENCRYPTION_KEY_ID = "${archivetypemetadata.encryption
 #end
 
 public static final Map
-<String, Object> ARCHIVE_TYPE_METADATA = Map.of(
-"archiveTypeVersion", ARCHIVE_TYPE_VERSION,
-"archiveTypeName", ARCHIVE_TYPE_NAME,
-"systemName", SYSTEM_NAME,
-"referenceIdType", REFERENCE_ID_TYPE,
-"expirationDays", EXPIRATION_DAYS
+<String, Object> ARCHIVE_TYPE_METADATA = Map.ofEntries(
+entry("archiveTypeVersion", ARCHIVE_TYPE_VERSION),
+entry("archiveTypeName", ARCHIVE_TYPE_NAME),
+entry("systemName", SYSTEM_NAME),
+entry("referenceIdType", REFERENCE_ID_TYPE),
+entry("schema", SCHEMA$),
+entry("expirationDays", EXPIRATION_DAYS)
 #if($archivetypemetadata.registryUrl)
-,"registryUrl", REGISTRY_URL
+,entry("registryUrl", REGISTRY_URL)
 #end
 #if($archivetypemetadata.registryBranch)
-,"registryBranch", REGISTRY_BRANCH
+,entry("registryBranch", REGISTRY_BRANCH)
 #end
 #if($archivetypemetadata.registryCommit)
-,"registryCommit", REGISTRY_COMMIT
+,entry("registryCommit", REGISTRY_COMMIT)
 #end
 #if($archivetypemetadata.compatibilityMode)
-,"compatibilityMode", COMPATIBILITY_MODE
+,entry("compatibilityMode", COMPATIBILITY_MODE)
 #end
 #if($archivetypemetadata.compatibleVersion)
-,"compatibleVersion", COMPATIBLE_VERSION
+,entry("compatibleVersion", COMPATIBLE_VERSION)
 #end
 #if($archivetypemetadata.encryptionSecretEnginePath)
-,"encryptionSecretEnginePath", ENCRYPTION_SECRET_ENGINE_PATH
+,entry("encryptionSecretEnginePath", ENCRYPTION_SECRET_ENGINE_PATH)
 #end
 #if($archivetypemetadata.encryptionKeyName)
-,"encryptionKeyName", ENCRYPTION_KEY_NAME
+,entry("encryptionKeyName", ENCRYPTION_KEY_NAME)
 #end
 #if($archivetypemetadata.encryptionKeyId)
-,"encryptionKeyId", ENCRYPTION_KEY_ID
+,entry("encryptionKeyId", ENCRYPTION_KEY_ID)
 #end
 );
 

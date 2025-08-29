@@ -22,10 +22,6 @@
         </dependency>
         <dependency>
             <groupId>ch.admin.bit.jeap</groupId>
-            <artifactId>jeap-process-archive-type-registry</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.admin.bit.jeap</groupId>
             <artifactId>jeap-process-archive-adapter-crypto</artifactId>
         </dependency>
         <dependency>
@@ -50,6 +46,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.admin.bit.jeap</groupId>
+            <artifactId>jeap-process-archive-test-types</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>3.49.3</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

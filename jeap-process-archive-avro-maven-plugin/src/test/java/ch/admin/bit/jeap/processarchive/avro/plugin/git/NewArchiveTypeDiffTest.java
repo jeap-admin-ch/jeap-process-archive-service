@@ -1,7 +1,7 @@
 package ch.admin.bit.jeap.processarchive.avro.plugin.git;
 
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeDescriptor;
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeVersion;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeDescriptor;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeVersion;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;

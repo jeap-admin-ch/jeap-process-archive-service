@@ -1,5 +1,7 @@
 package ch.admin.bit.jeap.processarchive.service;
 
+import ch.admin.bit.jeap.crypto.api.KeyIdCryptoService;
+import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.event.shared.processarchive.archivedartifactversioncreated.SharedArchivedArtifactVersionCreatedEvent;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
@@ -11,6 +13,7 @@ import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration
 import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.test.processarchive.TestConfig;
 import ch.admin.bit.jeap.test.processarchive.TestConsumer;
+import ch.admin.bit.jeap.test.processarchive.TestTypeLoaderConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +22,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.Duration;
@@ -38,8 +41,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
         "jeap.processarchive.archivedartifact.system-id=com.test.System",
         "jeap.processarchive.archivedartifact.system-name=test",
         "jeap.messaging.kafka.exposeMessageKeyToConsumer=true"})
-@Import(TestConfig.class)
-@ContextConfiguration(classes = {HashProviderTestConfig.class})
+@Import({HashProviderTestConfig.class, TestConfig.class, TestTypeLoaderConfig.class})
 class ArchiveServiceEventEndToEndIT extends KafkaIntegrationTestBase {
 
     private static final String DOMAIN_EVENT_TOPIC = "test-event-2";
@@ -54,6 +56,10 @@ class ArchiveServiceEventEndToEndIT extends KafkaIntegrationTestBase {
     private TestConsumer testConsumer;
     @MockitoSpyBean
     private ArchiveDataObjectStore archiveDataObjectStore;
+    @MockitoBean
+    private KeyReferenceCryptoService keyReferenceCryptoService;
+    @MockitoBean
+    private KeyIdCryptoService keyIdCryptoService;
 
     @Test
     void when_eventReceived_then_shouldProduceArchivedArtifactEvent() throws Exception {

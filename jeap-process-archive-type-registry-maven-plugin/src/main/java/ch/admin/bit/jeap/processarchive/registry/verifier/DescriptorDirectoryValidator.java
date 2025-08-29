@@ -1,6 +1,6 @@
 package ch.admin.bit.jeap.processarchive.registry.verifier;
 
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeRegistryConstants;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeRegistryConstants;
 import ch.admin.bit.jeap.processarchive.registry.verifier.common.ValidationResult;
 import ch.admin.bit.jeap.processarchive.registry.verifier.system.SystemValidator;
 import lombok.AccessLevel;

@@ -1,8 +1,8 @@
 package ch.admin.bit.jeap.processarchive.avro.plugin.git;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.helper.TypeDescriptorFactory;
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeDescriptor;
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeVersion;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeDescriptor;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeVersion;
 import lombok.experimental.UtilityClass;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jgit.api.Git;

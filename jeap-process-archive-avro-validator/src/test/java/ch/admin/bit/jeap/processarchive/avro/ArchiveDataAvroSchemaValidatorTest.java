@@ -3,6 +3,7 @@ package ch.admin.bit.jeap.processarchive.avro;
 import ch.admin.bit.jeap.processarchive.avro.repository.ArchiveTypeId;
 import ch.admin.bit.jeap.processarchive.avro.repository.ArchiveTypeLoader;
 import ch.admin.bit.jeap.processarchive.avro.repository.ArchiveTypeRepository;
+import ch.admin.bit.jeap.processarchive.avro.repository.TestArchiveTypeProvider;
 import ch.admin.bit.jeap.processarchive.crypto.ArchiveCryptoService;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.SchemaValidationException;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
@@ -24,7 +25,7 @@ import java.io.IOException;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(classes = {ArchiveTypeRepository.class, ArchiveTypeLoader.class, ArchiveDataAvroSchemaValidator.class},
+@SpringBootTest(classes = {ArchiveTypeRepository.class, ArchiveTypeLoader.class, ArchiveDataAvroSchemaValidator.class, TestArchiveTypeProvider.class},
         properties = {"spring.cloud.vault.enabled=false"})
 class ArchiveDataAvroSchemaValidatorTest {
 

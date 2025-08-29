@@ -1,6 +1,6 @@
 package ch.admin.bit.jeap.processarchive.registry.verifier;
 
-import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeRegistryConstants;
+import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeRegistryConstants;
 import ch.admin.bit.jeap.processarchive.registry.verifier.common.ValidationResult;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;

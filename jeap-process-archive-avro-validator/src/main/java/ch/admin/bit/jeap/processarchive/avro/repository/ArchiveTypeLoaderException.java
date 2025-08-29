@@ -1,6 +1,7 @@
 package ch.admin.bit.jeap.processarchive.avro.repository;
 
-import java.io.IOException;
+import org.apache.avro.specific.SpecificRecordBase;
+
 import java.nio.file.Path;
 
 import static java.lang.String.format;
@@ -15,9 +16,6 @@ public class ArchiveTypeLoaderException extends RuntimeException {
         super(message, exception);
     }
 
-    static ArchiveTypeLoaderException jsonParsingFailed(Path descriptorPath, IOException e) {
-        return new ArchiveTypeLoaderException("Failed to load descriptor at " + descriptorPath, e);
-    }
 
     static ArchiveTypeLoaderException schemaFileNotFound(Path descriptorDir, String filename) {
         return new ArchiveTypeLoaderException(format("Schema file %s referenced in descriptor %s not found",
@@ -30,5 +28,9 @@ public class ArchiveTypeLoaderException extends RuntimeException {
 
     static ArchiveTypeLoaderException archiveTypeNotFound(ArchiveTypeId archiveTypeId) {
         return new ArchiveTypeLoaderException("Archive type unknown: " + archiveTypeId);
+    }
+
+    public static ArchiveTypeLoaderException missingMetadataField(Class<? extends SpecificRecordBase> archiveTypeClass, NoSuchFieldException e) {
+        return new ArchiveTypeLoaderException("Missing metadata field in archive type class " + archiveTypeClass.getName(), e);
     }
 }

@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
     private static final String EXPECTED_V1_METADATA = """
-            public static final String ARCHIVE_TYPE_VERSION = "1";
+            public static final int ARCHIVE_TYPE_VERSION = 1;
             public static final String ARCHIVE_TYPE_NAME = "Decree";
             public static final String SYSTEM_NAME = "JEAP";
             public static final String REFERENCE_ID_TYPE = "ch.admin.bit.jeap.audit.type.JmeDecreeArchive";
@@ -31,15 +31,16 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
             public static final String REGISTRY_COMMIT = "cafebabe";
             
             public static final Map
-            <String, Object> ARCHIVE_TYPE_METADATA = Map.of(
-            "archiveTypeVersion", ARCHIVE_TYPE_VERSION,
-            "archiveTypeName", ARCHIVE_TYPE_NAME,
-            "systemName", SYSTEM_NAME,
-            "referenceIdType", REFERENCE_ID_TYPE,
-            "expirationDays", EXPIRATION_DAYS
-            ,"registryUrl", REGISTRY_URL
-            ,"registryBranch", REGISTRY_BRANCH
-            ,"registryCommit", REGISTRY_COMMIT
+            <String, Object> ARCHIVE_TYPE_METADATA = Map.ofEntries(
+            entry("archiveTypeVersion", ARCHIVE_TYPE_VERSION),
+            entry("archiveTypeName", ARCHIVE_TYPE_NAME),
+            entry("systemName", SYSTEM_NAME),
+            entry("referenceIdType", REFERENCE_ID_TYPE),
+            entry("schema", SCHEMA$),
+            entry("expirationDays", EXPIRATION_DAYS)
+            ,entry("registryUrl", REGISTRY_URL)
+            ,entry("registryBranch", REGISTRY_BRANCH)
+            ,entry("registryCommit", REGISTRY_COMMIT)
             );
             
             public Map
@@ -47,7 +48,7 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
             return ARCHIVE_TYPE_METADATA;
             }""";
     private static final String EXPECTED_V2_METADATA = """
-            public static final String ARCHIVE_TYPE_VERSION = "2";
+            public static final int ARCHIVE_TYPE_VERSION = 2;
             public static final String ARCHIVE_TYPE_NAME = "Decree";
             public static final String SYSTEM_NAME = "JEAP";
             public static final String REFERENCE_ID_TYPE = "ch.admin.bit.jeap.audit.type.JmeDecreeArchive";
@@ -58,16 +59,17 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
             public static final String COMPATIBILITY_MODE = "BACKWARD";
             
             public static final Map
-            <String, Object> ARCHIVE_TYPE_METADATA = Map.of(
-            "archiveTypeVersion", ARCHIVE_TYPE_VERSION,
-            "archiveTypeName", ARCHIVE_TYPE_NAME,
-            "systemName", SYSTEM_NAME,
-            "referenceIdType", REFERENCE_ID_TYPE,
-            "expirationDays", EXPIRATION_DAYS
-            ,"registryUrl", REGISTRY_URL
-            ,"registryBranch", REGISTRY_BRANCH
-            ,"registryCommit", REGISTRY_COMMIT
-            ,"compatibilityMode", COMPATIBILITY_MODE
+            <String, Object> ARCHIVE_TYPE_METADATA = Map.ofEntries(
+            entry("archiveTypeVersion", ARCHIVE_TYPE_VERSION),
+            entry("archiveTypeName", ARCHIVE_TYPE_NAME),
+            entry("systemName", SYSTEM_NAME),
+            entry("referenceIdType", REFERENCE_ID_TYPE),
+            entry("schema", SCHEMA$),
+            entry("expirationDays", EXPIRATION_DAYS)
+            ,entry("registryUrl", REGISTRY_URL)
+            ,entry("registryBranch", REGISTRY_BRANCH)
+            ,entry("registryCommit", REGISTRY_COMMIT)
+            ,entry("compatibilityMode", COMPATIBILITY_MODE)
             );
             
             public Map
