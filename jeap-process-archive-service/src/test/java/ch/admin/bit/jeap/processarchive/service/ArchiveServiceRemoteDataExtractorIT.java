@@ -10,8 +10,8 @@ import ch.admin.bit.jeap.processarchive.kafka.TestDomainEventBuilder;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArchivedListener;
-import ch.admin.bit.jeap.processarchive.test.decree.v3.Decree;
-import ch.admin.bit.jeap.processarchive.test.decree.v3.DecreeReference;
+import ch.admin.bit.jeap.processarchive.test.DecreeReference;
+import ch.admin.bit.jeap.processarchive.test.decree.v2.Decree;
 import ch.admin.bit.jeap.processcontext.event.test.TestDomainEvent;
 import ch.admin.bit.jeap.test.processarchive.TestTypeLoaderConfig;
 import org.apache.avro.io.DatumWriter;
@@ -35,7 +35,6 @@ import org.wiremock.spring.EnableWireMock;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.time.Instant;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -111,9 +110,7 @@ class ArchiveServiceRemoteDataExtractorIT extends KafkaIntegrationTestBase {
 
     private byte[] createPayload() throws IOException {
         SpecificRecord data = Decree.newBuilder()
-                .setCreatedAt(Instant.now())
                 .setPayload("test")
-                .setTitle("title")
                 .setDecreeReference(DecreeReference.newBuilder()
                         .setType("decree-id")
                         .setId("123")

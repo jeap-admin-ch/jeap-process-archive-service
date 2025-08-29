@@ -2,8 +2,8 @@ package ch.admin.bit.jeap.processarchive.service.test;
 
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.DomainEventArchiveDataProvider;
-import ch.admin.bit.jeap.processarchive.test.decree.v3.Decree;
-import ch.admin.bit.jeap.processarchive.test.decree.v3.DecreeReference;
+import ch.admin.bit.jeap.processarchive.test.DecreeReference;
+import ch.admin.bit.jeap.processarchive.test.decree.v2.Decree;
 import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2EventPayload;
 import lombok.SneakyThrows;
@@ -14,7 +14,6 @@ import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecord;
 
 import java.io.ByteArrayOutputStream;
-import java.time.Instant;
 
 public class TestDomainEventDataProvider implements DomainEventArchiveDataProvider<TestDomain2Event> {
 
@@ -33,9 +32,7 @@ public class TestDomainEventDataProvider implements DomainEventArchiveDataProvid
     @SneakyThrows
     private byte[] createPayload(TestDomain2EventPayload testDomain2EventPayload) {
         SpecificRecord data = Decree.newBuilder()
-                .setCreatedAt(Instant.now())
                 .setPayload(testDomain2EventPayload.getData())
-                .setTitle("title")
                 .setDecreeReference(DecreeReference.newBuilder()
                         .setType("decree-id")
                         .setId("123")

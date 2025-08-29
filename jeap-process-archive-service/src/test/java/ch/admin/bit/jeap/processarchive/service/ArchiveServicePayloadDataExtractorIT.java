@@ -10,7 +10,7 @@ import ch.admin.bit.jeap.processarchive.kafka.TestDomain2EventBuilder;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArchivedListener;
-import ch.admin.bit.jeap.processarchive.test.decree.v3.Decree;
+import ch.admin.bit.jeap.processarchive.test.decree.v2.Decree;
 import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.test.processarchive.TestTypeLoaderConfig;
 import org.apache.avro.io.DatumReader;
