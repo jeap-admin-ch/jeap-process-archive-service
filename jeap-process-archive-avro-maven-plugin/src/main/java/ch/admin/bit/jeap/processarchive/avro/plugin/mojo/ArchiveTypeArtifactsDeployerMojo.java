@@ -16,11 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 @Mojo(name = "deploy-archive-type-artifacts", requiresDependencyResolution = ResolutionScope.RUNTIME, defaultPhase = LifecyclePhase.DEPLOY, threadSafe = true)
 public class ArchiveTypeArtifactsDeployerMojo extends AbstractMojo {
@@ -55,26 +51,21 @@ public class ArchiveTypeArtifactsDeployerMojo extends AbstractMojo {
     @Setter
     private String trunkMavenProfile;
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(1);
-
     @Override
     public void execute() throws MojoExecutionException {
         if (!sourcesDirectory.exists()) {
             return;
         }
         String profile = isBuildOnTrunk() ? trunkMavenProfile : null;
-        MavenDeployer deployer = new MavenDeployer(getLog(), mavenDeployGoal, mavenExecutable, mavenGlobalSettingsFile, profile, executorService);
+        MavenDeployer deployer = new MavenDeployer(getLog(), mavenDeployGoal, mavenExecutable, mavenGlobalSettingsFile, profile);
         deployCommonLibraries(deployer);
         deployLibraries(deployer);
     }
 
-    public void setExecutorService(ExecutorService executorService) {
-        this.executorService = executorService;
-    }
-
     private void deployCommonLibraries(MavenDeployer deployer) throws MojoExecutionException {
         try (Stream<Path> walk = Files.walk(Paths.get(sourcesDirectory.getAbsolutePath()), Integer.MAX_VALUE)) {
-            List<Path> poms = walk.filter(path -> isCommonLibrary(path) && path.toString().endsWith(POM_XML_FILE_NAME)).collect(toList());
+            List<Path> poms = walk.filter(path -> isCommonLibrary(path) && path.toString().endsWith(POM_XML_FILE_NAME))
+                    .toList();
             getLog().info("Deploying " + poms.size() + " common maven projects.");
             deployer.deployProjects(poms);
         } catch (IOException e) {
@@ -85,7 +76,8 @@ public class ArchiveTypeArtifactsDeployerMojo extends AbstractMojo {
 
     private void deployLibraries(MavenDeployer deployer) throws MojoExecutionException {
         try (Stream<Path> walk = Files.walk(Paths.get(sourcesDirectory.getAbsolutePath()), Integer.MAX_VALUE)) {
-            List<Path> poms = walk.filter(path -> !isCommonLibrary(path) && path.toString().endsWith(POM_XML_FILE_NAME)).collect(toList());
+            List<Path> poms = walk.filter(path -> !isCommonLibrary(path) && path.toString().endsWith(POM_XML_FILE_NAME))
+                    .toList();
             getLog().info("Deploying " + poms.size() + " maven projects.");
             deployer.deployProjects(poms);
         } catch (IOException e) {

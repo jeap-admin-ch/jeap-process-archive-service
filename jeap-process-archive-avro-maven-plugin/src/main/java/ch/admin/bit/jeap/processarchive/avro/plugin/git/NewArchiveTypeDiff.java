@@ -3,6 +3,7 @@ package ch.admin.bit.jeap.processarchive.avro.plugin.git;
 import ch.admin.bit.jeap.processarchive.avro.plugin.helper.TypeDescriptorFactory;
 import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeDescriptor;
 import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeVersion;
+import lombok.experimental.UtilityClass;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ObjectLoader;
@@ -21,6 +22,7 @@ import java.util.Set;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toSet;
 
+@UtilityClass
 class NewArchiveTypeDiff {
 
     /**

@@ -11,13 +11,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class ArchiveTypeArtifactsDeployerMojoTest extends AbstractAvroMojoTest {
 
@@ -47,15 +43,7 @@ public class ArchiveTypeArtifactsDeployerMojoTest extends AbstractAvroMojoTest {
         FileUtils.copyDirectory(Paths.get("src/test/resources/sample-project").toFile(), Paths.get(targetDirectory.getAbsolutePath()).toFile());
         ArchiveTypeArtifactsDeployerMojo myMojo = (ArchiveTypeArtifactsDeployerMojo) mojoRule.lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
 
-        ExecutorService executorService = mock(ExecutorService.class);
-        Future<Object> future = mock(Future.class);
-        myMojo.setExecutorService(executorService);
-
-        when(executorService.submit((Callable<Object>) any())).thenReturn(future);
-
         // act
-        myMojo.execute();
-
-        verify(executorService).submit((Callable<?>) any());
+        assertDoesNotThrow(myMojo::execute);
     }
 }

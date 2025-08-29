@@ -3,11 +3,13 @@ package ch.admin.bit.jeap.processarchive.avro.plugin.helper;
 import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeDescriptor;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.experimental.UtilityClass;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
+@UtilityClass
 public class TypeDescriptorFactory {
 
     private static final ObjectMapper OBJECT_MAPPER;
@@ -33,7 +35,7 @@ public class TypeDescriptorFactory {
         try {
             return OBJECT_MAPPER.readValue(jsonContent, ArchiveTypeDescriptor.class);
         } catch (IOException e) {
-            throw new MojoExecutionException("Cannot read value from json: " + e.getMessage(), e);
+            throw new MojoExecutionException("Cannot read value from json at " + descriptorPath + ": " + e.getMessage(), e);
         }
     }
 }

@@ -13,9 +13,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class MavenDeployer {
@@ -25,62 +22,36 @@ public class MavenDeployer {
     private final String mavenExecutable;
     private final String mavenGlobalSettingsFile;
     private final String profile;
-    private final ExecutorService executorService;
 
-    public MavenDeployer(Log log, String mavenDeployGoal, String mavenExecutable, String mavenGlobalSettingsFile, String profile, ExecutorService executorService) {
+    public MavenDeployer(Log log, String mavenDeployGoal, String mavenExecutable, String mavenGlobalSettingsFile, String profile) {
         this.log = log;
         this.mavenDeployGoal = mavenDeployGoal;
         this.mavenExecutable = mavenExecutable;
         this.mavenGlobalSettingsFile = mavenGlobalSettingsFile;
         this.profile = profile;
-        this.executorService = executorService;
     }
 
     public void deployProjects(List<Path> poms) {
-        if (poms.isEmpty()) {
-            return;
-        }
-
-        // Run one build to cache the dependencies in the local repository
-        // The local repository does not support concurrency (all archive types have the same set of dependencies)
-        Path path = poms.getFirst();
-        poms = poms.subList(1, poms.size());
-        InvocationRequest invocationRequest = toInvocationRequest(path);
-        await(runMavenInvoker(executorService, invocationRequest));
-
-        // Run the rest of the builds in parallel to speed things up
         poms.stream()
                 .map(this::toInvocationRequest)
-                .map(r -> runMavenInvoker(executorService, r))
-                .forEach(MavenDeployer::await);
+                .forEach(this::runMavenInvoker);
     }
 
-    @SneakyThrows
-    private static void await(Future<InvocationResult> future) {
-        try {
-            future.get();
-        } catch (ExecutionException ex) {
-            // If any of the builds of an archive type failed, throw the causing MojoExecutionException
-            throw ex.getCause();
-        }
-    }
-
-    private Future<InvocationResult> runMavenInvoker(ExecutorService executorService, InvocationRequest request) {
+    private void runMavenInvoker(InvocationRequest request) {
         log.info("Executing maven request for pom %s: mnv=%s args=%s profiles=%s goals=%s props=%s".formatted(
                 request.getPomFile(), getMavenExecutable(), request.getArgs(),
                 request.getProfiles() == null ? "" : request.getProfiles(), request.getGoals(), request.getProperties()));
-        return executorService.submit(() -> executeRequest(request));
+        executeRequest(request);
     }
 
     @SneakyThrows
-    private InvocationResult executeRequest(InvocationRequest request) {
+    private void executeRequest(InvocationRequest request) {
         Invoker invoker = createInvoker();
         try {
             InvocationResult result = invoker.execute(request);
             if (result.getExitCode() != 0) {
                 throw new MojoExecutionException("Build failed with exitCode " + result.getExitCode());
             }
-            return result;
         } catch (MavenInvocationException e) {
             throw new MojoExecutionException("Error during Maven Invocation: " + e.getMessage(), e);
         }
@@ -99,7 +70,7 @@ public class MavenDeployer {
         if (profile != null) {
             request.setProfiles(List.of(profile));
         }
-        request.setGoals(List.of(mavenDeployGoal));
+        request.addArg(mavenDeployGoal);
         Properties properties = new Properties();
         // No tests in generated archive types, skip
         properties.setProperty("maven.test.skip", "true");

@@ -31,7 +31,6 @@ public class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
     @Before
     public void createTestRepo() throws Exception {
         testRepo = TestRegistryRepo.testRepoWithTwoCommitsAddingArchiveTypeV1AndV2();
-        Path testDirectory = testRepo.repoDir();
 
         myMojo = (ArchiveTypesCompilerMojo) mojoRule.lookupConfiguredMojo(
                 testRepo.repoDir().toFile(), "compile-archive-types");

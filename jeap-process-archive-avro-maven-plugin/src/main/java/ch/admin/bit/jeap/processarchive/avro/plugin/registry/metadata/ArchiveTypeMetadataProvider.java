@@ -2,7 +2,9 @@ package ch.admin.bit.jeap.processarchive.avro.plugin.registry.metadata;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeDescriptor;
 import ch.admin.bit.jeap.processarchive.avro.plugin.registry.connector.ArchiveTypeVersion;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class ArchiveTypeMetadataProvider {
 
     public static ArchiveTypeMetadata createMetadata(ArchiveTypeDescriptor typeDescriptor, ArchiveTypeVersion version, String currentBranch, String commitId, String gitUrl) {

@@ -329,7 +329,7 @@ public class ArchiveTypesCompilerMojo extends AbstractMojo {
             final Path outputPath = Paths.get(avroCompiler.getOutputDirectory().getAbsolutePath(), typeReference.getSystem().toLowerCase(Locale.ROOT), typeReference.getName(), String.valueOf(typeReference.getVersion()));
             String groupId = getGroupIdPrefixWithTrailingDot() + typeReference.getSystem().toLowerCase(Locale.ROOT);
             PomFileGenerator pomFileGenerator = new PomFileGenerator(outputPath, pomTemplateFile, avroVersion, getLog());
-            String artifactId = camelCase2Snake(typeReference.getName()) + "v" + typeReference.getVersion();
+            String artifactId = camelCase2Snake(typeReference.getName()) + "-v" + typeReference.getVersion();
             pomFileGenerator.generatePomFile(groupId,
                     artifactId,
                     getDependencyDefinition(typeReference),
@@ -353,13 +353,13 @@ public class ArchiveTypesCompilerMojo extends AbstractMojo {
     }
 
     private void compileSchema(Path outputPath, AvroCompiler avroCompiler, ArchiveTypeSchema archiveTypeSchema) throws MojoExecutionException {
-        File outputDirectory = Paths.get(outputPath.toString(), "src", "main", "java").toFile();
-        AvroCompiler.AvroCompilerBuilder avroCompilerBuilder = avroCompiler.toBuilder().outputDirectory(outputDirectory);
+        File codeOutputDirectory = Paths.get(outputPath.toString(), "src", "main", "java").toFile();
+        AvroCompiler.AvroCompilerBuilder avroCompilerBuilder = avroCompiler.toBuilder().outputDirectory(codeOutputDirectory);
         archiveTypeSchema.getArchiveTypeMetadata().ifPresent(avroCompilerBuilder::additionalTool);
 
         avroCompiler = avroCompilerBuilder.build();
 
-        getLog().info("Compiling to " + outputDirectory.getAbsolutePath());
+        getLog().info("Compiling to " + codeOutputDirectory.getAbsolutePath());
 
         try (ImportClassLoader importClassLoader = getImportClassLoader(archiveTypeSchema)) {
             compileIdl(avroCompiler, archiveTypeSchema.getSchema(), importClassLoader);

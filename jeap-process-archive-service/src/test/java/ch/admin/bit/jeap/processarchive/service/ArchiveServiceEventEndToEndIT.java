@@ -15,12 +15,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.time.Duration;
 import java.util.UUID;
@@ -52,7 +52,7 @@ class ArchiveServiceEventEndToEndIT extends KafkaIntegrationTestBase {
     private KafkaDomainEventConsumerFactory kafkaDomainEventConsumerFactory;
     @Autowired
     private TestConsumer testConsumer;
-    @SpyBean
+    @MockitoSpyBean
     private ArchiveDataObjectStore archiveDataObjectStore;
 
     @Test

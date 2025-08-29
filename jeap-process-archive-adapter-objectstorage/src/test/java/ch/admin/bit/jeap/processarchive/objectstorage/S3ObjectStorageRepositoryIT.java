@@ -29,7 +29,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.utils.Md5Utils;
 
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -77,9 +77,9 @@ class S3ObjectStorageRepositoryIT {
     @SneakyThrows
     @BeforeEach
     void setUp() {
-        final String minioHost = minioContainer.getHost();
-        final int minioPort = minioContainer.getFirstMappedPort();
-        final String minioUrl = new URL("http", minioHost, minioPort, "").toString();
+        String minioHost = minioContainer.getHost();
+        int minioPort = minioContainer.getFirstMappedPort();
+        String minioUrl = new URI("http", null, minioHost, minioPort, null, null, null).toString();
 
         initS3Client(minioUrl);
         setupStorage();
@@ -118,7 +118,7 @@ class S3ObjectStorageRepositoryIT {
         assertThat(objectAsBytes.asByteArray()).isEqualTo(objectContent);
         assertThat(headObjectResponse.metadata()).containsAllEntriesOf(metadata);
         assertThat(headObjectResponse.expiration()).isNull();
-        assertThat(headObjectResponse.expires()).isNull();
+        assertThat(headObjectResponse.expiresString()).isNull();
         assertThat(headObjectResponse.objectLockMode()).isNull();
         assertThat(headObjectResponse.objectLockRetainUntilDate()).isNull();
     }

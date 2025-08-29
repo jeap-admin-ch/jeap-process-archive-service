@@ -19,9 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,9 +45,8 @@ class MavenDeployerTest {
     private MavenDeployer mavenDeployer;
 
     @BeforeEach
-    void setUp() throws MavenInvocationException {
-        ExecutorService sameThreadExecutor = new SameThreadExecutorService();
-        mavenDeployer = new MavenDeployer(new SystemStreamLog(), GOAL, MAVEN_EXECUTABLE, SETTINGS_FILE, "my-profile", sameThreadExecutor) {
+    void setUp() {
+        mavenDeployer = new MavenDeployer(new SystemStreamLog(), GOAL, MAVEN_EXECUTABLE, SETTINGS_FILE, "my-profile") {
             @Override
             Invoker createInvoker() {
                 return invoker;
@@ -58,7 +55,7 @@ class MavenDeployerTest {
     }
 
     @BeforeAll
-    static void prepareFakeProxyProperties() throws MojoExecutionException {
+    static void prepareFakeProxyProperties() {
         System.setProperty(HTTP_FAKE_PROXY_PROPERTY, "foo-proxy");
         System.setProperty(HTTP_FAKE_NON_PROXY_PROPERTY, "non-proxy");
     }
@@ -110,74 +107,5 @@ class MavenDeployerTest {
         MojoExecutionException mojoExecutionException = assertThrows(MojoExecutionException.class,
                 () -> mavenDeployer.deployProjects(twoPoms));
         assertEquals("Build failed with exitCode 2", mojoExecutionException.getMessage());
-    }
-
-    private static class SameThreadExecutorService implements ExecutorService {
-
-        @Override
-        public void execute(Runnable command) {
-            command.run();
-        }
-
-        @Override
-        public void shutdown() {
-        }
-
-        @Override
-        public List<Runnable> shutdownNow() {
-            return List.of();
-        }
-
-        @Override
-        public boolean isShutdown() {
-            return false;
-        }
-
-        @Override
-        public boolean isTerminated() {
-            return false;
-        }
-
-        @Override
-        public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-            return false;
-        }
-
-        @Override
-        public <T> Future<T> submit(Callable<T> task) {
-            FutureTask<T> futureTask = new FutureTask<>(task);
-            futureTask.run();
-            return futureTask;
-        }
-
-        @Override
-        public <T> Future<T> submit(Runnable task, T result) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public Future<?> submit(Runnable task) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks) throws InterruptedException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public <T> List<Future<T>> invokeAll(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public <T> T invokeAny(Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public <T> T invokeAny(Collection<? extends Callable<T>> tasks, long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-            throw new UnsupportedOperationException();
-        }
     }
 }

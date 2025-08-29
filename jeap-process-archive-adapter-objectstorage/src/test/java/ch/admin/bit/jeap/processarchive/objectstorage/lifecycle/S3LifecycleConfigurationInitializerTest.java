@@ -16,6 +16,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mock.Strictness.LENIENT;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +38,7 @@ class S3LifecycleConfigurationInitializerTest {
             .build();
     private static final String BUCKET = "bucket";
 
-    @Mock(lenient = true)
+    @Mock(strictness = LENIENT)
     private LifecyclePolicyService lifecyclePolicyService;
     @Mock
     private TimedS3Client s3client;
