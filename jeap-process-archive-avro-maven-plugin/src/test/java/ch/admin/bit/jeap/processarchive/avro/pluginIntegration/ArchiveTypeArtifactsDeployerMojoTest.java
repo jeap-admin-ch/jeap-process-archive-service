@@ -4,6 +4,8 @@ import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypeArtifactsDep
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.testing.MojoRule;
+import org.apache.maven.shared.invoker.InvocationResult;
+import org.apache.maven.shared.invoker.Invoker;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -13,7 +15,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class ArchiveTypeArtifactsDeployerMojoTest extends AbstractAvroMojoTest {
 
@@ -42,8 +45,16 @@ public class ArchiveTypeArtifactsDeployerMojoTest extends AbstractAvroMojoTest {
         Files.createDirectories(targetDirectory.toPath());
         FileUtils.copyDirectory(Paths.get("src/test/resources/sample-project").toFile(), Paths.get(targetDirectory.getAbsolutePath()).toFile());
         ArchiveTypeArtifactsDeployerMojo myMojo = (ArchiveTypeArtifactsDeployerMojo) mojoRule.lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
+        Invoker invoker = mock(Invoker.class);
+        InvocationResult resultMock = mock(InvocationResult.class);
+        when(invoker.execute(any())).thenReturn(resultMock);
+
+        myMojo.setInvokerFactory(() -> invoker);
 
         // act
-        assertDoesNotThrow(myMojo::execute);
+        myMojo.execute();
+
+        // assert
+        verify(invoker).execute(any());
     }
 }

@@ -17,18 +17,24 @@ import java.util.stream.Collectors;
 
 public class MavenDeployer {
 
+    public interface InvokerFactory {
+        Invoker createInvoker();
+    }
+
     private final Log log;
     private final String mavenDeployGoal;
     private final String mavenExecutable;
     private final String mavenGlobalSettingsFile;
     private final String profile;
+    private final InvokerFactory invokerFactory;
 
-    public MavenDeployer(Log log, String mavenDeployGoal, String mavenExecutable, String mavenGlobalSettingsFile, String profile) {
+    public MavenDeployer(Log log, String mavenDeployGoal, String mavenExecutable, String mavenGlobalSettingsFile, String profile, InvokerFactory invokerFactory) {
         this.log = log;
         this.mavenDeployGoal = mavenDeployGoal;
         this.mavenExecutable = mavenExecutable;
         this.mavenGlobalSettingsFile = mavenGlobalSettingsFile;
         this.profile = profile;
+        this.invokerFactory = invokerFactory;
     }
 
     public void deployProjects(List<Path> poms) {
@@ -46,7 +52,7 @@ public class MavenDeployer {
 
     @SneakyThrows
     private void executeRequest(InvocationRequest request) {
-        Invoker invoker = createInvoker();
+        Invoker invoker = invokerFactory.createInvoker();
         try {
             InvocationResult result = invoker.execute(request);
             if (result.getExitCode() != 0) {
@@ -55,10 +61,6 @@ public class MavenDeployer {
         } catch (MavenInvocationException e) {
             throw new MojoExecutionException("Error during Maven Invocation: " + e.getMessage(), e);
         }
-    }
-
-    Invoker createInvoker() {
-        return new DefaultInvoker();
     }
 
     private InvocationRequest toInvocationRequest(Path pomPath) {

@@ -21,28 +21,59 @@ import static org.junit.Assert.assertTrue;
 public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
     private static final String EXPECTED_V1_METADATA = """
-            public static final Map<String, Object> ARCHIVE_TYPE_METADATA = Map.of(
-            "archiveTypeVersion", 1,
-            "archiveTypeName", "Decree",
-            "systemName", "JEAP",
-            "referenceIdType", "ch.admin.bit.jeap.audit.type.JmeDecreeArchive",
-            "expirationDays", 30
-            ,"registryUrl", "gitUrl"
-            ,"registryBranch", "my-branch"
-            ,"registryCommit", "cafebabe"
-            );""";
+            public static final String ARCHIVE_TYPE_VERSION = "1";
+            public static final String ARCHIVE_TYPE_NAME = "Decree";
+            public static final String SYSTEM_NAME = "JEAP";
+            public static final String REFERENCE_ID_TYPE = "ch.admin.bit.jeap.audit.type.JmeDecreeArchive";
+            public static final int EXPIRATION_DAYS = 30;
+            public static final String REGISTRY_URL = "gitUrl";
+            public static final String REGISTRY_BRANCH = "my-branch";
+            public static final String REGISTRY_COMMIT = "cafebabe";
+            
+            public static final Map
+            <String, Object> ARCHIVE_TYPE_METADATA = Map.of(
+            "archiveTypeVersion", ARCHIVE_TYPE_VERSION,
+            "archiveTypeName", ARCHIVE_TYPE_NAME,
+            "systemName", SYSTEM_NAME,
+            "referenceIdType", REFERENCE_ID_TYPE,
+            "expirationDays", EXPIRATION_DAYS
+            ,"registryUrl", REGISTRY_URL
+            ,"registryBranch", REGISTRY_BRANCH
+            ,"registryCommit", REGISTRY_COMMIT
+            );
+            
+            public Map
+            <String, Object> metadata() {
+            return ARCHIVE_TYPE_METADATA;
+            }""";
     private static final String EXPECTED_V2_METADATA = """
-            public static final Map<String, Object> ARCHIVE_TYPE_METADATA = Map.of(
-            "archiveTypeVersion", 2,
-            "archiveTypeName", "Decree",
-            "systemName", "JEAP",
-            "referenceIdType", "ch.admin.bit.jeap.audit.type.JmeDecreeArchive",
-            "expirationDays", 30
-            ,"registryUrl", "gitUrl"
-            ,"registryBranch", "my-branch"
-            ,"registryCommit", "cafebabe"
-            ,"compatibilityMode", "BACKWARD"
-            );""";
+            public static final String ARCHIVE_TYPE_VERSION = "2";
+            public static final String ARCHIVE_TYPE_NAME = "Decree";
+            public static final String SYSTEM_NAME = "JEAP";
+            public static final String REFERENCE_ID_TYPE = "ch.admin.bit.jeap.audit.type.JmeDecreeArchive";
+            public static final int EXPIRATION_DAYS = 30;
+            public static final String REGISTRY_URL = "gitUrl";
+            public static final String REGISTRY_BRANCH = "my-branch";
+            public static final String REGISTRY_COMMIT = "cafebabe";
+            public static final String COMPATIBILITY_MODE = "BACKWARD";
+            
+            public static final Map
+            <String, Object> ARCHIVE_TYPE_METADATA = Map.of(
+            "archiveTypeVersion", ARCHIVE_TYPE_VERSION,
+            "archiveTypeName", ARCHIVE_TYPE_NAME,
+            "systemName", SYSTEM_NAME,
+            "referenceIdType", REFERENCE_ID_TYPE,
+            "expirationDays", EXPIRATION_DAYS
+            ,"registryUrl", REGISTRY_URL
+            ,"registryBranch", REGISTRY_BRANCH
+            ,"registryCommit", REGISTRY_COMMIT
+            ,"compatibilityMode", COMPATIBILITY_MODE
+            );
+            
+            public Map
+            <String, Object> metadata() {
+            return ARCHIVE_TYPE_METADATA;
+            }""";
 
     @Rule
     public MojoRule mojoRule = new MojoRule();

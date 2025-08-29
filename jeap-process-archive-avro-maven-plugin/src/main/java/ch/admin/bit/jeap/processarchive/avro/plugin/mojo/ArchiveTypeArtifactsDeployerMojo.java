@@ -9,6 +9,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.apache.maven.shared.invoker.DefaultInvoker;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,13 +52,16 @@ public class ArchiveTypeArtifactsDeployerMojo extends AbstractMojo {
     @Setter
     private String trunkMavenProfile;
 
+    @Setter
+    private MavenDeployer.InvokerFactory invokerFactory = DefaultInvoker::new;
+
     @Override
     public void execute() throws MojoExecutionException {
         if (!sourcesDirectory.exists()) {
             return;
         }
         String profile = isBuildOnTrunk() ? trunkMavenProfile : null;
-        MavenDeployer deployer = new MavenDeployer(getLog(), mavenDeployGoal, mavenExecutable, mavenGlobalSettingsFile, profile);
+        MavenDeployer deployer = new MavenDeployer(getLog(), mavenDeployGoal, mavenExecutable, mavenGlobalSettingsFile, profile, invokerFactory);
         deployCommonLibraries(deployer);
         deployLibraries(deployer);
     }
