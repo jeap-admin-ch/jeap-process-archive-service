@@ -21,7 +21,7 @@
                 <artifactId>maven-plugin-plugin</artifactId>
                 <version>${maven-plugin-plugin.version}</version>
                 <configuration>
-                    <goalPrefix>distribute</goalPrefix>
+                    <goalPrefix>pas-avro-maven-plugin</goalPrefix>
                     <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
                 </configuration>
                 <executions>

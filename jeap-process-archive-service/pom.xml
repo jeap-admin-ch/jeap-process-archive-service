@@ -83,12 +83,14 @@
                 <version>9.0.0-SNAPSHOT</version>
                 <executions>
                     <execution>
+                        <phase>generate-test-sources</phase>
                         <goals>
                             <goal>idl</goal>
                         </goals>
                         <configuration>
                             <sourceDirectory>${basedir}/src/test/resources/archive-types</sourceDirectory>
                             <outputDirectory>${project.build.directory}/generated-test-sources</outputDirectory>
+                            <testCompile>true</testCompile>
                         </configuration>
                     </execution>
                 </executions>

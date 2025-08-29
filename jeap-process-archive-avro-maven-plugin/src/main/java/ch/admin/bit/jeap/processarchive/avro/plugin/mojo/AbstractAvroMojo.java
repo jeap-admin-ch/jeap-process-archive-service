@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.avro.Protocol;
-import org.apache.avro.Schema;
 import org.apache.avro.compiler.idl.ParseException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,9 +36,12 @@ public abstract class AbstractAvroMojo extends AbstractMojo {
     @SuppressWarnings("unused")
     private MavenProject project;
     @Getter(AccessLevel.PROTECTED)
-    @Parameter(defaultValue = "false")
+    @Parameter(defaultValue = "true")
     @SuppressWarnings("unused")
     private boolean enableDecimalLogicalType;
+    @Parameter(defaultValue = "false")
+    @SuppressWarnings("unused")
+    private boolean testCompile;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -56,7 +58,11 @@ public abstract class AbstractAvroMojo extends AbstractMojo {
             compile(avroCompiler, file);
         }
 
-        project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
+        if (!testCompile) {
+            project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
+        } else {
+            project.addTestCompileSourceRoot(outputDirectory.getAbsolutePath());
+        }
     }
 
     private ArchiveTypeMetadata createArchiveTypeMetadata() {
@@ -97,34 +103,12 @@ public abstract class AbstractAvroMojo extends AbstractMojo {
         try {
             IdlFileParser idlFileParser = new IdlFileParser(importClassLoader);
             Protocol protocol = idlFileParser.parseIdlFile(file);
-            //We cannot skip compile when the file has not changed
-            //as there might be includes who have changed
+            // We cannot skip compile when the file has not changed
+            // as there might be includes who have changed
             getLog().debug("Compile protocol " + protocol.getName() + "from IDL file " + file.getAbsolutePath());
             protocol.getTypes().forEach(t -> getLog().debug("Type " + t.getName() + " is in this record"));
             avroCompiler.compileProtocol(protocol, null);
         } catch (IOException | ParseException e) {
-            throw compileException(e, file);
-        }
-    }
-
-    void compileSchema(AvroCompiler avroCompiler, File file) throws MojoExecutionException {
-        try {
-            Schema.Parser parser = new Schema.Parser();
-            Schema schema = parser.parse(file);
-            getLog().debug("Compile schema " + schema.getName() + "from schema file " + file.getAbsolutePath());
-            avroCompiler.compileSchema(schema, file);
-        } catch (IOException e) {
-            throw compileException(e, file);
-        }
-    }
-
-    void compileProtocol(AvroCompiler avroCompiler, File file) throws MojoExecutionException {
-        try {
-            Protocol protocol = Protocol.parse(file);
-            getLog().debug("Compile protocol " + protocol.getName() + "from protocol file " + file.getAbsolutePath());
-            protocol.getTypes().forEach(t -> getLog().debug("Type " + t.getName() + " is in this record"));
-            avroCompiler.compileProtocol(protocol, file);
-        } catch (IOException e) {
             throw compileException(e, file);
         }
     }
