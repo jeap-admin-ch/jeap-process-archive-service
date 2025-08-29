@@ -26,9 +26,9 @@ import org.apache.avro.util.Utf8;
 import org.apache.avro.message.BinaryMessageEncoder;
 import org.apache.avro.message.BinaryMessageDecoder;
 import org.apache.avro.message.SchemaStore;
-    #if ($!archivetypemetadata && $archivetypemetadata.shouldGenerateFor($schema))
-    import java.util.Map;
-    #end
+#if ($!archivetypemetadata && $archivetypemetadata.shouldGenerateFor($schema))
+import java.util.Map;
+#end
 #end
 #if (${this.gettersReturnOptional} || ${this.createOptionalGetters})import java.util.Optional;#end
 
@@ -55,37 +55,67 @@ static {
 #end
 
 #if ($!archivetypemetadata && $archivetypemetadata.shouldGenerateFor($schema))
+public static final String ARCHIVE_TYPE_VERSION = "${archivetypemetadata.archiveTypeVersion}";
+public static final String ARCHIVE_TYPE_NAME = "${archivetypemetadata.archiveTypeName}";
+public static final String SYSTEM_NAME = "${archivetypemetadata.systemName}";
+public static final String REFERENCE_ID_TYPE = "${archivetypemetadata.referenceIdType}";
+public static final int EXPIRATION_DAYS = ${archivetypemetadata.expirationDays};
+#if($archivetypemetadata.registryUrl)
+public static final String REGISTRY_URL = "${archivetypemetadata.registryUrl}";
+#end
+#if($archivetypemetadata.registryBranch)
+public static final String REGISTRY_BRANCH = "${archivetypemetadata.registryBranch}";
+#end
+#if($archivetypemetadata.registryCommit)
+public static final String REGISTRY_COMMIT = "${archivetypemetadata.registryCommit}";
+#end
+#if($archivetypemetadata.compatibilityMode)
+public static final String COMPATIBILITY_MODE = "${archivetypemetadata.compatibilityMode}";
+#end
+#if($archivetypemetadata.compatibleVersion)
+public static final int COMPATIBLE_VERSION = ${archivetypemetadata.compatibleVersion};
+#end
+#if($archivetypemetadata.encryptionSecretEnginePath)
+public static final String ENCRYPTION_SECRET_ENGINE_PATH = "${archivetypemetadata.encryptionSecretEnginePath}";
+#end
+#if($archivetypemetadata.encryptionKeyName)
+public static final String ENCRYPTION_KEY_NAME = "${archivetypemetadata.encryptionKeyName}";
+#end
+#if($archivetypemetadata.encryptionKeyId)
+public static final String ENCRYPTION_KEY_ID = "${archivetypemetadata.encryptionKeyId}";
+#end
+
 public static final Map
 <String, Object> ARCHIVE_TYPE_METADATA = Map.of(
-"archiveTypeVersion", ${archivetypemetadata.archiveTypeVersion},
-"archiveTypeName", "${archivetypemetadata.archiveTypeName}",
-"systemName", "${archivetypemetadata.systemName}",
-"referenceIdType", "${archivetypemetadata.referenceIdType}",
-"expirationDays", ${archivetypemetadata.expirationDays}
-    #if($archivetypemetadata.registryUrl)
-    ,"registryUrl", "${archivetypemetadata.registryUrl}"
-    #end
-    #if($archivetypemetadata.registryBranch)
-    ,"registryBranch", "${archivetypemetadata.registryBranch}"
-    #end
-    #if($archivetypemetadata.registryCommit)
-    ,"registryCommit", "${archivetypemetadata.registryCommit}"
-    #end
-    #if($archivetypemetadata.compatibilityMode)
-    ,"compatibilityMode", "${archivetypemetadata.compatibilityMode}"
-    #end
-    #if($archivetypemetadata.compatibleVersion)
-    ,"compatibleVersion", ${archivetypemetadata.compatibleVersion}
-    #end
-    #if($archivetypemetadata.encryptionSecretEnginePath)
-    ,"encryptionSecretEnginePath", "${archivetypemetadata.encryptionSecretEnginePath}"
-    #end
-    #if($archivetypemetadata.encryptionKeyName)
-    ,"encryptionKeyName", "${archivetypemetadata.encryptionKeyName}"
-    #end
-    #if($archivetypemetadata.encryptionKeyId)
-    ,"encryptionKeyId", "${archivetypemetadata.encryptionKeyId}"
-    #end
+"archiveTypeVersion", ARCHIVE_TYPE_VERSION,
+"archiveTypeName", ARCHIVE_TYPE_NAME,
+"systemName", SYSTEM_NAME,
+"referenceIdType", REFERENCE_ID_TYPE,
+"expirationDays", EXPIRATION_DAYS
+#if($archivetypemetadata.registryUrl)
+,"registryUrl", REGISTRY_URL
+#end
+#if($archivetypemetadata.registryBranch)
+,"registryBranch", REGISTRY_BRANCH
+#end
+#if($archivetypemetadata.registryCommit)
+,"registryCommit", REGISTRY_COMMIT
+#end
+#if($archivetypemetadata.compatibilityMode)
+,"compatibilityMode", COMPATIBILITY_MODE
+#end
+#if($archivetypemetadata.compatibleVersion)
+,"compatibleVersion", COMPATIBLE_VERSION
+#end
+#if($archivetypemetadata.encryptionSecretEnginePath)
+,"encryptionSecretEnginePath", ENCRYPTION_SECRET_ENGINE_PATH
+#end
+#if($archivetypemetadata.encryptionKeyName)
+,"encryptionKeyName", ENCRYPTION_KEY_NAME
+#end
+#if($archivetypemetadata.encryptionKeyId)
+,"encryptionKeyId", ENCRYPTION_KEY_ID
+#end
 );
 
 public Map
@@ -796,7 +826,7 @@ throw new java.util.ConcurrentModificationException("Map-size written was " + si
     #elseif ($s.Type.Name.equals("enum"))
         $I    $var = ${this.javaType($s)}.values()[in.readEnum()];
     #else
-        ## TODO -- singal a code-gen-time error
+        ## TODO -- signal a code-gen-time error
     #end
 #end
 
