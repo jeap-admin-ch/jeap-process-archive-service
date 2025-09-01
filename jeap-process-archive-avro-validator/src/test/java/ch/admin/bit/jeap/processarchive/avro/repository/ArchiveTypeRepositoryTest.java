@@ -33,18 +33,18 @@ class ArchiveTypeRepositoryTest {
     }
 
     @Test
-    void requireArchiveType_v2() {
+    void requireArchiveType_Document_v1() {
         ArchiveTypeId schemaId = ArchiveTypeId.builder()
                 .system("JME")
-                .name("Decree")
-                .version(2)
+                .name("DecreeDocument")
+                .version(1)
                 .build();
 
         ArchiveType archiveType = repository.requireArchiveType(schemaId);
 
-        assertEquals("Decree", archiveType.getSchema().getName());
-        assertEquals("secret/engine", archiveType.getEncryption().getSecretEnginePath());
-        assertEquals("key-name", archiveType.getEncryption().getKeyName());
+        assertEquals("DecreeDocument", archiveType.getSchema().getName());
+        assertEquals("jeap/test", archiveType.getEncryption().getSecretEnginePath());
+        assertEquals("test-key", archiveType.getEncryption().getKeyName());
     }
 
     @Test

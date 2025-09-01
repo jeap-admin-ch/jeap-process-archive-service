@@ -1,0 +1,11 @@
+@namespace("ch.admin.bit.jeap.processarchive.test.decreedocument.v1")
+protocol DecreeDocumentProtocol {
+  import idl "ch.admin.bit.jeap.processarchive.test.DecreeReference.avdl";
+
+  record DecreeDocument {
+    string documentId;
+    ch.admin.bit.jeap.processarchive.test.DecreeReference decreeReference;
+    timestamp_ms createdAt;
+    bytes pdf;
+  }
+}

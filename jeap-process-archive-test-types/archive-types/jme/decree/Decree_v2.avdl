@@ -1,0 +1,10 @@
+@namespace("ch.admin.bit.jeap.processarchive.test.decree.v2")
+protocol DecreeProtocol {
+
+  import idl "ch.admin.bit.jeap.processarchive.test.DecreeReference.avdl";
+
+  record Decree {
+    ch.admin.bit.jeap.processarchive.test.DecreeReference decreeReference;
+    string payload;
+  }
+}
