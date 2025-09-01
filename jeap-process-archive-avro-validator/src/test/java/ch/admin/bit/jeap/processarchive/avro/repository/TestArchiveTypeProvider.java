@@ -13,6 +13,7 @@ public class TestArchiveTypeProvider implements ArchiveTypeProvider {
     public List<Class<? extends SpecificRecordBase>> getArchiveTypeVersions() {
         return List.of(
                 ch.admin.bit.jeap.processarchive.test.decree.v1.Decree.class,
-                ch.admin.bit.jeap.processarchive.test.decree.v2.Decree.class);
+                ch.admin.bit.jeap.processarchive.test.decree.v2.Decree.class,
+                ch.admin.bit.jeap.processarchive.test.decreedocument.v1.DecreeDocument.class);
     }
 }

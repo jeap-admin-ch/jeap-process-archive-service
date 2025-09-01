@@ -1,0 +1,7 @@
+@namespace("ch.admin.bit.jeap.processarchive.test.decree.v1")
+protocol DecreeProtocol {
+
+  record Decree {
+    string payload;
+  }
+}

@@ -33,9 +33,9 @@ class ArchiveTypeLifecyclePolicyServiceTest {
 
         assertEquals("Decree", lifecyclePolicy.getArchiveTypeName());
         assertEquals("JME", lifecyclePolicy.getSystemName());
-        assertEquals(60, lifecyclePolicy.getCurrentVersionExpirationDays());
-        assertEquals(60, lifecyclePolicy.getPreviousVersionExpirationDays());
-        assertEquals(60, lifecyclePolicy.getRetainDays());
+        assertEquals(30, lifecyclePolicy.getCurrentVersionExpirationDays());
+        assertEquals(30, lifecyclePolicy.getPreviousVersionExpirationDays());
+        assertEquals(30, lifecyclePolicy.getRetainDays());
     }
 
     @Test
@@ -43,6 +43,7 @@ class ArchiveTypeLifecyclePolicyServiceTest {
         List<LifecyclePolicy> allPolicies = lifecyclePolicyService.getAllLifecyclePolicies();
         assertEquals(2, allPolicies.size());
         assertEquals("Decree", allPolicies.get(0).getArchiveTypeName());
+        assertEquals("DecreeDocument", allPolicies.get(1).getArchiveTypeName());
     }
 
     private ArchiveData createArchiveData() {

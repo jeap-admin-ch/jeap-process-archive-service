@@ -1,0 +1,22 @@
+{
+  "archiveType": "Decree",
+  "system": "JME",
+  "referenceIdType": "ch.admin.bit.jeap.audit.type.JmeDecreeArtifact",
+  "description": "archive type example for a decree",
+  "documentationUrl": "https://foo/bar",
+  "expirationDays": 30,
+  "encryptionKey": {
+    "keyId": "jme-process-archive-example-key"
+  },
+  "versions": [
+    {
+      "version": 1,
+      "schema": "Decree_v1.avdl"
+    },
+    {
+      "version": 2,
+      "schema": "Decree_v2.avdl",
+      "compatibilityMode": "NONE"
+    }
+  ]
+}

@@ -119,17 +119,15 @@ public class ArchiveTypesCompilerMojo extends AbstractMojo {
                 .enableDecimalLogicalType(enableDecimalLogicalType)
                 .build();
 
-        GitClient gitClient = new GitClient(this.project.getBasedir().getAbsolutePath(), this.gitUrl, this.trunkBranchName, getLog());
-
-        if (fetchTags) {
-            getLog().info("Fetching tags from remote Git repository.");
-            gitClient.gitFetchTags(getGitToken());
-        }
-
         if (generateAllArchiveTypes) {
             compile(avroCompiler);
         } else {
-            final GitDiffDto gitDiff = gitClient.getGitDiff(this.currentBranch);
+            GitClient gitClient = new GitClient(this.project.getBasedir().getAbsolutePath(), this.gitUrl, this.trunkBranchName, getLog());
+            if (fetchTags) {
+                getLog().info("Fetching tags from remote Git repository.");
+                gitClient.gitFetchTags(getGitToken());
+            }
+            GitDiffDto gitDiff = gitClient.getGitDiff(this.currentBranch);
             if (gitDiff.hasChanges()) {
                 getLog().info("New archive types since compared commit: " + newTypes(gitDiff.newArchiveTypeVersions()));
                 compile(avroCompiler, gitDiff);
