@@ -13,6 +13,12 @@ class RegistryHelperTest {
     }
 
     @Test
+    void retrieveVersionFromCommonDefinition_systemNameWithV_returnsVersion() {
+        Integer version = RegistryHelper.retrieveVersionFromCommonDefinition("ch.admin.test.vsp.v1.Decision.avdl");
+        assertEquals(1, version);
+    }
+
+    @Test
     void convertFileNameOfAVDLToFilePathOfJava_fileName_returnsFilePath() {
         String filepath = RegistryHelper.convertFileNameOfAVDLToFilePathOfJava("test.abc.def.file.avdl");
         assertEquals("test/abc/def/file.java", filepath);

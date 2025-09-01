@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 @UtilityClass
 public class RegistryHelper {
 
-    private static final Pattern PATTERN_VERSION_COMMON_DEFINITION = Pattern.compile("\\.v(.*?)\\.");
+    private static final Pattern PATTERN_VERSION_COMMON_DEFINITION = Pattern.compile("\\.v(\\d*?)\\.");
 
     public static Integer retrieveVersionFromCommonDefinition(String filepath) {
         Matcher matcher = PATTERN_VERSION_COMMON_DEFINITION.matcher(filepath);

@@ -229,7 +229,9 @@ public class ArchiveTypesCompilerMojo extends AbstractMojo {
             } else {
 
                 List<ArchiveTypeSchema> schemas = entry.getValue().stream()
-                        .map(commonFile -> commonSchemaToArchiveTypeSchema(commonFile.toFile(), entry.getKey(), commonFile.getFileName().toString(), RegistryHelper.retrieveVersionFromCommonDefinition(commonFile.toString())))
+                        .map(commonFile -> commonSchemaToArchiveTypeSchema(commonFile.toFile(), entry.getKey(),
+                                commonFile.getFileName().toString(),
+                                RegistryHelper.retrieveVersionFromCommonDefinition(commonFile.getFileName().toString())))
                         .toList();
 
                 for (ArchiveTypeSchema schema : schemas) {
