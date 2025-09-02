@@ -43,6 +43,7 @@ Apache License Version 2.0
  * ch.admin.bit.jeap:jeap-spring-boot-monitoring-starter - [ch.admin.bit.jeap:jeap-spring-boot-monitoring-starter](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-monitoring-starter)
  * ch.admin.bit.jeap:jeap-spring-boot-rest-request-tracing - [ch.admin.bit.jeap:jeap-spring-boot-rest-request-tracing](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-rest-request-tracing)
  * ch.admin.bit.jeap:jeap-spring-boot-roles-anywhere-starter - [ch.admin.bit.jeap:jeap-spring-boot-roles-anywhere-starter](https://github.com/jeap-admin-ch/jeap-spring-boot-roles-anywhere-starter/tree/main/jeap-spring-boot-roles-anywhere-starter)
+ * ch.admin.bit.jeap:jeap-spring-boot-security-client-starter - [ch.admin.bit.jeap:jeap-spring-boot-security-client-starter](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-security-client-starter)
  * ch.admin.bit.jeap:jeap-spring-boot-security-starter - [ch.admin.bit.jeap:jeap-spring-boot-security-starter](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-security-starter)
  * _shared-messaging-common - [ch.admin.bit.jeap.messagetype._shared:_shared-messaging-common](https://github.com/jeap-admin-ch/jeap-message-type-registry/tree/main)
  * shared-archived-artifact-version-created-event - [ch.admin.bit.jeap.messagetype._shared:shared-archived-artifact-version-created-event](https://github.com/jeap-admin-ch/jeap-message-type-registry/tree/main)
