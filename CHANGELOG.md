@@ -10,6 +10,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Changed
 
 - Update parent from 27.3.0 to 27.4.0
+- update json-schema-validator from 1.5.8 to 1.5.9
 
 ## [9.4.0] - 2025-09-29
 
