@@ -34,6 +34,14 @@
       "oauthClientId": "my-pas-service"
     },
     {
+      "eventName": "eventWithConditionRemoteDataInPayload",
+      "topicName": "jme-race-mobilecheckpoint-passed",
+      "payloadProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestPayloadProvider",
+      "uri": "${jme.event-service.uri}/api/v1/archive/JmeRaceMobileCheckpointPassedEvent",
+      "condition": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestCondition",
+      "oauthClientId": "my-pas-service"
+    },
+    {
       "eventName": "eventWithCorrelationProvider",
       "topicName": "jme-race-started",
       "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestDomainEventArchiveDataProvider",
