@@ -9,8 +9,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Deprecate `ReferenceProvider` in plugin API in favor of `MessageProvider` (existing implementations continue to work but should migrate).
-- Introduce `MessageProvider` in plugin API to supply archive data based on the full `Message` instead of just references and wire it into configuration and domain model handling.
+- Deprecate `ReferenceProvider` in plugin API in favor of `ArchiveDataReferenceProvider` (existing implementations continue to work but should migrate).
+- Introduce `ArchiveDataReferenceProvider` in plugin API to supply archive data based on the full `Message` instead of just references and wire it into configuration and domain model handling.
 
 ## [10.1.0] - 2025-11-14
 
