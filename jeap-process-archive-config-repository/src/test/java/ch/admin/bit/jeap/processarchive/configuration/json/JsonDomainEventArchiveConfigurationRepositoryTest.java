@@ -105,13 +105,13 @@ class JsonDomainEventArchiveConfigurationRepositoryTest {
     }
 
     @Test
-    void findByName_eventFound_messageprovider() {
+    void findByName_eventFound_processDataArchiveProvider() {
         Optional<DomainEventArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithConditionRemoteDataInPayload");
         assertTrue(jmeRaceStartedEvent.isPresent());
         RemoteDataDomainEventArchiveConfiguration domainEventReferenceDefinition = (RemoteDataDomainEventArchiveConfiguration) jmeRaceStartedEvent.get();
         assertEquals("eventWithConditionRemoteDataInPayload", domainEventReferenceDefinition.getEventName());
         assertEquals("jme-race-mobilecheckpoint-passed", domainEventReferenceDefinition.getTopicName());
-        assertEquals(TestMessageProvider.class, domainEventReferenceDefinition.getMessageProvider().getClass());
+        assertEquals(TestArchiveDataReferenceProvider.class, domainEventReferenceDefinition.getArchiveDataReferenceProvider().getClass());
         assertEquals("http://localhost/api/v1/archive/JmeRaceMobileCheckpointPassedEvent", domainEventReferenceDefinition.getDataReaderEndpoint());
         assertEquals("my-pas-service", domainEventReferenceDefinition.getOauthClientId());
     }

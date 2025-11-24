@@ -36,7 +36,7 @@
     {
       "eventName": "eventWithConditionRemoteDataInPayload",
       "topicName": "jme-race-mobilecheckpoint-passed",
-      "messageProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestMessageProvider",
+      "archiveDataReferenceProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestArchiveDataReferenceProvider",
       "uri": "${jme.event-service.uri}/api/v1/archive/JmeRaceMobileCheckpointPassedEvent",
       "condition": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestCondition",
       "oauthClientId": "my-pas-service"

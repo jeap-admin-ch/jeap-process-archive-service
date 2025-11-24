@@ -30,7 +30,7 @@ public class EventConfigurationDeserializer {
 
         String domainEventArchiveDataReader = eventRefDefinition.getDomainEventArchiveDataProvider();
         String referenceProvider = eventRefDefinition.getReferenceProvider();
-        String messageProvider = eventRefDefinition.getMessageProvider();
+        String archiveDataReferenceProvider = eventRefDefinition.getArchiveDataReferenceProvider();
         String condition = eventRefDefinition.getCondition();
         String correlationProvider = eventRefDefinition.getCorrelationProvider();
         String dataReaderEndpoint = springExpressionEvaluator.evaluateExpression(eventRefDefinition.getUri());
@@ -42,13 +42,16 @@ public class EventConfigurationDeserializer {
         if (!hasText(topicName)) {
             throw DomainEventArchiveConfigurationException.emptyTopicName(eventName);
         }
-        if (!hasText(domainEventArchiveDataReader) && !hasText(referenceProvider) && !hasText(messageProvider)) {
+        if (!hasText(domainEventArchiveDataReader) && !hasText(referenceProvider) && !hasText(archiveDataReferenceProvider)) {
             throw DomainEventArchiveConfigurationException.noExtractor(eventName);
         }
-        if (hasText(referenceProvider) && hasText(messageProvider)) {
+        if (hasText(referenceProvider) && hasText(archiveDataReferenceProvider)) {
             throw DomainEventArchiveConfigurationException.tooManyExtractors(eventName);
         }
-        if (hasText(domainEventArchiveDataReader) && hasText(referenceProvider) && hasText(messageProvider)) {
+        if (hasText(domainEventArchiveDataReader) && (hasText(referenceProvider) || hasText(archiveDataReferenceProvider))) {
+            throw DomainEventArchiveConfigurationException.tooManyExtractors(eventName);
+        }
+        if (hasText(domainEventArchiveDataReader) && hasText(referenceProvider) && hasText(archiveDataReferenceProvider)) {
             throw DomainEventArchiveConfigurationException.tooManyExtractors(eventName);
         }
 
@@ -80,7 +83,7 @@ public class EventConfigurationDeserializer {
                 .archiveDataCondition(Instances.newInstance(condition))
                 .correlationProvider(Instances.newInstance(correlationProvider))
                 .referenceProvider(Instances.newInstance(referenceProvider))
-                .messageProvider(Instances.newInstance(messageProvider))
+                .archiveDataReferenceProvider(Instances.newInstance(archiveDataReferenceProvider))
                 .dataReaderEndpoint(dataReaderEndpoint)
                 .oauthClientId(oauthClientId)
                 .meterRegistry(meterRegistry)
