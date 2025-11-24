@@ -1,14 +1,13 @@
 package ch.admin.bit.jeap.processarchive.domain.configuration;
 
 import ch.admin.bit.jeap.messaging.model.Message;
-import ch.admin.bit.jeap.messaging.model.MessagePayload;
 import ch.admin.bit.jeap.messaging.model.MessageReferences;
 import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataFactory;
 import ch.admin.bit.jeap.processarchive.domain.archive.RemoteArchiveDataFactory;
 import ch.admin.bit.jeap.processarchive.domain.archive.RemoteArchiveDataProvider;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveDataCondition;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.MessageCorrelationProvider;
-import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.PayloadProvider;
+import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.MessageProvider;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ReferenceProvider;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Builder;
@@ -21,7 +20,7 @@ import lombok.Value;
 public class RemoteDataDomainEventArchiveConfiguration extends DomainEventArchiveConfiguration {
 
     ReferenceProvider<MessageReferences> referenceProvider;
-    PayloadProvider<MessagePayload> payloadProvider;
+    MessageProvider<Message> messageProvider;
     String dataReaderEndpoint;
     String oauthClientId;
     RemoteArchiveDataProvider remoteArchiveDataProvider;
@@ -35,7 +34,7 @@ public class RemoteDataDomainEventArchiveConfiguration extends DomainEventArchiv
                                                       @NonNull String topicName,
                                                       String clusterName,
                                                       ReferenceProvider<MessageReferences> referenceProvider,
-                                                      PayloadProvider<MessagePayload> payloadProvider,
+                                                      MessageProvider<Message> messageProvider,
                                                       @NonNull String dataReaderEndpoint,
                                                       String oauthClientId,
                                                       @NonNull MeterRegistry meterRegistry,
@@ -45,7 +44,7 @@ public class RemoteDataDomainEventArchiveConfiguration extends DomainEventArchiv
         this.remoteArchiveDataProvider = remoteArchiveDataProvider;
         this.archiveDataCondition = archiveDataCondition;
         this.referenceProvider = referenceProvider;
-        this.payloadProvider = payloadProvider;
+        this.messageProvider = messageProvider;
         this.dataReaderEndpoint = dataReaderEndpoint;
         this.oauthClientId = oauthClientId;
         this.meterRegistry = meterRegistry;

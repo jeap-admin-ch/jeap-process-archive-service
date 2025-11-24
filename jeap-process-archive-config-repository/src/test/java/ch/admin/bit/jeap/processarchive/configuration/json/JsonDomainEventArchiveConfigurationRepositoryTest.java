@@ -9,7 +9,6 @@ import ch.admin.bit.jeap.processarchive.domain.configuration.DomainEventArchiveC
 import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataDomainEventArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.domain.configuration.RemoteDataDomainEventArchiveConfiguration;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -106,13 +105,13 @@ class JsonDomainEventArchiveConfigurationRepositoryTest {
     }
 
     @Test
-    void findByName_eventFound_payloadprovider() {
+    void findByName_eventFound_messageprovider() {
         Optional<DomainEventArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithConditionRemoteDataInPayload");
         assertTrue(jmeRaceStartedEvent.isPresent());
         RemoteDataDomainEventArchiveConfiguration domainEventReferenceDefinition = (RemoteDataDomainEventArchiveConfiguration) jmeRaceStartedEvent.get();
         assertEquals("eventWithConditionRemoteDataInPayload", domainEventReferenceDefinition.getEventName());
         assertEquals("jme-race-mobilecheckpoint-passed", domainEventReferenceDefinition.getTopicName());
-        assertEquals(TestPayloadProvider.class, domainEventReferenceDefinition.getPayloadProvider().getClass());
+        assertEquals(TestMessageProvider.class, domainEventReferenceDefinition.getMessageProvider().getClass());
         assertEquals("http://localhost/api/v1/archive/JmeRaceMobileCheckpointPassedEvent", domainEventReferenceDefinition.getDataReaderEndpoint());
         assertEquals("my-pas-service", domainEventReferenceDefinition.getOauthClientId());
     }
