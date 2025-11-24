@@ -30,7 +30,7 @@ public class EventConfigurationDeserializer {
 
         String domainEventArchiveDataReader = eventRefDefinition.getDomainEventArchiveDataProvider();
         String referenceProvider = eventRefDefinition.getReferenceProvider();
-        String payloadProvider = eventRefDefinition.getPayloadProvider();
+        String messageProvider = eventRefDefinition.getMessageProvider();
         String condition = eventRefDefinition.getCondition();
         String correlationProvider = eventRefDefinition.getCorrelationProvider();
         String dataReaderEndpoint = springExpressionEvaluator.evaluateExpression(eventRefDefinition.getUri());
@@ -42,13 +42,13 @@ public class EventConfigurationDeserializer {
         if (!hasText(topicName)) {
             throw DomainEventArchiveConfigurationException.emptyTopicName(eventName);
         }
-        if (!hasText(domainEventArchiveDataReader) && !hasText(referenceProvider) && !hasText(payloadProvider)) {
+        if (!hasText(domainEventArchiveDataReader) && !hasText(referenceProvider) && !hasText(messageProvider)) {
             throw DomainEventArchiveConfigurationException.noExtractor(eventName);
         }
-        if (hasText(referenceProvider) && hasText(payloadProvider)) {
+        if (hasText(referenceProvider) && hasText(messageProvider)) {
             throw DomainEventArchiveConfigurationException.tooManyExtractors(eventName);
         }
-        if (hasText(domainEventArchiveDataReader) && hasText(referenceProvider) && hasText(payloadProvider)) {
+        if (hasText(domainEventArchiveDataReader) && hasText(referenceProvider) && hasText(messageProvider)) {
             throw DomainEventArchiveConfigurationException.tooManyExtractors(eventName);
         }
 
@@ -80,7 +80,7 @@ public class EventConfigurationDeserializer {
                 .archiveDataCondition(Instances.newInstance(condition))
                 .correlationProvider(Instances.newInstance(correlationProvider))
                 .referenceProvider(Instances.newInstance(referenceProvider))
-                .payloadProvider(Instances.newInstance(payloadProvider))
+                .messageProvider(Instances.newInstance(messageProvider))
                 .dataReaderEndpoint(dataReaderEndpoint)
                 .oauthClientId(oauthClientId)
                 .meterRegistry(meterRegistry)

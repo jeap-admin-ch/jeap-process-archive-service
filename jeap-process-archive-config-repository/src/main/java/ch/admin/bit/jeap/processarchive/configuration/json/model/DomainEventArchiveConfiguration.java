@@ -10,7 +10,7 @@ public class DomainEventArchiveConfiguration {
     private String clusterName;
     private String domainEventArchiveDataProvider;
     private String referenceProvider;
-    private String payloadProvider;
+    private String messageProvider;
     private String condition;
     private String uri;
     private String oauthClientId;

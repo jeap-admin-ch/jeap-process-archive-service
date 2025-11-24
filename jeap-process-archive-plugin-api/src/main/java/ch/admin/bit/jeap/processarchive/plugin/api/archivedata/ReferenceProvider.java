@@ -5,7 +5,11 @@ import ch.admin.bit.jeap.messaging.model.MessageReferences;
 /**
  * Provides a data reference used to invoke the remote data reader endpoint (i.e. a microservice REST API providing the data
  * to be archived): <pre>${dataReaderEndpoint}/{referenceId}</pre>
+ *
+ * @deprecated Use {@link MessageProvider} for new implementations. This interface is kept only for backward compatibility
+ * and may be removed in a future major release.
  */
+@Deprecated(since = "3.6.0", forRemoval = false)
 public interface ReferenceProvider<E extends MessageReferences> {
 
     /**
