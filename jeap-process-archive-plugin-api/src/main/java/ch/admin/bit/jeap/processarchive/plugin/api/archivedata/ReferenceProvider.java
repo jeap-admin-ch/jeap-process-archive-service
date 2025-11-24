@@ -9,7 +9,7 @@ import ch.admin.bit.jeap.messaging.model.MessageReferences;
  * @deprecated Use {@link MessageProvider} for new implementations. This interface is kept only for backward compatibility
  * and may be removed in a future major release.
  */
-@Deprecated(since = "3.6.0", forRemoval = false)
+@Deprecated(since = "10.2.0; use MessageProvider instead", forRemoval = false)
 public interface ReferenceProvider<E extends MessageReferences> {
 
     /**
