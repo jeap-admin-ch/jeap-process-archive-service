@@ -3,7 +3,6 @@ package ch.admin.bit.jeap.processarchive.domain.archive;
 import ch.admin.bit.jeap.domainevent.DomainEvent;
 import ch.admin.bit.jeap.processarchive.domain.configuration.RemoteDataDomainEventArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
-import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveDataReference;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +16,9 @@ public class RemoteArchiveDataFactory implements ArchiveDataFactory {
 
     @Override
     public ArchiveData createArchiveData(DomainEvent domainEvent) {
-        ArchiveDataReference reference = configuration.getReferenceProvider().getReference(domainEvent.getReferences());
+        final var reference = configuration.getArchiveDataReferenceProvider() != null
+                ? configuration.getArchiveDataReferenceProvider().getReference(domainEvent)
+                : configuration.getReferenceProvider().getReference(domainEvent.getReferences());
 
         if (reference == null) {
             return null;
