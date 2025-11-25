@@ -17,6 +17,12 @@
       "topicName": "test-event-3",
       "correlationProvider": "ch.admin.bit.jeap.processarchive.service.test.TestCorrelationProvider",
       "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.service.test.TestDomainEvent3DataProvider"
+    },
+    {
+      "eventName": "TestDomain4Event",
+      "topicName": "test-event-4",
+      "archiveDataReferenceProvider": "ch.admin.bit.jeap.processarchive.service.test.TestArchiveDataReferenceProvider",
+      "uri": "${test.service.uri}"
     }
   ]
 }
