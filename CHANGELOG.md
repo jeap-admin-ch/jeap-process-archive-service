@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.5.0] - 2025-12-02
+
+### Changed
+
+- Enhance schema storage logic with overwrite checks to prevent accidental overwrites of existing schemas with different
+  content
+    - Set jeap.processarchive.objectstorage.schema-overwrite-allowed to false to enable this behavior (default is true
+      for backward compatibility)
+
 ## [10.4.0] - 2025-12-02
 
 ### Changed

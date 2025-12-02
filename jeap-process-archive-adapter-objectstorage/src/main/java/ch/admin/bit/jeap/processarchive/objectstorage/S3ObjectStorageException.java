@@ -1,5 +1,6 @@
 package ch.admin.bit.jeap.processarchive.objectstorage;
 
+import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.ArchiveDataSchema;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -7,6 +8,10 @@ public class S3ObjectStorageException extends RuntimeException {
 
     public S3ObjectStorageException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public S3ObjectStorageException(String message) {
+        super(message);
     }
 
     public static S3ObjectStorageException connectingFailed(Exception e, S3ObjectStorageConnectionProperties s3ObjectStorageConnectionProperties) {
@@ -39,4 +44,9 @@ public class S3ObjectStorageException extends RuntimeException {
         return new S3ObjectStorageException(msg, e);
     }
 
+    public static S3ObjectStorageException schemaOverwriteNotAllowed(ArchiveDataSchema schema) {
+        String msg = String.format("Schema overwrite not allowed for schema '%s' version %d.", schema.getName(), schema.getVersion());
+        log.error(msg);
+        return new S3ObjectStorageException(msg);
+    }
 }

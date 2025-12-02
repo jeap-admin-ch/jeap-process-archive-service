@@ -41,6 +41,7 @@ public class ArchiveDataObjectStoreAdapter implements ArchiveDataObjectStore {
     private final ObjectStorageRepository objectStorageRepository;
     private final ObjectStorageStrategy objectStorageStrategy;
     private final LifecyclePolicyService lifecyclePolicyService;
+    private final ObjectStorageProperties objectStorageProperties;
     private final HashProvider hashProvider;
 
     @Override
@@ -76,7 +77,7 @@ public class ArchiveDataObjectStoreAdapter implements ArchiveDataObjectStore {
                     lifecyclePolicy,
                     encryption);
         } catch (Exception e) {
-            final String msg = String.format("Error while storing archive data to storage target '%s'.", target);
+            final String msg = String.format("Error while storing archive data to storage target '%s': %s", target, e.getMessage());
             throw ArchiveDataObjectStoreStorageException.storingFailed(archiveData, msg, e);
         }
     }
@@ -84,7 +85,7 @@ public class ArchiveDataObjectStoreAdapter implements ArchiveDataObjectStore {
     private String storeSchema(ArchiveDataSchema schema, String bucket, String schemaLocation) {
         try {
             Optional<StorageObjectProperties> objectProperties = objectStorageRepository.getObjectProperties(bucket, schemaLocation);
-            if (objectProperties.isEmpty() || shouldStoreSchema(schema, objectProperties.get())) {
+            if (objectProperties.isEmpty() || shouldStoreSchemaWithOverwriteCheck(schema, objectProperties.get())) {
                 final Map<String, String> metadata = createSchemaMetadata(schema);
                 return objectStorageRepository.putObject(bucket,
                         schemaLocation,
@@ -94,13 +95,24 @@ public class ArchiveDataObjectStoreAdapter implements ArchiveDataObjectStore {
                 return objectProperties.get().getVersionId();
             }
         } catch (Exception e) {
-            final String msg = String.format("Error while storing archive data schema in bucket %s at %s", bucket, schemaLocation);
+            final String msg = String.format("Error while storing archive data schema in bucket %s at %s: %s", bucket, schemaLocation, e.getMessage());
             throw ArchiveDataObjectStoreStorageException.storingSchemaFailed(schema, msg, e);
         }
     }
 
-    private boolean shouldStoreSchema(ArchiveDataSchema schema, StorageObjectProperties objectProperties) {
-        return !hashMatches(objectProperties, schema);
+    private boolean shouldStoreSchemaWithOverwriteCheck(ArchiveDataSchema schema, StorageObjectProperties objectProperties) {
+        boolean existingSchemaMatchesArchiveDataSchema = hashMatches(objectProperties, schema);
+        if (!existingSchemaMatchesArchiveDataSchema) {
+            failIfSchemaOverwriteNotAllowed(schema);
+            return true;
+        }
+        return false;
+    }
+
+    private void failIfSchemaOverwriteNotAllowed(ArchiveDataSchema schema) {
+        if (!objectStorageProperties.isSchemaOverwriteAllowed()) {
+            throw S3ObjectStorageException.schemaOverwriteNotAllowed(schema);
+        }
     }
 
     private Map<String, String> createSchemaMetadata(ArchiveDataSchema schema) {
@@ -115,7 +127,11 @@ public class ArchiveDataObjectStoreAdapter implements ArchiveDataObjectStore {
     private boolean hashMatches(StorageObjectProperties properties, ArchiveDataSchema schema) {
         String hash = hashProvider.hashPayload(schema.getSchemaDefinition());
         String existingHash = properties.getMetadata().get(HASH_METADATA_NAME);
-        return existingHash != null && existingHash.equals(hash);
+        boolean matches = existingHash != null && existingHash.equals(hash);
+        if (!matches) {
+            log.warn("Existing archive type '{}' schema hash '{}' does not match new schema hash '{}'.", schema.getName(), existingHash, hash);
+        }
+        return matches;
     }
 
     private Map<String, String> createMetadata(ArchiveData archiveData, String schemaVersionId, String schemaLocation) {
