@@ -53,8 +53,9 @@ public class ObjectStorageConfiguration {
     public ArchiveDataObjectStoreAdapter archiveDataObjectStoreAdapter(ObjectStorageRepository objectStorageRepository,
                                                                        ObjectStorageStrategy objectStorageStrategy,
                                                                        LifecyclePolicyService lifecyclePolicyService,
+                                                                       ObjectStorageProperties props,
                                                                        HashProvider hashProvider) {
-        return new ArchiveDataObjectStoreAdapter(objectStorageRepository, objectStorageStrategy, lifecyclePolicyService, hashProvider);
+        return new ArchiveDataObjectStoreAdapter(objectStorageRepository, objectStorageStrategy, lifecyclePolicyService, props, hashProvider);
     }
 
     @Profile(JEAP_PAS_S3_STORAGE_PROFILE)
