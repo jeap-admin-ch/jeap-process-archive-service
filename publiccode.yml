@@ -1,4 +1,4 @@
-publiccodeYmlVersion: 0.4.0
+publiccodeYmlVersion: 0.5.0
 name: jeap-process-archive-service
 applicationSuite: jEAP
 softwareVersion: 10.16.0
@@ -17,12 +17,13 @@ organisation:
 description:
   en:
     localisedName: jeap-process-archive-service
-    shortDescription: The jEAP Process Archive Service (PAS) is a service template library that provides a way to archive artifacts pertaining to a process
+    shortDescription: Service template to archive process artifacts for audit or business needs.
     longDescription: >
       The jEAP Process Archive Service (PAS) is a service template library that provides a way to archive artifacts pertaining
       to a process. Such artifacts might be required to be archived for audit purposes or due to business requirements.
       Process artifact archival is triggered by domain events, and artifacts can either be derived from the event's payload
-      or fetched from a business service using its REST API.
+      or fetched from a business service using its REST API. A service instance can be created by depending on this 
+      template,then adding specific configuration and extending it with plugin implementations.
     features:
       - Archives process-related artifacts based on domain events
       - Supports artifact data extraction from event payloads or external REST APIs
