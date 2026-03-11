@@ -1,13 +1,13 @@
 package ch.admin.bit.jeap.processarchive.configuration.json;
 
 import ch.admin.bit.jeap.messaging.kafka.contract.ContractsValidator;
-import ch.admin.bit.jeap.processarchive.configuration.json.deserializer.EventConfigurationDeserializer;
+import ch.admin.bit.jeap.processarchive.configuration.json.deserializer.MessageConfigurationDeserializer;
 import ch.admin.bit.jeap.processarchive.configuration.json.deserializer.SpringExpressionEvaluator;
 import ch.admin.bit.jeap.processarchive.configuration.json.test.*;
 import ch.admin.bit.jeap.processarchive.domain.archive.RemoteArchiveDataProvider;
-import ch.admin.bit.jeap.processarchive.domain.configuration.DomainEventArchiveConfiguration;
-import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataDomainEventArchiveConfiguration;
-import ch.admin.bit.jeap.processarchive.domain.configuration.RemoteDataDomainEventArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataMessageArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.RemoteDataMessageArchiveConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,31 +21,31 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 
-@SpringBootTest(classes = {EventConfigurationDeserializer.class, SpringExpressionEvaluator.class, TestMetricsConfig.class},
+@SpringBootTest(classes = {MessageConfigurationDeserializer.class, SpringExpressionEvaluator.class, TestMetricsConfig.class},
         properties = "jme.event-service.uri=http://localhost")
-class JsonDomainEventArchiveConfigurationRepositoryTest {
+class JsonMessageArchiveConfigurationRepositoryTest {
 
     @MockitoBean
     private RemoteArchiveDataProvider remoteArchiveDataProvider;
 
     @Autowired
-    private EventConfigurationDeserializer eventConfigurationDeserializer;
+    private MessageConfigurationDeserializer messageConfigurationDeserializer;
 
-    private JsonDomainEventArchiveConfigurationRepository jsonDomainEventArchiveConfigurationRepository;
+    private JsonMessageArchiveConfigurationRepository jsonDomainEventArchiveConfigurationRepository;
 
     @MockitoBean
     private ContractsValidator contractsValidator;
 
     @BeforeEach
     void setUp() throws IOException {
-        jsonDomainEventArchiveConfigurationRepository = new JsonDomainEventArchiveConfigurationRepository(eventConfigurationDeserializer, contractsValidator);
+        jsonDomainEventArchiveConfigurationRepository = new JsonMessageArchiveConfigurationRepository(messageConfigurationDeserializer, contractsValidator);
         jsonDomainEventArchiveConfigurationRepository.loadTemplates();
     }
 
     @Test
     void getAllDomainEventReferenceDefinitions_eventsFound() {
-        List<DomainEventArchiveConfiguration> allDomainEventArchiveConfigurationDefinitions = jsonDomainEventArchiveConfigurationRepository.getAll();
-        assertEquals(7, allDomainEventArchiveConfigurationDefinitions.size());
+        List<MessageArchiveConfiguration> allMessageArchiveConfigurationDefinitions = jsonDomainEventArchiveConfigurationRepository.getAll();
+        assertEquals(7, allMessageArchiveConfigurationDefinitions.size());
     }
 
     @Test
@@ -55,49 +55,49 @@ class JsonDomainEventArchiveConfigurationRepositoryTest {
 
     @Test
     void findByName_eventNotFound() {
-        Optional<DomainEventArchiveConfiguration> dummy = jsonDomainEventArchiveConfigurationRepository.findByName("dummy");
+        Optional<MessageArchiveConfiguration> dummy = jsonDomainEventArchiveConfigurationRepository.findByName("dummy");
         assertFalse(dummy.isPresent());
     }
 
     @Test
     void findByName_eventFound_payload() {
-        Optional<DomainEventArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("JmeRaceStartedEvent");
+        Optional<MessageArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("JmeRaceStartedEvent");
         assertTrue(jmeRaceStartedEvent.isPresent());
-        PayloadDataDomainEventArchiveConfiguration domainEventReference = (PayloadDataDomainEventArchiveConfiguration) jmeRaceStartedEvent.get();
-        assertEquals("JmeRaceStartedEvent", domainEventReference.getEventName());
+        PayloadDataMessageArchiveConfiguration domainEventReference = (PayloadDataMessageArchiveConfiguration) jmeRaceStartedEvent.get();
+        assertEquals("JmeRaceStartedEvent", domainEventReference.getMessageName());
         assertEquals("jme-race-started", domainEventReference.getTopicName());
-        assertEquals(TestDomainEventArchiveDataProvider.class, domainEventReference.getDomainEventArchiveDataProvider().getClass());
+        assertEquals(TestDomainEventArchiveDataProvider.class, domainEventReference.getMessageArchiveDataProvider().getClass());
     }
 
     @Test
     void findByName_eventFound_cluster() {
-        Optional<DomainEventArchiveConfiguration> eventWithCluster = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithCluster");
+        Optional<MessageArchiveConfiguration> eventWithCluster = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithCluster");
         assertTrue(eventWithCluster.isPresent());
-        assertEquals("eventWithCluster", eventWithCluster.get().getEventName());
+        assertEquals("eventWithCluster", eventWithCluster.get().getMessageName());
         assertEquals("topic-cluster", eventWithCluster.get().getTopicName());
         assertEquals("cluster-name", eventWithCluster.get().getClusterName());
     }
 
     @Test
     void conditionHasBeenInstantiated() {
-        Optional<DomainEventArchiveConfiguration> eventWithCondition = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithCondition");
+        Optional<MessageArchiveConfiguration> eventWithCondition = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithCondition");
         assertTrue(eventWithCondition.isPresent());
         assertSame(TestCondition.class, eventWithCondition.get().getArchiveDataCondition().getClass());
     }
 
     @Test
     void conditionHasBeenInstantiatedWithRemoteDataProvider() {
-        Optional<DomainEventArchiveConfiguration> eventWithConditionRemoteData = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithConditionRemoteData");
+        Optional<MessageArchiveConfiguration> eventWithConditionRemoteData = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithConditionRemoteData");
         assertTrue(eventWithConditionRemoteData.isPresent());
         assertSame(TestCondition.class, eventWithConditionRemoteData.get().getArchiveDataCondition().getClass());
     }
 
     @Test
     void findByName_eventFound_reference() {
-        Optional<DomainEventArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("JmeRaceMobileCheckpointPassedEvent");
+        Optional<MessageArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("JmeRaceMobileCheckpointPassedEvent");
         assertTrue(jmeRaceStartedEvent.isPresent());
-        RemoteDataDomainEventArchiveConfiguration domainEventReferenceDefinition = (RemoteDataDomainEventArchiveConfiguration) jmeRaceStartedEvent.get();
-        assertEquals("JmeRaceMobileCheckpointPassedEvent", domainEventReferenceDefinition.getEventName());
+        RemoteDataMessageArchiveConfiguration domainEventReferenceDefinition = (RemoteDataMessageArchiveConfiguration) jmeRaceStartedEvent.get();
+        assertEquals("JmeRaceMobileCheckpointPassedEvent", domainEventReferenceDefinition.getMessageName());
         assertEquals("jme-race-mobilecheckpoint-passed", domainEventReferenceDefinition.getTopicName());
         assertEquals(TestReferenceProvider.class, domainEventReferenceDefinition.getReferenceProvider().getClass());
         assertEquals("http://localhost/api/v1/archive/JmeRaceMobileCheckpointPassedEvent", domainEventReferenceDefinition.getDataReaderEndpoint());
@@ -106,10 +106,10 @@ class JsonDomainEventArchiveConfigurationRepositoryTest {
 
     @Test
     void findByName_eventFound_processDataArchiveProvider() {
-        Optional<DomainEventArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithConditionRemoteDataInPayload");
+        Optional<MessageArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithConditionRemoteDataInPayload");
         assertTrue(jmeRaceStartedEvent.isPresent());
-        RemoteDataDomainEventArchiveConfiguration domainEventReferenceDefinition = (RemoteDataDomainEventArchiveConfiguration) jmeRaceStartedEvent.get();
-        assertEquals("eventWithConditionRemoteDataInPayload", domainEventReferenceDefinition.getEventName());
+        RemoteDataMessageArchiveConfiguration domainEventReferenceDefinition = (RemoteDataMessageArchiveConfiguration) jmeRaceStartedEvent.get();
+        assertEquals("eventWithConditionRemoteDataInPayload", domainEventReferenceDefinition.getMessageName());
         assertEquals("jme-race-mobilecheckpoint-passed", domainEventReferenceDefinition.getTopicName());
         assertEquals(TestArchiveDataReferenceProvider.class, domainEventReferenceDefinition.getArchiveDataReferenceProvider().getClass());
         assertEquals("http://localhost/api/v1/archive/JmeRaceMobileCheckpointPassedEvent", domainEventReferenceDefinition.getDataReaderEndpoint());
@@ -118,7 +118,7 @@ class JsonDomainEventArchiveConfigurationRepositoryTest {
 
     @Test
     void correlationProviderHasBeenInstantiated() {
-        Optional<DomainEventArchiveConfiguration> eventWithCorrelationProvider = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithCorrelationProvider");
+        Optional<MessageArchiveConfiguration> eventWithCorrelationProvider = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithCorrelationProvider");
         assertTrue(eventWithCorrelationProvider.isPresent());
         assertSame(TestCorrelationProvider.class, eventWithCorrelationProvider.get().getCorrelationProvider().getClass());
     }

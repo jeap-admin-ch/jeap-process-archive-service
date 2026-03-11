@@ -1,11 +1,11 @@
 package ch.admin.bit.jeap.processarchive.service.test;
 
+import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
+import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2EventPayload;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
-import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.DomainEventArchiveDataProvider;
+import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.MessageArchiveDataProvider;
 import ch.admin.bit.jeap.processarchive.test.DecreeReference;
 import ch.admin.bit.jeap.processarchive.test.decree.v2.Decree;
-import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2Event;
-import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2EventPayload;
 import lombok.SneakyThrows;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
@@ -15,7 +15,7 @@ import org.apache.avro.specific.SpecificRecord;
 
 import java.io.ByteArrayOutputStream;
 
-public class TestDomainEventDataProvider implements DomainEventArchiveDataProvider<TestDomain2Event> {
+public class TestDomainEventDataProvider implements MessageArchiveDataProvider<TestDomain2Event> {
 
     @Override
     public ArchiveData getArchiveData(TestDomain2Event event) {

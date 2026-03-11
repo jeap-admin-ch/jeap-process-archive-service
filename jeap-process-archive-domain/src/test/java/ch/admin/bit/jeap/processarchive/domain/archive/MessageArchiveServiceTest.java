@@ -8,9 +8,9 @@ import ch.admin.bit.jeap.messaging.model.MessageType;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.ArchiveDataSchemaValidationService;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.ArchiveDataSchemaValidator;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.SchemaValidationException;
-import ch.admin.bit.jeap.processarchive.domain.configuration.DomainEventArchiveConfiguration;
-import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataDomainEventArchiveConfiguration;
-import ch.admin.bit.jeap.processarchive.domain.configuration.RemoteDataDomainEventArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataMessageArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.RemoteDataMessageArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArchivedListener;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
@@ -35,7 +35,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class DomainEventArchiveServiceTest {
+class MessageArchiveServiceTest {
 
     private static final Integer DATA_VERSION = 1;
     private static final String REFERENCE_ID = "referenceId";
@@ -106,17 +106,17 @@ class DomainEventArchiveServiceTest {
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
         List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
         ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
         doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
-        DomainEventArchiveConfiguration configuration = PayloadDataDomainEventArchiveConfiguration.builder()
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
-                .domainEventArchiveDataProvider(this::domainEventDataProviderStub)
+                .messageName("event")
+                .messageArchiveDataProvider(this::domainEventDataProviderStub)
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         assertEquals(1, archivedArtifacts.size());
@@ -137,12 +137,12 @@ class DomainEventArchiveServiceTest {
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
         List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
         ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
         doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
-        RemoteDataDomainEventArchiveConfiguration configuration = RemoteDataDomainEventArchiveConfiguration.builder()
+        RemoteDataMessageArchiveConfiguration configuration = RemoteDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
+                .messageName("event")
                 .remoteArchiveDataProvider(this::remoteArchiveDataProvider)
                 .oauthClientId(CLIENT_ID)
                 .dataReaderEndpoint(ENDPOINT)
@@ -151,7 +151,7 @@ class DomainEventArchiveServiceTest {
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         assertEquals(1, archivedArtifacts.size());
@@ -171,12 +171,12 @@ class DomainEventArchiveServiceTest {
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
         List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
         ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
         doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
-        RemoteDataDomainEventArchiveConfiguration configuration = RemoteDataDomainEventArchiveConfiguration.builder()
+        RemoteDataMessageArchiveConfiguration configuration = RemoteDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
+                .messageName("event")
                 .remoteArchiveDataProvider(this::remoteArchiveDataProvider)
                 .oauthClientId(CLIENT_ID)
                 .dataReaderEndpoint(ENDPOINT)
@@ -186,7 +186,7 @@ class DomainEventArchiveServiceTest {
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         assertEquals(0, archivedArtifacts.size());
@@ -199,12 +199,12 @@ class DomainEventArchiveServiceTest {
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
         List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
         ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
         doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
-        RemoteDataDomainEventArchiveConfiguration configuration = RemoteDataDomainEventArchiveConfiguration.builder()
+        RemoteDataMessageArchiveConfiguration configuration = RemoteDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
+                .messageName("event")
                 .remoteArchiveDataProvider(this::remoteArchiveDataProvider)
                 .oauthClientId(CLIENT_ID)
                 .dataReaderEndpoint(ENDPOINT)
@@ -214,7 +214,7 @@ class DomainEventArchiveServiceTest {
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         assertEquals(1, archivedArtifacts.size());
@@ -228,12 +228,12 @@ class DomainEventArchiveServiceTest {
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
         List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
         ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
         doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
-        RemoteDataDomainEventArchiveConfiguration configuration = RemoteDataDomainEventArchiveConfiguration.builder()
+        RemoteDataMessageArchiveConfiguration configuration = RemoteDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
+                .messageName("event")
                 .remoteArchiveDataProvider(this::remoteArchiveDataProvider)
                 .oauthClientId(CLIENT_ID)
                 .dataReaderEndpoint(ENDPOINT)
@@ -242,7 +242,7 @@ class DomainEventArchiveServiceTest {
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         assertEquals(0, archivedArtifacts.size());
@@ -258,17 +258,17 @@ class DomainEventArchiveServiceTest {
                 new ArchiveDataSchemaValidationService(List.of(validatorMock));
         doThrow(SchemaValidationException.class).when(validatorMock).validatePayloadConformsToSchema(any());
         archiveDataSchemaValidationService.initValidators();
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 null, archiveDataObjectStore, archiveDataSchemaValidationService, featureManager);
-        DomainEventArchiveConfiguration configuration = PayloadDataDomainEventArchiveConfiguration.builder()
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
-                .domainEventArchiveDataProvider(this::domainEventDataProviderStub)
+                .messageName("event")
+                .messageArchiveDataProvider(this::domainEventDataProviderStub)
                 .build();
 
         // when
         assertThrows(SchemaValidationException.class, () ->
-                domainEventArchiveService.archive(configuration, domainEvent));
+                messageArchiveService.archive(configuration, domainEvent));
     }
 
     private ArchiveDataReference referenceProvider(MessageReferences messageReferences) {
@@ -277,20 +277,20 @@ class DomainEventArchiveServiceTest {
 
     @Test
     void archive_whenProcessIdMissingInEvent_shouldThrow() {
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 null, archiveDataObjectStore, schemaValidationService, featureManager);
 
-        DomainEventArchiveConfiguration configuration = PayloadDataDomainEventArchiveConfiguration.builder()
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
-                .domainEventArchiveDataProvider(this::domainEventDataProviderStub)
+                .messageName("event")
+                .messageArchiveDataProvider(this::domainEventDataProviderStub)
                 .build();
 
         try {
-            domainEventArchiveService.archive(configuration, domainEvent);
+            messageArchiveService.archive(configuration, domainEvent);
             fail("Expected ProcessArchiveException");
         } catch (ProcessArchiveException ex) {
-            assertTrue(ex.getMessage().contains("no process ID present in event"));
+            assertThat(ex).hasMessageContaining("no process ID present in message");
         }
     }
 
@@ -300,18 +300,18 @@ class DomainEventArchiveServiceTest {
         String processId = "test-process-id";
         List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
         ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
         doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
-        DomainEventArchiveConfiguration configuration = PayloadDataDomainEventArchiveConfiguration.builder()
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
-                .domainEventArchiveDataProvider(this::domainEventDataProviderStub)
+                .messageName("event")
+                .messageArchiveDataProvider(this::domainEventDataProviderStub)
                 .correlationProvider(correlationProvider(processId))
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         assertEquals(1, archivedArtifacts.size());
@@ -321,17 +321,17 @@ class DomainEventArchiveServiceTest {
     @Test
     void archive_withCorrelationProvider_noProcessId_shouldThrow() {
         // given
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 List.of(), archiveDataObjectStore, schemaValidationService, featureManager);
-        DomainEventArchiveConfiguration configuration = PayloadDataDomainEventArchiveConfiguration.builder()
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
-                .domainEventArchiveDataProvider(this::domainEventDataProviderStub)
+                .messageName("event")
+                .messageArchiveDataProvider(this::domainEventDataProviderStub)
                 .correlationProvider(correlationProvider(null))
                 .build();
 
         // when
-        assertThrows(ProcessArchiveException.class, () -> domainEventArchiveService.archive(configuration, domainEvent));
+        assertThrows(ProcessArchiveException.class, () -> messageArchiveService.archive(configuration, domainEvent));
     }
 
     @Test
@@ -339,20 +339,20 @@ class DomainEventArchiveServiceTest {
         // given
         String processId = "test-process-id";
         ArtifactArchivedListener artifactArchivedListener = mock(ArtifactArchivedListener.class);
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
         when(featureManager.isActive(new NamedFeature("myActiveFeature"))).thenReturn(true);
         doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
-        DomainEventArchiveConfiguration configuration = PayloadDataDomainEventArchiveConfiguration.builder()
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
-                .domainEventArchiveDataProvider(this::domainEventDataProviderStub)
+                .messageName("event")
+                .messageArchiveDataProvider(this::domainEventDataProviderStub)
                 .featureFlag("myActiveFeature")
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         verify(artifactArchivedListener, times(1)).onArtifactArchived(any());
@@ -363,20 +363,20 @@ class DomainEventArchiveServiceTest {
         // given
         String processId = "test-process-id";
         ArtifactArchivedListener artifactArchivedListener = mock(ArtifactArchivedListener.class);
-        DomainEventArchiveService domainEventArchiveService = new DomainEventArchiveService(
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
                 List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
         when(featureManager.isActive(new NamedFeature("myInactiveFeature"))).thenReturn(false);
         doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
-        DomainEventArchiveConfiguration configuration = PayloadDataDomainEventArchiveConfiguration.builder()
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
-                .domainEventArchiveDataProvider(this::domainEventDataProviderStub)
+                .messageName("event")
+                .messageArchiveDataProvider(this::domainEventDataProviderStub)
                 .featureFlag("myInactiveFeature")
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         verify(artifactArchivedListener, never()).onArtifactArchived(any());
@@ -394,7 +394,7 @@ class DomainEventArchiveServiceTest {
         return message -> processId;
     }
 
-    private ArchiveData domainEventDataProviderStub(DomainEvent domainEvent) {
+    private ArchiveData domainEventDataProviderStub(Message domainEvent) {
         return ARCHIVE_DATA;
     }
 }

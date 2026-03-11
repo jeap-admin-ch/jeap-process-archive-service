@@ -5,10 +5,10 @@ import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
 import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataObjectStore;
 import ch.admin.bit.jeap.processarchive.domain.archive.RemoteArchiveDataProvider;
-import ch.admin.bit.jeap.processarchive.domain.configuration.DomainEventArchiveConfiguration;
-import ch.admin.bit.jeap.processarchive.domain.configuration.DomainEventArchiveConfigurationRepository;
-import ch.admin.bit.jeap.processarchive.domain.event.DomainEventReceiver;
-import ch.admin.bit.jeap.processcontext.event.test.TestDomainEvent;
+import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfigurationRepository;
+import ch.admin.bit.jeap.processarchive.domain.event.MessageReceiver;
+import ch.admin.bit.jeap.processarchive.event.test.TestDomainEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,32 +30,32 @@ import static org.mockito.Mockito.*;
         "jeap.processarchive.archivedartifact.system-name=test"
 })
 @ExtendWith(MockitoExtension.class)
-class KafkaDomainEventListenerAdapterIT extends KafkaIntegrationTestBase {
+class KafkaMessageListenerAdapterIT extends KafkaIntegrationTestBase {
 
     private static final String DOMAIN_EVENT_TOPIC = "test-domain-event";
 
     @MockitoBean
-    private DomainEventReceiver domainEventReceiver;
+    private MessageReceiver messageReceiver;
     @MockitoBean
-    private DomainEventArchiveConfigurationRepository domainEventArchiveConfigurationRepository;
+    private MessageArchiveConfigurationRepository messageArchiveConfigurationRepository;
     @MockitoBean
     private RemoteArchiveDataProvider remoteArchiveDataProvider;
     @MockitoBean
     private ArchiveDataObjectStore archiveDataObjectStore;
     @Autowired
-    private KafkaDomainEventListenerAdapter kafkaDomainEventListenerAdapter;
+    private KafkaMessageListenerAdapter kafkaDomainEventListenerAdapter;
     @Autowired
-    private KafkaDomainEventConsumerFactory kafkaDomainEventConsumerFactory;
+    private KafkaMessageConsumerFactory kafkaMessageConsumerFactory;
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
 
     @BeforeEach
     void setUp() {
-        DomainEventArchiveConfiguration eventConfig = mock(DomainEventArchiveConfiguration.class);
-        doReturn(TestDomainEvent.class.getSimpleName()).when(eventConfig).getEventName();
+        MessageArchiveConfiguration eventConfig = mock(MessageArchiveConfiguration.class);
+        doReturn(TestDomainEvent.class.getSimpleName()).when(eventConfig).getMessageName();
         doReturn(DOMAIN_EVENT_TOPIC).when(eventConfig).getTopicName();
         kafkaDomainEventListenerAdapter.start(List.of(eventConfig));
-        kafkaDomainEventConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
+        kafkaMessageConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
     }
 
     @Test
@@ -63,7 +63,7 @@ class KafkaDomainEventListenerAdapterIT extends KafkaIntegrationTestBase {
         TestDomainEvent testDomainEvent = createTestEvent();
         kafkaTemplate.send(DOMAIN_EVENT_TOPIC, testDomainEvent).get();
 
-        verify(domainEventReceiver, timeout(TEST_TIMEOUT)).domainEventReceived(testDomainEvent);
+        verify(messageReceiver, timeout(TEST_TIMEOUT)).messageReceived(testDomainEvent);
     }
 
     private TestDomainEvent createTestEvent() {

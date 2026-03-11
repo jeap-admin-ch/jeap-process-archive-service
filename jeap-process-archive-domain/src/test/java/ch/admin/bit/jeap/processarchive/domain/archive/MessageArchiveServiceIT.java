@@ -2,10 +2,11 @@ package ch.admin.bit.jeap.processarchive.domain.archive;
 
 import ch.admin.bit.jeap.domainevent.DomainEvent;
 import ch.admin.bit.jeap.domainevent.DomainEventIdentity;
+import ch.admin.bit.jeap.messaging.model.Message;
 import ch.admin.bit.jeap.messaging.model.MessageType;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.ArchiveDataSchemaValidationService;
-import ch.admin.bit.jeap.processarchive.domain.configuration.DomainEventArchiveConfiguration;
-import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataDomainEventArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataMessageArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArchivedListener;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.ArchiveDataSchema;
@@ -30,13 +31,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-@ContextConfiguration(classes = {DomainEventArchiveService.class, TogglzAutoConfiguration.class})
+@ContextConfiguration(classes = {MessageArchiveService.class, TogglzAutoConfiguration.class})
 @ExtendWith(MockitoExtension.class)
 @TestPropertySource(properties = "togglz.features.FEATURE_ACTIVE.enabled=true")
-class DomainEventArchiveServiceIT {
+class MessageArchiveServiceIT {
 
     @Autowired
-    private DomainEventArchiveService domainEventArchiveService;
+    private MessageArchiveService messageArchiveService;
 
     @MockitoBean
     private ArchiveDataObjectStore archiveDataObjectStore;
@@ -108,15 +109,15 @@ class DomainEventArchiveServiceIT {
         String processId = "test-process-id";
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
 
-        DomainEventArchiveConfiguration configuration = PayloadDataDomainEventArchiveConfiguration.builder()
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
-                .domainEventArchiveDataProvider(this::domainEventDataProviderStub)
+                .messageName("event")
+                .messageArchiveDataProvider(this::dataProviderStub)
                 .featureFlag("FEATURE_ACTIVE")
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         verify(artifactArchivedListener, times(1)).onArtifactArchived(any());
@@ -128,21 +129,21 @@ class DomainEventArchiveServiceIT {
         String processId = "test-process-id";
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
 
-        DomainEventArchiveConfiguration configuration = PayloadDataDomainEventArchiveConfiguration.builder()
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
                 .topicName("topic")
-                .eventName("event")
-                .domainEventArchiveDataProvider(this::domainEventDataProviderStub)
+                .messageName("event")
+                .messageArchiveDataProvider(this::dataProviderStub)
                 .featureFlag("FEATURE_NOT_ACTIVE")
                 .build();
 
         // when
-        domainEventArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(configuration, domainEvent);
 
         // then
         verify(artifactArchivedListener, never()).onArtifactArchived(any());
     }
 
-    private ArchiveData domainEventDataProviderStub(DomainEvent domainEvent) {
+    private ArchiveData dataProviderStub(Message domainEvent) {
         return ARCHIVE_DATA;
     }
 }

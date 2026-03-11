@@ -1,6 +1,5 @@
 package ch.admin.bit.jeap.processarchive.domain.archive;
 
-import ch.admin.bit.jeap.domainevent.DomainEvent;
 import ch.admin.bit.jeap.messaging.model.Message;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.MessageCorrelationProvider;
 import lombok.Getter;
@@ -23,21 +22,23 @@ public final class ProcessArchiveException extends RuntimeException {
         this(message, null, false);
     }
 
-    static Supplier<ProcessArchiveException> mandatoryProcessIdMissing(DomainEvent event) {
+    static Supplier<ProcessArchiveException> mandatoryProcessIdMissing(Message message) {
         return () -> new ProcessArchiveException(
-                format("Unable to archive event %s with ID %s, no process ID present in event", event.getType().getName(), event.getIdentity().getId()));
+                format("Unable to archive message %s with ID %s, no process ID present in message",
+                        message.getType().getName(), message.getIdentity().getId()));
     }
 
-    static ProcessArchiveException failedToReadData(DomainEvent event, Exception ex) {
+    static ProcessArchiveException failedToReadData(Message message, Exception ex) {
         return new ProcessArchiveException(
-                format("Failed to read archive data for event %s with ID %s", event.getType().getName(), event.getIdentity().getId()), ex, true);
+                format("Failed to read archive data for message %s with ID %s", message.getType().getName(), message.getIdentity().getId()), ex, true);
     }
 
-    static ProcessArchiveException processIdFromCorrelationProviderMissing(DomainEvent event, MessageCorrelationProvider<Message> correlationProvider) {
+    static ProcessArchiveException processIdFromCorrelationProviderMissing(Message message,
+                                                                           MessageCorrelationProvider<Message> correlationProvider) {
         return new ProcessArchiveException(
-                format("Unable to archive event %s with ID %s, no process ID returned from correlation provider %s",
-                        event.getType().getName(),
-                        event.getIdentity().getId(),
+                format("Unable to archive message %s with ID %s, no process ID returned from correlation provider %s",
+                        message.getType().getName(),
+                        message.getIdentity().getId(),
                         correlationProvider.getClass().getName()));
     }
 }

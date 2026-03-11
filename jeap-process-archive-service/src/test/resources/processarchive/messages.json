@@ -1,28 +1,34 @@
 {
-  "events": [
+  "messages": [
     {
-      "eventName": "TestDomainEvent",
+      "messageName": "TestDomainEvent",
       "topicName": "test-event-1",
       "referenceProvider": "ch.admin.bit.jeap.processarchive.service.test.TestReferenceProvider",
       "uri": "${test.service.uri}"
     },
     {
-      "eventName": "TestDomain2Event",
+      "messageName": "TestDomain2Event",
       "topicName": "test-event-2",
       "condition": "ch.admin.bit.jeap.test.processarchive.TestCondition",
       "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.service.test.TestDomainEventDataProvider"
     },
     {
-      "eventName": "TestDomain3Event",
+      "messageName": "TestDomain3Event",
       "topicName": "test-event-3",
       "correlationProvider": "ch.admin.bit.jeap.processarchive.service.test.TestCorrelationProvider",
       "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.service.test.TestDomainEvent3DataProvider"
     },
     {
-      "eventName": "TestDomain4Event",
+      "messageName": "TestDomain4Event",
       "topicName": "test-event-4",
       "archiveDataReferenceProvider": "ch.admin.bit.jeap.processarchive.service.test.TestArchiveDataReferenceProvider",
       "uri": "${test.service.uri}"
+    },
+    {
+      "messageName": "TestCommand",
+      "topicName": "test-command",
+      "correlationProvider": "ch.admin.bit.jeap.processarchive.service.test.TestCommandCorrelationProvider",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.service.test.TestCommandDataProvider"
     }
   ]
 }

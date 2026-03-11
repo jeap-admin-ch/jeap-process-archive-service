@@ -7,10 +7,10 @@ import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
 import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataObjectStore;
-import ch.admin.bit.jeap.processarchive.kafka.KafkaDomainEventConsumerFactory;
+import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
+import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomain2EventBuilder;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
-import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.test.processarchive.TestConfig;
 import ch.admin.bit.jeap.test.processarchive.TestConsumer;
 import ch.admin.bit.jeap.test.processarchive.TestTypeLoaderConfig;
@@ -51,7 +51,7 @@ class ArchiveServiceEventEndToEndIT extends KafkaIntegrationTestBase {
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
     @Autowired
-    private KafkaDomainEventConsumerFactory kafkaDomainEventConsumerFactory;
+    private KafkaMessageConsumerFactory kafkaMessageConsumerFactory;
     @Autowired
     private TestConsumer testConsumer;
     @MockitoSpyBean
@@ -100,6 +100,6 @@ class ArchiveServiceEventEndToEndIT extends KafkaIntegrationTestBase {
 
     @BeforeEach
     void setUp() {
-        kafkaDomainEventConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
+        kafkaMessageConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
     }
 }

@@ -1,12 +1,11 @@
 package ch.admin.bit.jeap.processarchive.kafka;
 
-import ch.admin.bit.jeap.domainevent.DomainEvent;
-import ch.admin.bit.jeap.domainevent.avro.AvroDomainEvent;
+import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.avro.errorevent.MessageHandlerException;
 import ch.admin.bit.jeap.messaging.avro.errorevent.MessageHandlerExceptionInformation.Temporality;
 import ch.admin.bit.jeap.processarchive.domain.archive.ProcessArchiveException;
-import ch.admin.bit.jeap.processarchive.domain.event.DomainEventReceiver;
+import ch.admin.bit.jeap.processarchive.domain.event.MessageReceiver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -20,16 +19,16 @@ import static ch.admin.bit.jeap.messaging.avro.errorevent.MessageHandlerExceptio
 
 @RequiredArgsConstructor
 @Slf4j
-class KafkaMessageListener implements AcknowledgingMessageListener<AvroMessageKey, AvroDomainEvent> {
+class KafkaMessageListener implements AcknowledgingMessageListener<AvroMessageKey, AvroMessage> {
     private final static String ERROR_CODE = "domain-event-archive-failed";
 
-    private final Set<String> eventNames;
-    private final DomainEventReceiver domainEventReceiver;
+    private final Set<String> messageTypeNames;
+    private final MessageReceiver messageReceiver;
 
     @Override
-    public void onMessage(ConsumerRecord<AvroMessageKey, AvroDomainEvent> record, Acknowledgment acknowledgment) {
+    public void onMessage(ConsumerRecord<AvroMessageKey, AvroMessage> kafkaRecord, Acknowledgment acknowledgment) {
         try {
-            handleDomainEvent(record);
+            handleDomainEvent(kafkaRecord);
         } catch (KafkaException ex) {
             throw MessageHandlerException.builder()
                     .temporality(Temporality.TEMPORARY)
@@ -50,19 +49,19 @@ class KafkaMessageListener implements AcknowledgingMessageListener<AvroMessageKe
         acknowledgment.acknowledge();
     }
 
-    private void handleDomainEvent(ConsumerRecord<AvroMessageKey, AvroDomainEvent> record) {
-        String receivedEventName = record.value().getType().getName();
-        if (eventNames.contains(receivedEventName)) {
-            DomainEvent domainEvent = record.value();
-            notifyEventReceived(domainEvent);
+    private void handleDomainEvent(ConsumerRecord<AvroMessageKey, AvroMessage> kafkaRecord) {
+        String receivedTypeName = kafkaRecord.value().getType().getName();
+        if (messageTypeNames.contains(receivedTypeName)) {
+            AvroMessage message = kafkaRecord.value();
+            notifyEventReceived(message);
         } else {
-            logIgnoredEvent(record);
+            logIgnoredMessage(kafkaRecord);
         }
     }
 
-    private void notifyEventReceived(DomainEvent domainEvent) {
+    private void notifyEventReceived(AvroMessage message) {
         try {
-            domainEventReceiver.domainEventReceived(domainEvent);
+            messageReceiver.messageReceived(message);
         } catch (ProcessArchiveException ex) {
             throw createMessageHandlerException(ex, ex.isRetryable() ? TEMPORARY : PERMANENT);
         } catch (Exception ex) {
@@ -81,8 +80,8 @@ class KafkaMessageListener implements AcknowledgingMessageListener<AvroMessageKe
                 .build();
     }
 
-    private void logIgnoredEvent(ConsumerRecord<AvroMessageKey, AvroDomainEvent> record) {
-        log.debug("Ignoring event {} on topic {} as there is no matching domain event archive configuration",
-                record.value().getType().getName(), record.topic());
+    private void logIgnoredMessage(ConsumerRecord<AvroMessageKey, AvroMessage> kafkaRecord) {
+        log.debug("Ignoring message {} on topic {} as there is no matching domain event archive configuration",
+                kafkaRecord.value().getType().getName(), kafkaRecord.topic());
     }
 }

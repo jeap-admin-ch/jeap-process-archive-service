@@ -1,10 +1,10 @@
 package ch.admin.bit.jeap.processarchive.dataprovider.remote;
 
-import ch.admin.bit.jeap.processarchive.domain.archive.DomainEventArchiveService;
+import ch.admin.bit.jeap.processarchive.domain.archive.MessageArchiveService;
 import ch.admin.bit.jeap.processarchive.domain.archive.event.ArchivedArtifactCreatedEventProducer;
-import ch.admin.bit.jeap.processarchive.domain.configuration.DomainEventArchiveConfigurationRepository;
-import ch.admin.bit.jeap.processarchive.domain.event.DomainEventListenerAdapter;
-import ch.admin.bit.jeap.processarchive.domain.event.DomainEventReceiver;
+import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfigurationRepository;
+import ch.admin.bit.jeap.processarchive.domain.event.MessageListenerAdapter;
+import ch.admin.bit.jeap.processarchive.domain.event.MessageReceiver;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveDataReference;
 import org.junit.jupiter.api.Test;
@@ -28,13 +28,13 @@ class HttpRemoteDataProviderIT {
     private static final String TEST_REMOTE_PAYLOAD = "test-remote-payload";
 
     @MockitoBean
-    private DomainEventArchiveService domainEventArchiveService;
+    private MessageArchiveService messageArchiveService;
     @MockitoBean
-    private DomainEventReceiver domainEventReceiver;
+    private MessageReceiver messageReceiver;
     @MockitoBean
-    private DomainEventArchiveConfigurationRepository domainEventArchiveConfigurationRepository;
+    private MessageArchiveConfigurationRepository messageArchiveConfigurationRepository;
     @MockitoBean
-    private DomainEventListenerAdapter domainEventListenerAdapter;
+    private MessageListenerAdapter messageListenerAdapter;
     @MockitoBean
     private ArchivedArtifactCreatedEventProducer archivedArtifactCreatedEventProducer;
     @Autowired

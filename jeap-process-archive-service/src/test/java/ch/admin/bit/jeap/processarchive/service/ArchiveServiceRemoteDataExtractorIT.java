@@ -5,7 +5,9 @@ import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
-import ch.admin.bit.jeap.processarchive.kafka.KafkaDomainEventConsumerFactory;
+import ch.admin.bit.jeap.processarchive.event.test.TestDomainEvent;
+import ch.admin.bit.jeap.processarchive.event.test4.TestDomain4Event;
+import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomain4EventBuilder;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomainEventBuilder;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
@@ -13,8 +15,6 @@ import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArti
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArchivedListener;
 import ch.admin.bit.jeap.processarchive.test.DecreeReference;
 import ch.admin.bit.jeap.processarchive.test.decree.v2.Decree;
-import ch.admin.bit.jeap.processcontext.event.test.TestDomainEvent;
-import ch.admin.bit.jeap.processcontext.event.test4.TestDomain4Event;
 import ch.admin.bit.jeap.test.processarchive.TestTypeLoaderConfig;
 import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
@@ -64,7 +64,7 @@ class ArchiveServiceRemoteDataExtractorIT extends KafkaIntegrationTestBase {
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
     @Autowired
-    private KafkaDomainEventConsumerFactory kafkaDomainEventConsumerFactory;
+    private KafkaMessageConsumerFactory kafkaMessageConsumerFactory;
     @MockitoBean
     private ArtifactArchivedListener artifactArchivedListener;
     @Captor
@@ -182,6 +182,6 @@ class ArchiveServiceRemoteDataExtractorIT extends KafkaIntegrationTestBase {
 
     @BeforeEach
     void setUp() {
-        kafkaDomainEventConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
+        kafkaMessageConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
     }
 }

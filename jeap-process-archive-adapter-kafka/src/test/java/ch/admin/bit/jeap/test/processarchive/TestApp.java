@@ -1,6 +1,6 @@
 package ch.admin.bit.jeap.test.processarchive;
 
-import ch.admin.bit.jeap.processarchive.domain.event.DomainEventReceiver;
+import ch.admin.bit.jeap.processarchive.domain.event.MessageReceiver;
 import ch.admin.bit.jeap.processarchive.kafka.TestConsumer;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,7 +20,7 @@ public class TestApp {
     }
 
     @Bean
-    DomainEventReceiver domainEventReceiverStub() {
-        return new DomainEventReceiver(null, null);
+    MessageReceiver domainEventReceiverStub() {
+        return new MessageReceiver(null, null);
     }
 }

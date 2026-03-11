@@ -1,14 +1,17 @@
 package ch.admin.bit.jeap.processarchive.configuration.json.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 
 @Data
-public class DomainEventArchiveConfiguration {
+public class MessageArchiveConfiguration {
 
-    private String eventName;
+    @JsonAlias("eventName")
+    private String messageName;
     private String topicName;
     private String clusterName;
-    private String domainEventArchiveDataProvider;
+    @JsonAlias("domainEventArchiveDataProvider")
+    private String messageArchiveDataProvider;
     private String referenceProvider;
     private String archiveDataReferenceProvider;
     private String condition;

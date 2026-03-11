@@ -1,8 +1,8 @@
 package ch.admin.bit.jeap.processarchive.kafka;
 
-import ch.admin.bit.jeap.processarchive.domain.configuration.DomainEventArchiveConfiguration;
-import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataDomainEventArchiveConfiguration;
-import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.DomainEventArchiveDataProvider;
+import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataMessageArchiveConfiguration;
+import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.MessageArchiveDataProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,17 +15,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class KafkaDomainEventListenerAdapterTest {
+class KafkaMessageListenerAdapterTest {
 
     @Mock
-    private KafkaDomainEventConsumerFactory kafkaDomainEventConsumerFactory;
+    private KafkaMessageConsumerFactory kafkaMessageConsumerFactory;
 
     @Test
     void start() {
 
         //given
-        KafkaDomainEventListenerAdapter kafkaDomainEventListenerAdapter = new KafkaDomainEventListenerAdapter(kafkaDomainEventConsumerFactory);
-        List<DomainEventArchiveConfiguration> eventConfigs = List.of(
+        KafkaMessageListenerAdapter kafkaDomainEventListenerAdapter = new KafkaMessageListenerAdapter(kafkaMessageConsumerFactory);
+        List<MessageArchiveConfiguration> eventConfigs = List.of(
                 createDomainEventArchiveConfiguration("topicNameCluster1", "clusterName1", "eventNameCluster1"),
                 createDomainEventArchiveConfiguration("topicNameCluster1", "clusterName1", "eventNameCluster2"),
                 createDomainEventArchiveConfiguration("topicNameCluster3", "clusterName2", "eventNameCluster3"),
@@ -37,21 +37,21 @@ class KafkaDomainEventListenerAdapterTest {
         kafkaDomainEventListenerAdapter.start(eventConfigs);
 
         //then
-        verify(kafkaDomainEventConsumerFactory)
+        verify(kafkaMessageConsumerFactory)
                 .startConsumer("topicNameCluster1", Set.of("eventNameCluster1", "eventNameCluster2"), "clusterName1");
-        verify(kafkaDomainEventConsumerFactory)
+        verify(kafkaMessageConsumerFactory)
                 .startConsumer("topicNameCluster3", Set.of("eventNameCluster3"), "clusterName2");
-        verify(kafkaDomainEventConsumerFactory)
+        verify(kafkaMessageConsumerFactory)
                 .startConsumer("topicName1", Set.of("eventName1", "eventName2"), null);
     }
 
     @SuppressWarnings("unchecked")
-    private DomainEventArchiveConfiguration createDomainEventArchiveConfiguration(String topicName, String clusterName, String eventName) {
-        return PayloadDataDomainEventArchiveConfiguration.builder()
+    private MessageArchiveConfiguration createDomainEventArchiveConfiguration(String topicName, String clusterName, String messageName) {
+        return PayloadDataMessageArchiveConfiguration.builder()
                 .topicName(topicName)
                 .clusterName(clusterName)
-                .eventName(eventName)
-                .domainEventArchiveDataProvider(mock(DomainEventArchiveDataProvider.class))
+                .messageName(messageName)
+                .messageArchiveDataProvider(mock(MessageArchiveDataProvider.class))
                 .build();
 
     }

@@ -1,6 +1,8 @@
 spring:
   application:
     name: jeap-process-archive-service
+  main:
+    banner-mode: off
 logging.level:
   org.apache.kafka: error
   org.apache.zookeeper: error

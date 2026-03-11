@@ -15,7 +15,7 @@ class Instances {
             Class<T> conditionClass = (Class<T>) Class.forName(className);
             return conditionClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException e) {
-            throw DomainEventArchiveConfigurationException.errorWhileCreatingInstance(className, e);
+            throw MessageArchiveConfigurationException.errorWhileCreatingInstance(className, e);
         }
     }
 

@@ -17,8 +17,9 @@ import lombok.Value;
 
 @Value
 @EqualsAndHashCode(callSuper = true)
-public class RemoteDataDomainEventArchiveConfiguration extends DomainEventArchiveConfiguration {
+public class RemoteDataMessageArchiveConfiguration extends MessageArchiveConfiguration {
 
+    @SuppressWarnings("deprecation")
     ReferenceProvider<MessageReferences> referenceProvider;
     ArchiveDataReferenceProvider<Message> archiveDataReferenceProvider;
     String dataReaderEndpoint;
@@ -28,19 +29,19 @@ public class RemoteDataDomainEventArchiveConfiguration extends DomainEventArchiv
 
     @Builder
     @SuppressWarnings("java:S107")
-    private RemoteDataDomainEventArchiveConfiguration(@NonNull RemoteArchiveDataProvider remoteArchiveDataProvider,
-                                                      ArchiveDataCondition<Message> archiveDataCondition,
-                                                      @NonNull String eventName,
-                                                      @NonNull String topicName,
-                                                      String clusterName,
-                                                      ReferenceProvider<MessageReferences> referenceProvider,
-                                                      ArchiveDataReferenceProvider<Message> archiveDataReferenceProvider,
-                                                      @NonNull String dataReaderEndpoint,
-                                                      String oauthClientId,
-                                                      @NonNull MeterRegistry meterRegistry,
-                                                      MessageCorrelationProvider<Message> correlationProvider,
-                                                      String featureFlag) {
-        super(eventName, topicName, clusterName, archiveDataCondition, correlationProvider, featureFlag);
+    private RemoteDataMessageArchiveConfiguration(@NonNull RemoteArchiveDataProvider remoteArchiveDataProvider,
+                                                  ArchiveDataCondition<Message> archiveDataCondition,
+                                                  @NonNull String messageName,
+                                                  @NonNull String topicName,
+                                                  String clusterName,
+                                                  @SuppressWarnings("deprecation") ReferenceProvider<MessageReferences> referenceProvider,
+                                                  ArchiveDataReferenceProvider<Message> archiveDataReferenceProvider,
+                                                  @NonNull String dataReaderEndpoint,
+                                                  String oauthClientId,
+                                                  @NonNull MeterRegistry meterRegistry,
+                                                  MessageCorrelationProvider<Message> correlationProvider,
+                                                  String featureFlag) {
+        super(messageName, topicName, clusterName, archiveDataCondition, correlationProvider, featureFlag);
         this.remoteArchiveDataProvider = remoteArchiveDataProvider;
         this.archiveDataCondition = archiveDataCondition;
         this.referenceProvider = referenceProvider;

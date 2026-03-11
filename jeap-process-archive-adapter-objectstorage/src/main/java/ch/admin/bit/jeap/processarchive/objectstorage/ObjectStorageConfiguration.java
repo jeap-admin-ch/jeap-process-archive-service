@@ -80,6 +80,6 @@ public class ObjectStorageConfiguration {
     @Bean
     @ConditionalOnMissingBean(AwsCredentialsProvider.class)
     DefaultCredentialsProvider awsCredentialsProvider() {
-        return DefaultCredentialsProvider.create();
+        return DefaultCredentialsProvider.builder().build();
     }
 }

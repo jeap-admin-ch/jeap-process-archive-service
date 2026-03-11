@@ -5,13 +5,13 @@ import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
-import ch.admin.bit.jeap.processarchive.kafka.KafkaDomainEventConsumerFactory;
+import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
+import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomain2EventBuilder;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArchivedListener;
 import ch.admin.bit.jeap.processarchive.test.decree.v2.Decree;
-import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.test.processarchive.TestTypeLoaderConfig;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
@@ -55,7 +55,7 @@ class ArchiveServicePayloadDataExtractorIT extends KafkaIntegrationTestBase {
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
     @Autowired
-    private KafkaDomainEventConsumerFactory kafkaDomainEventConsumerFactory;
+    private KafkaMessageConsumerFactory kafkaMessageConsumerFactory;
     @MockitoBean
     private ArtifactArchivedListener artifactArchivedListener;
     @Captor
@@ -99,6 +99,6 @@ class ArchiveServicePayloadDataExtractorIT extends KafkaIntegrationTestBase {
 
     @BeforeEach
     void setUp() {
-        kafkaDomainEventConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
+        kafkaMessageConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
     }
 }

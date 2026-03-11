@@ -8,7 +8,7 @@ import ch.admin.bit.jeap.messaging.kafka.contract.ContractsProvider;
 import ch.admin.bit.jeap.messaging.kafka.contract.ContractsValidator;
 import ch.admin.bit.jeap.messaging.kafka.properties.KafkaProperties;
 import ch.admin.bit.jeap.messaging.kafka.spring.JeapKafkaBeanNames;
-import ch.admin.bit.jeap.processarchive.domain.event.DomainEventReceiver;
+import ch.admin.bit.jeap.processarchive.domain.event.MessageReceiver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,10 +27,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class KafkaDomainEventConsumerFactoryTest {
+class KafkaMessageConsumerFactoryTest {
 
     @Mock
-    private DomainEventReceiver domainEventReceiver;
+    private MessageReceiver messageReceiver;
 
     @Mock
     private ContractsProvider contractsProvider;
@@ -47,7 +47,7 @@ class KafkaDomainEventConsumerFactoryTest {
     @Mock
     private JeapKafkaBeanNames jeapKafkaBeanNames;
 
-    private KafkaDomainEventConsumerFactory kafkaDomainEventConsumerFactory;
+    private KafkaMessageConsumerFactory kafkaMessageConsumerFactory;
 
     private final String topicName = "topicName";
 
@@ -56,7 +56,7 @@ class KafkaDomainEventConsumerFactoryTest {
     @BeforeEach
     void setup(){
         when(kafkaProperties.getDefaultClusterName()).thenReturn(defaultClusterName);
-        kafkaDomainEventConsumerFactory = new KafkaDomainEventConsumerFactory(domainEventReceiver, contractsValidator, contractsProvider, kafkaProperties, beanFactory);
+        kafkaMessageConsumerFactory = new KafkaMessageConsumerFactory(messageReceiver, contractsValidator, contractsProvider, kafkaProperties, beanFactory);
     }
 
     @Test
@@ -68,9 +68,9 @@ class KafkaDomainEventConsumerFactoryTest {
         when(jeapKafkaBeanNames.getListenerContainerFactoryBeanName(defaultClusterName)).thenReturn("test");
         when(beanFactory.getBean("test")).thenReturn(kafkaListenerContainerFactory);
 
-        ReflectionTestUtils.setField(kafkaDomainEventConsumerFactory, "jeapKafkaBeanNames", jeapKafkaBeanNames);
+        ReflectionTestUtils.setField(kafkaMessageConsumerFactory, "jeapKafkaBeanNames", jeapKafkaBeanNames);
 
-        kafkaDomainEventConsumerFactory.startConsumer(topicName, Set.of("eventName"), null);
+        kafkaMessageConsumerFactory.startConsumer(topicName, Set.of("eventName"), null);
 
         verify(jeapKafkaBeanNames).getListenerContainerFactoryBeanName(defaultClusterName);
     }
@@ -85,9 +85,9 @@ class KafkaDomainEventConsumerFactoryTest {
         when(jeapKafkaBeanNames.getListenerContainerFactoryBeanName(clusterName)).thenReturn("test");
         when(beanFactory.getBean("test")).thenReturn(kafkaListenerContainerFactory);
 
-        ReflectionTestUtils.setField(kafkaDomainEventConsumerFactory, "jeapKafkaBeanNames", jeapKafkaBeanNames);
+        ReflectionTestUtils.setField(kafkaMessageConsumerFactory, "jeapKafkaBeanNames", jeapKafkaBeanNames);
 
-        kafkaDomainEventConsumerFactory.startConsumer(topicName, Set.of("eventName"), clusterName);
+        kafkaMessageConsumerFactory.startConsumer(topicName, Set.of("eventName"), clusterName);
 
         verify(jeapKafkaBeanNames).getListenerContainerFactoryBeanName(clusterName);
     }
@@ -95,8 +95,9 @@ class KafkaDomainEventConsumerFactoryTest {
     @Test
     void startConsumer_withUndefinedCluster_throwsException() {
         when(beanFactory.getBean(anyString())).thenThrow(new NoSuchBeanDefinitionException("name"));
+        Set<String> messageNames = Set.of("eventName");
 
-        assertThrows(IllegalStateException.class, () -> kafkaDomainEventConsumerFactory.startConsumer("topicName", Set.of("eventName"), "clusterNotDefined"));
+        assertThrows(IllegalStateException.class, () -> kafkaMessageConsumerFactory.startConsumer("topicName", messageNames, "clusterNotDefined"));
     }
 
 
@@ -110,7 +111,7 @@ class KafkaDomainEventConsumerFactoryTest {
 
         ));
 
-        ReflectionTestUtils.invokeMethod(kafkaDomainEventConsumerFactory, KafkaDomainEventConsumerFactory.class, "ensureConsumerContract", topicName, "eventName");
+        ReflectionTestUtils.invokeMethod(kafkaMessageConsumerFactory, KafkaMessageConsumerFactory.class, "ensureConsumerContract", topicName, "eventName");
         verify(contractsValidator, times(1)).ensureConsumerContract(getAvroMessageType("eventName", "1.2.3"), topicName);
         verify(contractsValidator, times(1)).ensureConsumerContract(getAvroMessageType("eventName", "9"), topicName);
         verify(contractsValidator, never()).ensureConsumerContract(getAvroMessageType("otherEvent", "4.5.6"), topicName);

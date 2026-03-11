@@ -1,3 +1,5 @@
 spring:
   application:
     name: jeap-process-archive-service
+  main:
+    banner-mode: off

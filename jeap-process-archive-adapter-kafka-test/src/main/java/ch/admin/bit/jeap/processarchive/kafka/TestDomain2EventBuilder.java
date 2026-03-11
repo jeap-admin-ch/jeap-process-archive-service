@@ -1,9 +1,9 @@
 package ch.admin.bit.jeap.processarchive.kafka;
 
 import ch.admin.bit.jeap.domainevent.avro.AvroDomainEventBuilder;
-import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2Event;
-import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2EventPayload;
-import ch.admin.bit.jeap.processcontext.event.test2.TestDomain2EventReferences;
+import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
+import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2EventPayload;
+import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2EventReferences;
 
 public class TestDomain2EventBuilder extends AvroDomainEventBuilder<TestDomain2EventBuilder, TestDomain2Event> {
 

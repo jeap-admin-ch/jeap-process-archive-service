@@ -1,0 +1,28 @@
+@namespace("ch.admin.bit.jeap.processarchive.command.test")
+protocol TestCommandProtocol {
+  import idl "MessagingBaseTypes.avdl";
+
+  record DataReference {
+    string type = "data";
+    string version = "1";
+    string dataId;
+  }
+
+  record TestCommandReferences {
+    DataReference? dataReference = null;
+  }
+
+  record TestCommandPayload {
+    string message;
+  }
+
+  record TestCommand {
+    ch.admin.bit.jeap.messaging.avro.AvroMessageIdentity identity;
+    ch.admin.bit.jeap.messaging.avro.AvroMessageType type;
+    ch.admin.bit.jeap.messaging.avro.AvroMessagePublisher publisher;
+    TestCommandReferences references;
+    TestCommandPayload payload;
+    string? processId = null;
+    string commandVersion;
+  }
+}

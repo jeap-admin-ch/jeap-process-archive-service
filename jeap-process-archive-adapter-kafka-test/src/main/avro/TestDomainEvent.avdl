@@ -1,4 +1,4 @@
-@namespace("ch.admin.bit.jeap.processcontext.event.test")
+@namespace("ch.admin.bit.jeap.processarchive.event.test")
 protocol TestDomainEventProtocol {
   import idl "DomainEventBaseTypes.avdl";
 

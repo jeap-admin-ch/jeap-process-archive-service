@@ -5,12 +5,12 @@ import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
-import ch.admin.bit.jeap.processarchive.kafka.KafkaDomainEventConsumerFactory;
+import ch.admin.bit.jeap.processarchive.event.test3.TestDomain3Event;
+import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomain3EventBuilder;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArchivedListener;
-import ch.admin.bit.jeap.processcontext.event.test3.TestDomain3Event;
 import ch.admin.bit.jeap.test.processarchive.TestTypeLoaderConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +48,7 @@ class MessageCorrelationProviderIT extends KafkaIntegrationTestBase {
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
     @Autowired
-    private KafkaDomainEventConsumerFactory kafkaDomainEventConsumerFactory;
+    private KafkaMessageConsumerFactory kafkaMessageConsumerFactory;
     @MockitoBean
     private ArtifactArchivedListener artifactArchivedListener;
     @Captor
@@ -82,6 +82,6 @@ class MessageCorrelationProviderIT extends KafkaIntegrationTestBase {
 
     @BeforeEach
     void setUp() {
-        kafkaDomainEventConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
+        kafkaMessageConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
     }
 }

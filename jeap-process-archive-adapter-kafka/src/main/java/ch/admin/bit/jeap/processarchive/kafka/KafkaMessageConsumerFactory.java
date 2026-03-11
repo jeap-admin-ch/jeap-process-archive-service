@@ -1,6 +1,5 @@
 package ch.admin.bit.jeap.processarchive.kafka;
 
-import ch.admin.bit.jeap.domainevent.avro.AvroDomainEvent;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageType;
@@ -9,7 +8,7 @@ import ch.admin.bit.jeap.messaging.kafka.contract.ContractsProvider;
 import ch.admin.bit.jeap.messaging.kafka.contract.ContractsValidator;
 import ch.admin.bit.jeap.messaging.kafka.properties.KafkaProperties;
 import ch.admin.bit.jeap.messaging.kafka.spring.JeapKafkaBeanNames;
-import ch.admin.bit.jeap.processarchive.domain.event.DomainEventReceiver;
+import ch.admin.bit.jeap.processarchive.domain.event.MessageReceiver;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,9 +26,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component
 @Slf4j
-public class KafkaDomainEventConsumerFactory {
+public class KafkaMessageConsumerFactory {
 
-    private final DomainEventReceiver domainEventReceiver;
+    private final MessageReceiver messageReceiver;
     private final ContractsValidator contractsValidator;
     @Getter
     private final List<ConcurrentMessageListenerContainer<?, ?>> containers = new CopyOnWriteArrayList<>();
@@ -43,12 +42,12 @@ public class KafkaDomainEventConsumerFactory {
     private final JeapKafkaBeanNames jeapKafkaBeanNames;
 
 
-    public KafkaDomainEventConsumerFactory(DomainEventReceiver domainEventReceiver,
-                                           ContractsValidator contractsValidator,
-                                           ContractsProvider contractsProvider,
-                                           KafkaProperties kafkaProperties,
-                                           BeanFactory beanFactory) {
-        this.domainEventReceiver = domainEventReceiver;
+    public KafkaMessageConsumerFactory(MessageReceiver messageReceiver,
+                                       ContractsValidator contractsValidator,
+                                       ContractsProvider contractsProvider,
+                                       KafkaProperties kafkaProperties,
+                                       BeanFactory beanFactory) {
+        this.messageReceiver = messageReceiver;
         this.contractsValidator = contractsValidator;
         this.contractsProvider = contractsProvider;
         this.kafkaProperties = kafkaProperties;
@@ -57,36 +56,35 @@ public class KafkaDomainEventConsumerFactory {
     }
 
 
-
-    void startConsumer(String topicName, Set<String> eventNames, String clusterName) {
+    void startConsumer(String topicName, Set<String> messageNames, String clusterName) {
         if (!StringUtils.hasText(clusterName)) {
             clusterName = kafkaProperties.getDefaultClusterName();
         }
 
-        log.info("Starting domain event listener for event(s) '{}' on topic '{}' on cluster '{}'", eventNames, topicName, clusterName);
+        log.info("Starting message listener for message(s) '{}' on topic '{}' on cluster '{}'", messageNames, topicName, clusterName);
 
-        eventNames.forEach(eventName -> ensureConsumerContract(topicName, eventName));
-        KafkaMessageListener listener = new KafkaMessageListener(eventNames, domainEventReceiver);
+        messageNames.forEach(messageName -> ensureConsumerContract(topicName, messageName));
+        KafkaMessageListener listener = new KafkaMessageListener(messageNames, messageReceiver);
         startConsumer(topicName, clusterName, listener);
     }
 
-    private void ensureConsumerContract(String topicName, String eventName) {
+    private void ensureConsumerContract(String topicName, String messageName) {
         //V2 Set the eventVersion from the contract files and check the consumer contract for each version
         final List<String> eventVersions = contractsProvider.getContracts().stream()
-                .filter(contract -> contract.getMessageTypeName().equals(eventName) && contract.getRole().equalsIgnoreCase("consumer"))
+                .filter(contract -> contract.getMessageTypeName().equals(messageName) && contract.getRole().equalsIgnoreCase("consumer"))
                 .map(Contract::getMessageTypeVersion)
                 .toList();
-        eventVersions.forEach(version -> ensureConsumerContract(eventName, version, topicName));
+        eventVersions.forEach(version -> ensureConsumerContract(messageName, version, topicName));
     }
 
-    private void ensureConsumerContract(String eventName, String eventVersion, String topicName){
+    private void ensureConsumerContract(String messageName, String eventVersion, String topicName) {
         AvroMessageType type = new AvroMessageType();
-        type.setName(eventName);
+        type.setName(messageName);
         type.setVersion(eventVersion);
         contractsValidator.ensureConsumerContract(type, topicName);
     }
 
-    private void startConsumer(String topicName, String clusterName, AcknowledgingMessageListener<AvroMessageKey, AvroDomainEvent> messageListener) {
+    private void startConsumer(String topicName, String clusterName, AcknowledgingMessageListener<AvroMessageKey, AvroMessage> messageListener) {
         ConcurrentMessageListenerContainer<AvroMessageKey, AvroMessage> container = getKafkaListenerContainerFactory(clusterName).createContainer(topicName);
         container.setupMessageListener(messageListener);
         container.start();

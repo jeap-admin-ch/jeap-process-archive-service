@@ -11,9 +11,9 @@ import lombok.ToString;
 @Getter
 @AllArgsConstructor
 @ToString
-public abstract class DomainEventArchiveConfiguration {
+public abstract class MessageArchiveConfiguration {
 
-    private final String eventName;
+    private final String messageName;
     private final String topicName;
     private final String clusterName;
     ArchiveDataCondition<Message> archiveDataCondition;
