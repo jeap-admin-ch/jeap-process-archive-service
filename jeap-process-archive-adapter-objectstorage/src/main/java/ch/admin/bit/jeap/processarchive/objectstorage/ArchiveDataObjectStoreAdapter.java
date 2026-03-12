@@ -51,10 +51,15 @@ public class ArchiveDataObjectStoreAdapter implements ArchiveDataObjectStore {
         final LifecyclePolicy lifecyclePolicy = lifecyclePolicyService.getLifecyclePolicy(archiveData);
         log.debug("Storage target for archive data '{}' is '{}'.", archiveData.getReferenceId(), target);
 
-        String schemaLocation = String.format("%s/%s_%s_%d.%s",
-                SCHEMA_LOCATION, schema.getSystem(), schema.getName(), schema.getVersion(), schema.getFileExtension());
-        String schemaVersionId = storeSchema(schema, target.getBucket(), schemaLocation);
-        final Map<String, String> metadata = createMetadata(archiveData, schemaVersionId, schemaLocation);
+        final Map<String, String> metadata;
+        if (schema.getSchemaDefinition() != null) {
+            String schemaLocation = String.format("%s/%s_%s_%d.%s",
+                    SCHEMA_LOCATION, schema.getSystem(), schema.getName(), schema.getVersion(), schema.getFileExtension());
+            String schemaVersionId = storeSchema(schema, target.getBucket(), schemaLocation);
+            metadata = createMetadata(archiveData, schemaVersionId, schemaLocation);
+        } else {
+            metadata = createMetadataWithoutSchema(archiveData);
+        }
         String versionId = storeObject(archiveData, target, lifecyclePolicy, metadata,
                 ArchiveDataEncryption.from(schema));
 
@@ -134,15 +139,21 @@ public class ArchiveDataObjectStoreAdapter implements ArchiveDataObjectStore {
         return matches;
     }
 
+    private Map<String, String> createMetadataWithoutSchema(ArchiveData archiveData) {
+        return createMetadata(archiveData, null, null);
+    }
+
     private Map<String, String> createMetadata(ArchiveData archiveData, String schemaVersionId, String schemaLocation) {
         Map<String, String> metadata = new HashMap<>(toMap(archiveData.getMetadata()));
         metadata.put(CONTENT_TYPE_METADATA_NAME, archiveData.getContentType());
         metadata.put(SYSTEM_NAME, archiveData.getSystem());
         metadata.put(SCHEMA_METADATA_NAME, archiveData.getSchema());
         metadata.put(SCHEMA_VERSION_METADATA_NAME, String.valueOf(archiveData.getSchemaVersion()));
-        metadata.put(SCHEMAFILE_VERSION_ID_METADATA_NAME, schemaVersionId);
-        metadata.put(SCHEMAFILE_KEY_METADATA_NAME, schemaLocation);
         metadata.put(REFERENCE_ID_METADATA_NAME, archiveData.getReferenceId());
+        if (schemaVersionId != null) {
+            metadata.put(SCHEMAFILE_VERSION_ID_METADATA_NAME, schemaVersionId);
+            metadata.put(SCHEMAFILE_KEY_METADATA_NAME, schemaLocation);
+        }
         if (archiveData.getVersion() != null) {
             metadata.put(VERSION_METADATA_NAME, Integer.toString(archiveData.getVersion()));
         }

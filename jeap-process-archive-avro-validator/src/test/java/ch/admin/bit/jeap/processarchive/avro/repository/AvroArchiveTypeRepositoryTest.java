@@ -9,11 +9,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(classes = {ArchiveTypeRepository.class, ArchiveTypeLoader.class, TestArchiveTypeProvider.class}, properties = {"spring.cloud.vault.enabled=false"})
-class ArchiveTypeRepositoryTest {
+@SpringBootTest(classes = {AvroArchiveTypeRepository.class, ArchiveTypeLoader.class, TestArchiveTypeProvider.class}, properties = {"spring.cloud.vault.enabled=false"})
+class AvroArchiveTypeRepositoryTest {
 
     @Autowired
-    private ArchiveTypeRepository repository;
+    private AvroArchiveTypeRepository repository;
 
     @MockitoBean
     private ArchiveCryptoService archiveCryptoService;

@@ -1,0 +1,9 @@
+{
+  "messages": [
+    {
+      "messageName": "TestDomain2Event",
+      "topicName": "test-event-2",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.configonly.ConfigOnlyDataProvider"
+    }
+  ]
+}

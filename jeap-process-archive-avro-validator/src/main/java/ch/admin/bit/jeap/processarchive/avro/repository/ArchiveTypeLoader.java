@@ -11,19 +11,24 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
 public class ArchiveTypeLoader {
 
-    private final ArchiveTypeProvider archiveTypeProvider;
+    private final Optional<ArchiveTypeProvider> archiveTypeProvider;
 
-    ArchiveTypeLoader(ArchiveTypeProvider archiveTypeProvider) {
+    ArchiveTypeLoader(Optional<ArchiveTypeProvider> archiveTypeProvider) {
         this.archiveTypeProvider = archiveTypeProvider;
     }
 
     Map<ArchiveTypeId, ArchiveType> loadArchiveTypes() {
-        List<Class<? extends SpecificRecordBase>> typeVersions = archiveTypeProvider.getArchiveTypeVersions();
+        if (archiveTypeProvider.isEmpty()) {
+            log.info("No archive type provider found on classpath, skipping classpath archive type loading");
+            return Map.of();
+        }
+        List<Class<? extends SpecificRecordBase>> typeVersions = archiveTypeProvider.get().getArchiveTypeVersions();
         log.info("Loading archive types: {}", typeVersions.stream().map(Class::getName).toList());
 
         Map<ArchiveTypeId, ArchiveType> archiveTypes = new HashMap<>();

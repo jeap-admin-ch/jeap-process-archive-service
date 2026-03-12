@@ -1,12 +1,12 @@
 package ch.admin.bit.jeap.processarchive.avro;
 
-import ch.admin.bit.jeap.processarchive.avro.repository.*;
+import ch.admin.bit.jeap.processarchive.avro.repository.ArchiveType;
+import ch.admin.bit.jeap.processarchive.avro.repository.ArchiveTypeId;
+import ch.admin.bit.jeap.processarchive.avro.repository.AvroArchiveTypeRepository;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.ArchiveDataSchemaValidator;
+import ch.admin.bit.jeap.processarchive.domain.archive.schema.SchemaDefinition;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.SchemaValidationException;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
-import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.ArchiveDataSchema;
-import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.EncryptionKeyId;
-import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.EncryptionKeyReference;
 import lombok.RequiredArgsConstructor;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericDatumReader;
@@ -25,7 +25,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ArchiveDataAvroSchemaValidator implements ArchiveDataSchemaValidator {
 
-    private final ArchiveTypeRepository repository;
+    private final AvroArchiveTypeRepository repository;
 
     @Override
     public Set<String> getContentTypes() {
@@ -37,11 +37,11 @@ public class ArchiveDataAvroSchemaValidator implements ArchiveDataSchemaValidato
      * Validates that a given archive data payload conforms to the avro schema for the archive data type version.
      *
      * @param archiveData Archive data including schema reference and payload
-     * @throws SchemaValidationException  If the payload does not conform to the avro schema
-     * @throws ArchiveTypeLoaderException If no avro schema for the triple system / archive type / version is found
+     * @throws SchemaValidationException If the payload does not conform to the avro schema
+     * @throws ch.admin.bit.jeap.processarchive.avro.repository.ArchiveTypeLoaderException If no avro schema for the triple system / archive type / version is found
      */
     @Override
-    public ArchiveDataSchema validatePayloadConformsToSchema(ArchiveData archiveData) {
+    public SchemaDefinition validatePayloadConformsToSchema(ArchiveData archiveData) {
         ArchiveTypeId schemaId = ArchiveTypeId.builder()
                 .system(archiveData.getSystem())
                 .name(archiveData.getSchema())
@@ -52,42 +52,12 @@ public class ArchiveDataAvroSchemaValidator implements ArchiveDataSchemaValidato
 
         validateConformsToSchema(archiveData, archiveType.getSchema());
 
-        return createArchiveDataSchema(archiveData, archiveType);
-    }
-
-    private ArchiveDataSchema createArchiveDataSchema(ArchiveData archiveData, ArchiveType archiveType) {
         boolean pretty = true;
         String avroProtocol = archiveType.getSchema().toString(pretty);
-        return ArchiveDataSchema.builder()
-                .system(archiveData.getSystem())
-                .name(archiveData.getSchema())
-                .referenceIdType(archiveType.getReferenceIdType())
-                .version(archiveData.getSchemaVersion())
+        return SchemaDefinition.builder()
+                .definition(avroProtocol.getBytes(StandardCharsets.UTF_8))
                 .fileExtension("avpr")
-                .schemaDefinition(avroProtocol.getBytes(StandardCharsets.UTF_8))
-                .expirationDays(archiveType.getExpirationDays())
-                .encryptionKeyReference(getEncryptionKeyReferenceFromArchiveType(archiveType.getEncryption()))
-                .encryptionKeyId(getEncryptionKeyIdReferenceFromArchiveType(archiveType.getEncryptionKey()))
                 .build();
-    }
-
-    private EncryptionKeyReference getEncryptionKeyReferenceFromArchiveType(ArchiveTypeEncryption encryption) {
-        if (encryption != null) {
-            return EncryptionKeyReference.builder()
-                    .keyName(encryption.getKeyName())
-                    .secretEnginePath(encryption.getSecretEnginePath())
-                    .build();
-        }
-        return null;
-    }
-
-    private EncryptionKeyId getEncryptionKeyIdReferenceFromArchiveType(ArchiveTypeEncryptionKey encryption) {
-        if (encryption != null) {
-            return EncryptionKeyId.builder()
-                    .keyId(encryption.getKeyId())
-                    .build();
-        }
-        return null;
     }
 
     private void validateConformsToSchema(ArchiveData archiveData, Schema schema) {

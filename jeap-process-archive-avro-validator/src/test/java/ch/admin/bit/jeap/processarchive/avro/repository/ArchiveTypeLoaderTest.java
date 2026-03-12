@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -12,7 +13,7 @@ class ArchiveTypeLoaderTest {
     @Test
     @SneakyThrows
     void testLoad() {
-        ArchiveTypeLoader loader = new ArchiveTypeLoader(new TestArchiveTypeProvider());
+        ArchiveTypeLoader loader = new ArchiveTypeLoader(Optional.of(new TestArchiveTypeProvider()));
 
         Map<ArchiveTypeId, ArchiveType> archiveTypeIdArchiveTypeMap = loader.loadArchiveTypes();
 

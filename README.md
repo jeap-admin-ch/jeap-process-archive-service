@@ -6,15 +6,6 @@ to a process. Such artifacts might be required to be archived for audit purposes
 Process artifact archival is triggered by messages, and artifacts can either be derived from the message's payload
 or fetched from a business service using its REST API.
 
-## Attributions
-
-This project includes code from the following open-source projects:
-
-1. **[arden-file]**  
-   Link: [https://github.com/ardenliu/common/tree/master/arden-file](https://github.com/ardenliu/common/tree/master/arden-file)  
-   License: Apache 2.0
-   Included Code: ArchiveResourceUtils is partially based on arden-file code.
-
 ## License
 
 This repository is Open Source Software licensed under the [Apache License 2.0](./LICENSE).

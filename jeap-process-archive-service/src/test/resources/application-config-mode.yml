@@ -1,0 +1,25 @@
+spring:
+  cloud:
+    vault:
+      enabled: false
+
+test:
+  service:
+    uri: http://localhost/unused
+
+jeap:
+  processarchive:
+    registry:
+      types:
+        - archive-type: Decree
+          version: 1
+          system: JME
+          expiration-days: 30
+          reference-id-type: ch.admin.bit.jeap.audit.type.JmeDecreeArtifact
+    objectstorage:
+      storage:
+        bucket: testbucket
+    archivedartifact:
+      event-topic: event-topic
+      system-id: com.test.System
+      system-name: test

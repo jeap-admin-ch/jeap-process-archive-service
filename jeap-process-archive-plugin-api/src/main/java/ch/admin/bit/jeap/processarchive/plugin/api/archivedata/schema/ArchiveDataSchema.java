@@ -14,10 +14,8 @@ public class ArchiveDataSchema {
     String name;
     @NonNull
     String referenceIdType;
-    @NonNull
     String fileExtension;
     int version;
-    @NonNull
     @ToString.Exclude
     byte[] schemaDefinition;
     int expirationDays;

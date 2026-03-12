@@ -26,10 +26,11 @@ public class SchemaValidationException extends RuntimeException {
         return new SchemaValidationException(msg);
     }
 
-    public static SchemaValidationException noValidatorForContentType(ArchiveData archiveData, String contentType) {
+    public static SchemaValidationException unknownArchiveType(ArchiveData archiveData, String contentType) {
         String msg = format("""
                         Failed to validate archive data %s against a schema: Unsupported content type %s, \
-                        no validator is available for this content type\
+                        no validator is available for this content type and the type is not found in the archive type
+                        registry configuration\
                         """,
                 archiveData.getReferenceId(), contentType);
         return new SchemaValidationException(msg);

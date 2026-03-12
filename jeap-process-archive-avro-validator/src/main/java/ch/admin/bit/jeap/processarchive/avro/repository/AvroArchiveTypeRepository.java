@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +18,7 @@ import static java.util.stream.Collectors.toSet;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ArchiveTypeRepository {
+public class AvroArchiveTypeRepository {
 
     private final ArchiveTypeLoader archiveTypeLoader;
 
@@ -28,7 +27,7 @@ public class ArchiveTypeRepository {
     private final ArchiveCryptoService archiveCryptoService;
 
     @PostConstruct
-    void initialize() throws IOException {
+    void initialize() {
         archiveTypes.putAll(archiveTypeLoader.loadArchiveTypes());
         log.info("Loaded {} archive types: {}", archiveTypes.size(), archiveTypes.keySet());
         Set<ArchiveTypeEncryption> encryptions = archiveTypes.values().stream()
@@ -89,5 +88,4 @@ public class ArchiveTypeRepository {
         all.sort(Comparator.comparing(ArchiveType::getName).thenComparing(ArchiveType::getVersion));
         return all;
     }
-
 }

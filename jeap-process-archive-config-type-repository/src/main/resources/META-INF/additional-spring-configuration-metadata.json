@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "jeap.processarchive.registry.types",
+      "description": "List of archive type definitions loaded from Spring configuration. These types complement archive types loaded from classpath descriptors."
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+spring:
+  cloud:
+    vault:
+      enabled: false
+
+jeap:
+  processarchive:
+    registry:
+      types:
+        - archive-type: MyType
+          version: 1
+          system: Jme
+          expiration-days: 90
+          reference-id-type: ch.admin.dept.FooBar
+          encryption-key: my-key
+        - archive-type: OtherType
+          version: 2
+          system: Jme
+          expiration-days: 365
+          reference-id-type: ch.admin.dept.OtherRef

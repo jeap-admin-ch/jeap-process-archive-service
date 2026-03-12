@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [11.0.0] - 2026-03-12
+
+### Changed
+
+- Add support for an operation mode without an archive type registry, where archive types are directly defined in the
+  PAS configuration. This allows using the PAS without the archive type registry and simplifies the setup for users
+  who do not require the registry's features.
+- Validation of archive data is no longer strictly required for all content types. If not validator for a content type
+  is registered, validation will be skipped. The built-in validator for avro/binary is still always active. This enables
+  archival of arbitrary content types without requiring custom validators.
+
 ## [10.20.0] - 2026-03-12
 
 ### Changed

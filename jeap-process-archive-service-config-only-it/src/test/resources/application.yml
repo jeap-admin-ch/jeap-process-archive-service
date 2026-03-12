@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: jeap-process-archive-service-config-only-it
+  cloud:
+    vault:
+      enabled: false
+
+test:
+  service:
+    uri: http://localhost/unused
+
+jeap:
+  processarchive:
+    registry:
+      types:
+        - archive-type: ConfigOnlyType
+          version: 1
+          system: TestSystem
+          expiration-days: 45
+          reference-id-type: ch.admin.bit.jeap.test.ConfigOnlyArtifact
+    objectstorage:
+      storage:
+        bucket: testbucket
+    archivedartifact:
+      event-topic: event-topic
+      system-id: com.test.System
+      system-name: test

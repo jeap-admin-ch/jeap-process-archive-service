@@ -2,9 +2,10 @@ package ch.admin.bit.jeap.processarchive.avro;
 
 import ch.admin.bit.jeap.processarchive.avro.repository.ArchiveTypeId;
 import ch.admin.bit.jeap.processarchive.avro.repository.ArchiveTypeLoader;
-import ch.admin.bit.jeap.processarchive.avro.repository.ArchiveTypeRepository;
+import ch.admin.bit.jeap.processarchive.avro.repository.AvroArchiveTypeRepository;
 import ch.admin.bit.jeap.processarchive.avro.repository.TestArchiveTypeProvider;
 import ch.admin.bit.jeap.processarchive.crypto.ArchiveCryptoService;
+import ch.admin.bit.jeap.processarchive.domain.archive.schema.SchemaDefinition;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.SchemaValidationException;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import org.apache.avro.Schema;
@@ -23,9 +24,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest(classes = {ArchiveTypeRepository.class, ArchiveTypeLoader.class, ArchiveDataAvroSchemaValidator.class, TestArchiveTypeProvider.class},
+@SpringBootTest(classes = {AvroArchiveTypeRepository.class, ArchiveTypeLoader.class, ArchiveDataAvroSchemaValidator.class, TestArchiveTypeProvider.class},
         properties = {"spring.cloud.vault.enabled=false"})
 class ArchiveDataAvroSchemaValidatorTest {
 
@@ -33,7 +35,7 @@ class ArchiveDataAvroSchemaValidatorTest {
     private static final int V_2 = 2;
 
     @Autowired
-    private ArchiveTypeRepository repository;
+    private AvroArchiveTypeRepository repository;
 
     @Autowired
     private ArchiveDataAvroSchemaValidator validator;
@@ -44,7 +46,11 @@ class ArchiveDataAvroSchemaValidatorTest {
     @Test
     void validatePayloadConformsToSchema() throws IOException {
         ArchiveData archiveData = createArchiveData(payloadAccordingToSchemaV1(), V_1);
-        validator.validatePayloadConformsToSchema(archiveData);
+
+        SchemaDefinition result = validator.validatePayloadConformsToSchema(archiveData);
+
+        assertThat(result.getDefinition()).isNotNull();
+        assertThat(result.getFileExtension()).isEqualTo("avpr");
     }
 
     @Test

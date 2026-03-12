@@ -59,6 +59,7 @@ public class ArchiveTypeRegistryVerifierMojo extends AbstractMojo {
         }
     }
 
+    @SuppressWarnings("java:S5443") // writable temp directory is needed to clone the git repository
     private File getFolderToCompareTo() throws MojoExecutionException {
         if (gitUrl == null) {
             getLog().warn("No GIT repo set, cannot compare to old state");

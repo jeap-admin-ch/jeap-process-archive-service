@@ -8,6 +8,7 @@ import ch.admin.bit.jeap.messaging.model.MessageType;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.ArchiveDataSchemaValidationService;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.ArchiveDataSchemaValidator;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.SchemaValidationException;
+import ch.admin.bit.jeap.processarchive.domain.archive.type.ArchiveTypeRepository;
 import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.domain.configuration.PayloadDataMessageArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.domain.configuration.RemoteDataMessageArchiveConfiguration;
@@ -254,8 +255,9 @@ class MessageArchiveServiceTest {
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of("test-process-id"));
         ArchiveDataSchemaValidator validatorMock = mock(ArchiveDataSchemaValidator.class);
         when(validatorMock.getContentTypes()).thenReturn(Set.of(CONTENT_TYPE));
+        ArchiveTypeRepository typeRepository = mock(ArchiveTypeRepository.class);
         ArchiveDataSchemaValidationService archiveDataSchemaValidationService =
-                new ArchiveDataSchemaValidationService(List.of(validatorMock));
+                new ArchiveDataSchemaValidationService(List.of(validatorMock), typeRepository);
         doThrow(SchemaValidationException.class).when(validatorMock).validatePayloadConformsToSchema(any());
         archiveDataSchemaValidationService.initValidators();
         MessageArchiveService messageArchiveService = new MessageArchiveService(
