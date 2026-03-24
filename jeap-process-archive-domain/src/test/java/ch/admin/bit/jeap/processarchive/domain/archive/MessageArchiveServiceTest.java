@@ -194,6 +194,33 @@ class MessageArchiveServiceTest {
     }
 
     @Test
+    void archive_doNotArchiveDataWhenConditionEvaluatesToFalse_testedBeforeProcessIdExtraction() {
+        // given
+        when(domainEvent.getOptionalProcessId()).thenReturn(Optional.empty());
+        List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
+        ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
+                List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
+        doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
+        RemoteDataMessageArchiveConfiguration configuration = RemoteDataMessageArchiveConfiguration.builder()
+                .topicName("topic")
+                .messageName("event")
+                .remoteArchiveDataProvider(this::remoteArchiveDataProvider)
+                .oauthClientId(CLIENT_ID)
+                .dataReaderEndpoint(ENDPOINT)
+                .referenceProvider(this::referenceProvider)
+                .meterRegistry(new SimpleMeterRegistry())
+                .archiveDataCondition(message -> false)
+                .build();
+
+        // when
+        messageArchiveService.archive(configuration, domainEvent);
+
+        // then
+        assertEquals(0, archivedArtifacts.size());
+    }
+
+    @Test
     void archive_doArchiveDataWhenConditionEvaluatesToTrue() {
         // given
         String processId = "test-process-id";
@@ -227,6 +254,32 @@ class MessageArchiveServiceTest {
         // given
         String processId = "test-process-id";
         when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
+        List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
+        ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
+                List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
+        doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
+        RemoteDataMessageArchiveConfiguration configuration = RemoteDataMessageArchiveConfiguration.builder()
+                .topicName("topic")
+                .messageName("event")
+                .remoteArchiveDataProvider(this::remoteArchiveDataProvider)
+                .oauthClientId(CLIENT_ID)
+                .dataReaderEndpoint(ENDPOINT)
+                .referenceProvider(refs -> null)
+                .meterRegistry(new SimpleMeterRegistry())
+                .build();
+
+        // when
+        messageArchiveService.archive(configuration, domainEvent);
+
+        // then
+        assertEquals(0, archivedArtifacts.size());
+    }
+
+    @Test
+    void archive_nothingToArchive_noProcessId_doesNotThrow() {
+        // given
+        when(domainEvent.getOptionalProcessId()).thenReturn(Optional.empty());
         List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
         ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
         MessageArchiveService messageArchiveService = new MessageArchiveService(

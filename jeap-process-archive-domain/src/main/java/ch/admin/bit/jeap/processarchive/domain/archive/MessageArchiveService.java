@@ -30,8 +30,6 @@ public class MessageArchiveService {
 
     @Timed(value = "jeap_pas_archive_message", description = "Archive Message from fetch to commit")
     public void archive(MessageArchiveConfiguration configuration, Message message) {
-        String processId = readOriginProcessId(configuration, message);
-
         if (!configuration.acceptsMessage(message)) {
             log.debug("Condition prevented archiving data for message {}", message.getIdentity().getId());
             return;
@@ -44,6 +42,7 @@ public class MessageArchiveService {
             return;
         }
 
+        String processId = readOriginProcessId(configuration, message);
         log.info("Extracted archive data from message {}: {} {} {}",
                 keyValue("messageType", message.getType().getName()),
                 keyValue("processId", processId),
