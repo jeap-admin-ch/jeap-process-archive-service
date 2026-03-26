@@ -18,10 +18,9 @@ public class ObjectStorageProperties {
     /**
      * Controls whether existing schema files for an archive data schema in object storage are allowed to be overwritten
      * if their content does not match the schema that the PAS is using at the moment.
-     * Note: For backward compatibility reasons, the default is true, and will be changed to false with JEAP-6402
      */
     @Setter
-    private boolean schemaOverwriteAllowed = true;
+    private boolean schemaOverwriteAllowed = false;
 
     private ObjectLockMode objectLockMode = ObjectLockMode.COMPLIANCE;
 

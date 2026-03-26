@@ -34,7 +34,7 @@
 
     <artifactId>jeap-process-archive-service-parent</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
-    <version>11.2.0-SNAPSHOT</version>
+    <version>11.2.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>JEAP Process Archive Service</description>
 
@@ -78,72 +78,72 @@
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-domain</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-type-registry</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-adapter-crypto</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-config-repository</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-config-type-repository</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-adapter-kafka</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-plugin-api</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-avro-validator</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-adapter-objectstorage</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-remote-data-provider</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-web</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-service</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-service-instance</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-test-types</artifactId>
-                <version>11.2.0-SNAPSHOT</version>
+                <version>11.2.1-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>

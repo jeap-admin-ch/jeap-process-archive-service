@@ -74,6 +74,7 @@ class CustomObjectStorageStrategyIT {
 
     @Test
     void testStoreTwice_differentSchema_overwriteAllowed_shouldNotThrowException() {
+        objectStorageProperties.setSchemaOverwriteAllowed(true);
         ArchiveData archiveData = createArchiveData();
 
         archiveDataObjectStoreAdapter.store(archiveData, ARCHIVE_DATA_SCHEMA);
@@ -84,7 +85,7 @@ class CustomObjectStorageStrategyIT {
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     void testStoreTwice_differentSchema_overwriteNotAllowed_shouldThrowException() {
-        objectStorageProperties.setSchemaOverwriteAllowed(false);
+        // schemaOverwriteAllowed: Default is false
 
         ArchiveData archiveData = createArchiveData();
 
