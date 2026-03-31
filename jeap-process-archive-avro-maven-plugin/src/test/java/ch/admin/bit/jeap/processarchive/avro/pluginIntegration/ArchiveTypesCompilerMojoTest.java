@@ -2,10 +2,13 @@ package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypesCompilerMojo;
 import org.apache.commons.io.FileUtils;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,16 +17,15 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
+import static org.apache.maven.api.plugin.testing.MojoExtension.setVariableValueToObject;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-class ArchiveTypesCompilerMojoTest {
+@MojoTest
+class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
-    @RegisterExtension
-    AvroMojoTestSupport mojoSupport = new AvroMojoTestSupport();
-
-    @TempDir
-    Path tempDir;
+    @Inject
+    private MavenProject project;
 
     private static final String EXPECTED_V1_METADATA = """
             public static final int ARCHIVE_TYPE_VERSION = 1;
@@ -82,26 +84,35 @@ class ArchiveTypesCompilerMojoTest {
             return ARCHIVE_TYPE_METADATA;
             }""";
 
-    @Test
-    void execute_generateAllArchiveTypes_allArchiveTypesGenerated() throws Exception {
-        // arrange
-        File testDirectory = AvroMojoTestSupport.copyToTempDir("src/test/resources/sample-registry", tempDir);
+    private File setupTestDirectory(Path tempDir, String resourcePath) throws Exception {
+        File testDirectory = syncToTempDirectory(resourcePath, tempDir);
         FileUtils.copyDirectory(Paths.get(Paths.get("").toAbsolutePath().getParent().toString(), ".git").toFile(), Paths.get(testDirectory.getAbsolutePath(), ".git").toFile());
+        return testDirectory;
+    }
 
-        ArchiveTypesCompilerMojo myMojo = (ArchiveTypesCompilerMojo) mojoSupport.lookupConfiguredMojo(testDirectory, "compile-archive-types");
+    private void pointToTempDir(ArchiveTypesCompilerMojo mojo, File testDirectory) throws IllegalAccessException {
+        setVariableValueToObject(project, "basedir", testDirectory);
+        project.getBuild().setDirectory(new File(testDirectory, "target").getAbsolutePath());
+        setVariableValueToObject(mojo, "sourceDirectory", new File(testDirectory, "archive-types"));
+        setVariableValueToObject(mojo, "outputDirectory", new File(testDirectory, "target/generated-sources"));
+    }
+
+    @Test
+    @InjectMojo(goal = "compile-archive-types", pom = "src/test/resources/sample-registry/pom.xml")
+    void execute_generateAllArchiveTypes_allArchiveTypesGenerated(ArchiveTypesCompilerMojo myMojo, @TempDir Path tempDir) throws Exception {
+        File testDirectory = setupTestDirectory(tempDir, "src/test/resources/sample-registry");
+        pointToTempDir(myMojo, testDirectory);
 
         myMojo.setGenerateAllArchiveTypes(true);
         myMojo.setCurrentBranch("my-branch");
         myMojo.setCommitId("cafebabe");
         myMojo.setGitUrl("gitUrl");
-        myMojo.setFetchTags(false); // not a valid git url provided, so we cannot fetch tags
+        myMojo.setFetchTags(false);
         myMojo.setGroupIdPrefix("ch.bit.admin.test");
 
-        // act
         myMojo.execute();
 
-        // assert
-        List<String> filenames = AvroMojoTestSupport.readAllFiles(new File(testDirectory, "target/generated-sources"));
+        List<String> filenames = readAllFiles(new File(testDirectory, "target/generated-sources"));
         assertFalse(filenames.isEmpty());
 
         assertEquals(3, filenames.stream().filter(f -> f.endsWith("/pom.xml")).count());
@@ -128,27 +139,22 @@ class ArchiveTypesCompilerMojoTest {
     }
 
     @Test
-    void execute_generateAllArchiveTypes_customPomTemplate() throws Exception {
-        // arrange
-        File testDirectory = AvroMojoTestSupport.copyToTempDir("src/test/resources/sample-registry-custom-pom", tempDir);
-
-        FileUtils.copyDirectory(Paths.get(Paths.get("").toAbsolutePath().getParent().toString(), ".git").toFile(), Paths.get(testDirectory.getAbsolutePath(), ".git").toFile());
-
-        ArchiveTypesCompilerMojo myMojo = (ArchiveTypesCompilerMojo) mojoSupport.lookupConfiguredMojo(testDirectory, "compile-archive-types");
+    @InjectMojo(goal = "compile-archive-types", pom = "src/test/resources/sample-registry-custom-pom/pom.xml")
+    void execute_generateAllArchiveTypes_customPomTemplate(ArchiveTypesCompilerMojo myMojo, @TempDir Path tempDir) throws Exception {
+        File testDirectory = setupTestDirectory(tempDir, "src/test/resources/sample-registry-custom-pom");
+        pointToTempDir(myMojo, testDirectory);
 
         myMojo.setGenerateAllArchiveTypes(true);
         myMojo.setCurrentBranch("my-branch");
         myMojo.setCommitId("cafebabe");
         myMojo.setGitUrl("gitUrl");
-        myMojo.setFetchTags(false); // not a valid git url provided, so we cannot fetch tags
+        myMojo.setFetchTags(false);
         myMojo.setGroupIdPrefix("ch.bit.admin.test");
         myMojo.setPomTemplateFile(new File(testDirectory, "archivetype-template.pom.xml"));
 
-        // act
         myMojo.execute();
 
-        // assert
-        List<String> filenames = AvroMojoTestSupport.readAllFiles(new File(testDirectory, "target/generated-sources"));
+        List<String> filenames = readAllFiles(new File(testDirectory, "target/generated-sources"));
         assertFalse(filenames.isEmpty());
 
         filenames.forEach(System.out::println);
@@ -166,24 +172,20 @@ class ArchiveTypesCompilerMojoTest {
     }
 
     @Test
-    void execute_generateAllArchiveTypes_correctClassifierForMasterBranch() throws Exception {
-        // arrange
-        File testDirectory = AvroMojoTestSupport.copyToTempDir("src/test/resources/sample-registry", tempDir);
-        FileUtils.copyDirectory(Paths.get(Paths.get("").toAbsolutePath().getParent().toString(), ".git").toFile(), Paths.get(testDirectory.getAbsolutePath(), ".git").toFile());
-
-        ArchiveTypesCompilerMojo myMojo = (ArchiveTypesCompilerMojo) mojoSupport.lookupConfiguredMojo(testDirectory, "compile-archive-types");
+    @InjectMojo(goal = "compile-archive-types", pom = "src/test/resources/sample-registry/pom.xml")
+    void execute_generateAllArchiveTypes_correctClassifierForMasterBranch(ArchiveTypesCompilerMojo myMojo, @TempDir Path tempDir) throws Exception {
+        File testDirectory = setupTestDirectory(tempDir, "src/test/resources/sample-registry");
+        pointToTempDir(myMojo, testDirectory);
 
         myMojo.setGenerateAllArchiveTypes(true);
         myMojo.setCurrentBranch("master");
         myMojo.setCommitId("cafebabe");
         myMojo.setGitUrl("gitUrl");
-        myMojo.setFetchTags(false); // not a valid git url provided, so we cannot fetch tags
+        myMojo.setFetchTags(false);
         myMojo.setGroupIdPrefix("ch.bit.admin.test");
 
-        // act
         myMojo.execute();
 
-        // assert
         assertContentOfCreatedSourceDirectory(testDirectory,
                 "target/generated-sources/jeap/Decree/1/src/main/java/ch/admin/bit/jeap/processarchive/test/decree/v1", 2);
         assertFileContains(testDirectory, "target/generated-sources/jeap/Decree/1/pom.xml", "<version>1</version>");

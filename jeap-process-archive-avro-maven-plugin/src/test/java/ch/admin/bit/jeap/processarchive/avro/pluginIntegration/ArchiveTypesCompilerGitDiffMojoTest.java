@@ -2,48 +2,42 @@ package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypesCompilerMojo;
 import ch.admin.bit.jeap.processarchive.avro.pluginIntegration.repo.TestRegistryRepo;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
+import javax.inject.Inject;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.apache.maven.api.plugin.testing.MojoExtension.setVariableValueToObject;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@MojoTest
 @ExtendWith(SystemStubsExtension.class)
 class ArchiveTypesCompilerGitDiffMojoTest {
 
-    @RegisterExtension
-    AvroMojoTestSupport mojoSupport = new AvroMojoTestSupport();
+    @Inject
+    private MavenProject project;
 
     private TestRegistryRepo testRepo;
 
     @SystemStub
     private EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
-    private ArchiveTypesCompilerMojo myMojo;
-
     @BeforeEach
     void createTestRepo() throws Exception {
         testRepo = TestRegistryRepo.testRepoWithTwoCommitsAddingArchiveTypeV1AndV2();
-
-        myMojo = (ArchiveTypesCompilerMojo) mojoSupport.lookupConfiguredMojo(
-                testRepo.repoDir().toFile(), "compile-archive-types");
-
-        myMojo.setGenerateAllArchiveTypes(false);
-        myMojo.setCurrentBranch("master");
-        myMojo.setTrunkBranchName("master");
-        myMojo.setCommitId(testRepo.commits().get(testRepo.commits().size() - 1).name());
-        myMojo.setGitUrl(testRepo.url());
-        myMojo.setGroupIdPrefix("ch.bit.admin.test");
     }
 
     @AfterEach
@@ -51,76 +45,85 @@ class ArchiveTypesCompilerGitDiffMojoTest {
         testRepo.delete();
     }
 
+    private void configureMojo(ArchiveTypesCompilerMojo mojo) throws Exception {
+        File repoDir = testRepo.repoDir().toFile();
+        setVariableValueToObject(project, "basedir", repoDir);
+        project.getBuild().setDirectory(new File(repoDir, "target").getAbsolutePath());
+        setVariableValueToObject(mojo, "sourceDirectory", new File(repoDir, "archive-types"));
+        setVariableValueToObject(mojo, "outputDirectory", new File(repoDir, "target/generated-sources"));
+
+        mojo.setGenerateAllArchiveTypes(false);
+        mojo.setCurrentBranch("master");
+        mojo.setTrunkBranchName("master");
+        mojo.setCommitId(testRepo.commits().get(testRepo.commits().size() - 1).name());
+        mojo.setGitUrl(testRepo.url());
+        mojo.setGroupIdPrefix("ch.bit.admin.test");
+    }
+
     @Test
-    void execute_diff_noNewArchiveTypes() throws Exception {
-        // act
+    @InjectMojo(goal = "compile-archive-types", pom = "src/test/resources/sample-registry/pom.xml")
+    void execute_diff_noNewArchiveTypes(ArchiveTypesCompilerMojo myMojo) throws Exception {
+        configureMojo(myMojo);
         testRepo.checkoutCommit(0);
         myMojo.execute();
 
-        // assert nothing is generated
         assertFileDoesNotExist("target/generated-sources/activ");
     }
 
     @Test
-    void execute_diff_singleNewArchiveType_noOldDescriptor() throws Exception {
-        // act
+    @InjectMojo(goal = "compile-archive-types", pom = "src/test/resources/sample-registry/pom.xml")
+    void execute_diff_singleNewArchiveType_noOldDescriptor(ArchiveTypesCompilerMojo myMojo) throws Exception {
+        configureMojo(myMojo);
         testRepo.checkoutCommit(1);
         myMojo.execute();
 
-        // assert v1 is generated
         assertFileExists("target/generated-sources/jeap/_common/src/main/java/ch/admin/bit/jeap/processarchive/test/DecreeReference.java");
         assertFileExists("target/generated-sources/jeap/Decree/1/src/main/java/ch/admin/bit/jeap/processarchive/test/decree/v1/Decree.java");
         assertFileDoesNotExist("target/generated-sources/jeap/Decree/2/src/main/java/ch/admin/bit/jeap/processarchive/test/decree/v2/Decree.java");
     }
 
     @Test
-    void execute_diff_singleNewArchiveType_existingTypeShouldNotBeGenerated() throws Exception {
-        // set last tag on commit 1
-        // commit 2 will add v2 of the event compared to commit 1
+    @InjectMojo(goal = "compile-archive-types", pom = "src/test/resources/sample-registry/pom.xml")
+    void execute_diff_singleNewArchiveType_existingTypeShouldNotBeGenerated(ArchiveTypesCompilerMojo myMojo) throws Exception {
+        configureMojo(myMojo);
         testRepo.repo().tag()
                 .setObjectId(testRepo.commits().get(1))
                 .setName("v1.0.0")
                 .call();
 
-        // act
         testRepo.checkoutCommit(2);
         myMojo.execute();
 
-        // assert v1 not regenerated, v2 is generated
         assertFileExists("target/generated-sources/jeap/_common/src/main/java/ch/admin/bit/jeap/processarchive/test/DecreeReference.java");
         assertFileDoesNotExist("target/generated-sources/jeap/Decree/1/src/main/java/ch/admin/bit/jeap/processarchive/test/decree/v1/Decree.java");
         assertFileExists("target/generated-sources/jeap/Decree/2/src/main/java/ch/admin/bit/jeap/processarchive/test/decree/v2/Decree.java");
     }
 
     @Test
-    void execute_diff_twoNewArchiveTypes() throws Exception {
-        // act
+    @InjectMojo(goal = "compile-archive-types", pom = "src/test/resources/sample-registry/pom.xml")
+    void execute_diff_twoNewArchiveTypes(ArchiveTypesCompilerMojo myMojo) throws Exception {
+        configureMojo(myMojo);
         testRepo.checkoutCommit(2);
         myMojo.execute();
 
-        // assert v1 and v2 are generated
         assertFileExists("target/generated-sources/jeap/_common/src/main/java/ch/admin/bit/jeap/processarchive/test/DecreeReference.java");
         assertFileExists("target/generated-sources/jeap/Decree/1/src/main/java/ch/admin/bit/jeap/processarchive/test/decree/v1/Decree.java");
         assertFileExists("target/generated-sources/jeap/Decree/2/src/main/java/ch/admin/bit/jeap/processarchive/test/decree/v2/Decree.java");
     }
 
     @Test
-    void execute_diff_withGitToken() throws Exception {
-        // Set the environment variable for the git token to make the plugin fetch tags using JGit and a token.
-        // All other tests use the system git to fetch the tags as they don't set the token.
+    @InjectMojo(goal = "compile-archive-types", pom = "src/test/resources/sample-registry/pom.xml")
+    void execute_diff_withGitToken(ArchiveTypesCompilerMojo myMojo) throws Exception {
+        configureMojo(myMojo);
         environmentVariables.set("ARCHIVE_TYPE_REPO_GIT_TOKEN", "test-token-value");
-        // set last tag on commit 1
         testRepo.repo().tag()
                 .setObjectId(testRepo.commits().get(1))
                 .setName("v1.0.0")
                 .call();
-        // checkout commit 2, which adds type v2
         testRepo.checkoutCommit(2);
 
-        // act
         myMojo.execute();
 
-        // assert v2 is generated
         assertFileDoesNotExist("target/generated-sources/jeap/Decree/1/src/main/java/ch/admin/bit/jeap/processarchive/test/decree/v1/Decree.java");
         assertFileExists("target/generated-sources/jeap/Decree/2/src/main/java/ch/admin/bit/jeap/processarchive/test/decree/v2/Decree.java");
     }
