@@ -6,6 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
@@ -18,7 +19,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SystemStubsExtension.class)
-class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
+class ArchiveTypesCompilerGitDiffMojoTest {
+
+    @RegisterExtension
+    AvroMojoTestSupport mojoSupport = new AvroMojoTestSupport();
 
     private TestRegistryRepo testRepo;
 
@@ -31,7 +35,7 @@ class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
     void createTestRepo() throws Exception {
         testRepo = TestRegistryRepo.testRepoWithTwoCommitsAddingArchiveTypeV1AndV2();
 
-        myMojo = (ArchiveTypesCompilerMojo) lookupConfiguredMojo(
+        myMojo = (ArchiveTypesCompilerMojo) mojoSupport.lookupConfiguredMojo(
                 testRepo.repoDir().toFile(), "compile-archive-types");
 
         myMojo.setGenerateAllArchiveTypes(false);

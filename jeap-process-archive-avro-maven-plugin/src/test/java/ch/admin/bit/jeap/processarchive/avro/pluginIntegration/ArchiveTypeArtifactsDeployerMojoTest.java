@@ -6,6 +6,8 @@ import org.apache.maven.plugin.Mojo;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -16,40 +18,40 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class ArchiveTypeArtifactsDeployerMojoTest extends AbstractAvroMojoTest {
+class ArchiveTypeArtifactsDeployerMojoTest {
+
+    @RegisterExtension
+    AvroMojoTestSupport mojoSupport = new AvroMojoTestSupport();
+
+    @TempDir
+    Path tempDir;
 
     @Test
     void execute_noSourcesDirectory_nothingDeployed() throws Exception {
-        // arrange
-        File testDirectory = syncWithNewTempDirectory("src/test/resources/sample-archive-type-artifacts-deploy");
+        File testDirectory = AvroMojoTestSupport.copyToTempDir("src/test/resources/sample-archive-type-artifacts-deploy", tempDir);
         File targetDirectory = new File(testDirectory, "target/generated-sources");
-        Mojo myMojo = lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
+        Mojo myMojo = mojoSupport.lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
 
-        // act
         myMojo.execute();
 
-        // assert
         assertFalse(Files.exists(Path.of(targetDirectory.getAbsolutePath())));
     }
 
     @Test
     void execute_sourcesDirectoryExists_projectsDeployed() throws Exception {
-        // arrange
-        final File testDirectory = syncWithNewTempDirectory("src/test/resources/sample-archive-type-artifacts-deploy");
+        final File testDirectory = AvroMojoTestSupport.copyToTempDir("src/test/resources/sample-archive-type-artifacts-deploy", tempDir);
         final File targetDirectory = new File(testDirectory, "target/generated-sources");
         Files.createDirectories(targetDirectory.toPath());
         FileUtils.copyDirectory(Paths.get("src/test/resources/sample-project").toFile(), Paths.get(targetDirectory.getAbsolutePath()).toFile());
-        ArchiveTypeArtifactsDeployerMojo myMojo = (ArchiveTypeArtifactsDeployerMojo) lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
+        ArchiveTypeArtifactsDeployerMojo myMojo = (ArchiveTypeArtifactsDeployerMojo) mojoSupport.lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
         Invoker invoker = mock(Invoker.class);
         InvocationResult resultMock = mock(InvocationResult.class);
         when(invoker.execute(any())).thenReturn(resultMock);
 
         myMojo.setInvokerFactory(() -> invoker);
 
-        // act
         myMojo.execute();
 
-        // assert
         verify(invoker).execute(any());
     }
 }

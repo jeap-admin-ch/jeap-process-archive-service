@@ -4,7 +4,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.execution.DefaultMavenExecutionRequest;
-import org.apache.maven.execution.DefaultMavenExecutionResult;
 import org.apache.maven.execution.MavenExecutionRequest;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.lifecycle.internal.MojoDescriptorCreator;
@@ -18,7 +17,6 @@ import org.apache.maven.plugin.descriptor.PluginDescriptorBuilder;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuilder;
 import org.apache.maven.project.ProjectBuildingRequest;
-import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.codehaus.plexus.DefaultContainerConfiguration;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.codehaus.plexus.PlexusConstants;
@@ -33,9 +31,9 @@ import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.XmlStreamReader;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.eclipse.aether.DefaultRepositorySystemSession;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -44,16 +42,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class AbstractAvroMojoTest {
-    @TempDir
-    Path temporaryFolder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+/**
+ * JUnit 5 extension that provides mojo lookup and configuration for plugin integration tests.
+ * Use via {@code @RegisterExtension} on test classes that need dynamic basedirs or temp directories.
+ */
+class AvroMojoTestSupport implements BeforeEachCallback, AfterEachCallback {
 
     private PlexusContainer container;
     private ComponentConfigurator configurator;
     private Map<String, MojoDescriptor> mojoDescriptors;
 
-    @BeforeEach
-    void initContainer() throws Exception {
+    @Override
+    public void beforeEach(ExtensionContext context) throws Exception {
         ClassWorld classWorld = new ClassWorld("plexus.core", Thread.currentThread().getContextClassLoader());
         var cc = new DefaultContainerConfiguration()
                 .setClassWorld(classWorld)
@@ -92,14 +95,14 @@ public abstract class AbstractAvroMojoTest {
         }
     }
 
-    @AfterEach
-    void disposeContainer() {
+    @Override
+    public void afterEach(ExtensionContext context) {
         if (container != null) {
             container.dispose();
         }
     }
 
-    protected Mojo lookupConfiguredMojo(File basedir, String goal) throws Exception {
+    Mojo lookupConfiguredMojo(File basedir, String goal) throws Exception {
         MavenExecutionRequest request = new DefaultMavenExecutionRequest();
         request.setBaseDirectory(basedir);
         ProjectBuildingRequest buildingRequest = request.getProjectBuildingRequest();
@@ -108,10 +111,14 @@ public abstract class AbstractAvroMojoTest {
         File pom = new File(basedir, "pom.xml");
         MavenProject project = container.lookup(ProjectBuilder.class).build(pom, buildingRequest).getProject();
 
-        MavenSession session = new MavenSession(
-                container, MavenRepositorySystemUtils.newSession(), request, new DefaultMavenExecutionResult());
-        session.setCurrentProject(project);
-        session.setProjects(List.of(project));
+        MavenSession session = mock(MavenSession.class);
+        when(session.getCurrentProject()).thenReturn(project);
+        when(session.getProjects()).thenReturn(List.of(project));
+        when(session.getRepositorySession()).thenReturn(new DefaultRepositorySystemSession());
+        when(session.getUserProperties()).thenReturn(new Properties());
+        when(session.getSystemProperties()).thenReturn(System.getProperties());
+        when(session.getExecutionProperties()).thenReturn(System.getProperties());
+        when(session.getRequest()).thenReturn(request);
 
         MojoDescriptor mojoDescriptor = mojoDescriptors.get(goal);
         Objects.requireNonNull(mojoDescriptor, "No MojoDescriptor found for goal: " + goal);
@@ -166,15 +173,14 @@ public abstract class AbstractAvroMojoTest {
         mojoExecution.setConfiguration(finalConfiguration);
     }
 
-    File syncWithNewTempDirectory(final String srcTestDirectory) throws IOException {
-        Path tmpTestDir = Files.createDirectory(temporaryFolder.resolve("test"));
-        final File testPomDir = new File(srcTestDirectory);
-        FileUtils.copyDirectory(testPomDir, tmpTestDir.toFile());
+    static File copyToTempDir(String srcTestDirectory, Path tempDir) throws IOException {
+        Path tmpTestDir = Files.createDirectory(tempDir.resolve("test"));
+        FileUtils.copyDirectory(new File(srcTestDirectory), tmpTestDir.toFile());
         return tmpTestDir.toFile();
     }
 
-    List<String> readAllFiles(File testPomDir) throws IOException {
-        try (Stream<Path> stream = Files.walk(testPomDir.toPath(), Integer.MAX_VALUE)) {
+    static List<String> readAllFiles(File dir) throws IOException {
+        try (Stream<Path> stream = Files.walk(dir.toPath(), Integer.MAX_VALUE)) {
             return stream
                     .filter(p -> !Files.isDirectory(p))
                     .map(String::valueOf)

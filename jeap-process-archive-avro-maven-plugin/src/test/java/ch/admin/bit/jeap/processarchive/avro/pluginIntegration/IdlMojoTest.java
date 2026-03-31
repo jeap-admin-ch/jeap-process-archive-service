@@ -1,32 +1,38 @@
 package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.IDLProtocolMojo;
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.api.plugin.testing.Basedir;
+import org.apache.maven.api.plugin.testing.InjectMojo;
+import org.apache.maven.api.plugin.testing.MojoTest;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.nio.file.Files;
+import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-class IdlMojoTest extends AbstractAvroMojoTest {
+@MojoTest
+class IdlMojoTest {
+
+    @AfterEach
+    void cleanup() throws IOException {
+        File targetDir = new File("src/test/resources/sample-idl/target");
+        if (targetDir.exists()) {
+            FileUtils.deleteDirectory(targetDir);
+        }
+    }
 
     @Test
-    void execute() throws Exception {
-        // arrange
-        final File testDirectory = syncWithNewTempDirectory("src/test/resources/sample-idl");
-        final IDLProtocolMojo myMojo = (IDLProtocolMojo) lookupConfiguredMojo(testDirectory, "idl");
-        // act
-        myMojo.execute();
-        // assert
-        File outputDir = new File(testDirectory, "target/generated-sources");
-        final List<String> filenames = readAllFiles(outputDir);
+    @InjectMojo(goal = "idl")
+    @Basedir("src/test/resources/sample-idl")
+    void execute(IDLProtocolMojo mojo) throws Exception {
+        mojo.execute();
 
-        for (String filename : filenames) {
-            System.out.println("File: " + filename);
-            System.out.println(Files.readString(outputDir.toPath().resolve(filename)));
-        }
-
+        File outputDir = new File("src/test/resources/sample-idl/target/generated-sources");
+        List<String> filenames = AvroMojoTestSupport.readAllFiles(outputDir);
         assertFalse(filenames.isEmpty());
     }
 }
