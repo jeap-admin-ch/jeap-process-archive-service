@@ -2,37 +2,34 @@ package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypesCompilerMojo;
 import ch.admin.bit.jeap.processarchive.avro.pluginIntegration.repo.TestRegistryRepo;
-import org.apache.maven.plugin.testing.MojoRule;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import uk.org.webcompere.systemstubs.rules.EnvironmentVariablesRule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
+import uk.org.webcompere.systemstubs.jupiter.SystemStub;
+import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-public class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
+@ExtendWith(SystemStubsExtension.class)
+class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
 
     private TestRegistryRepo testRepo;
 
-    @Rule
-    public MojoRule mojoRule = new MojoRule();
-
-    @Rule
-    public EnvironmentVariablesRule environmentVariables = new EnvironmentVariablesRule();
+    @SystemStub
+    private EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     private ArchiveTypesCompilerMojo myMojo;
 
-    @Before
-    public void createTestRepo() throws Exception {
+    @BeforeEach
+    void createTestRepo() throws Exception {
         testRepo = TestRegistryRepo.testRepoWithTwoCommitsAddingArchiveTypeV1AndV2();
 
-        myMojo = (ArchiveTypesCompilerMojo) mojoRule.lookupConfiguredMojo(
+        myMojo = (ArchiveTypesCompilerMojo) lookupConfiguredMojo(
                 testRepo.repoDir().toFile(), "compile-archive-types");
 
         myMojo.setGenerateAllArchiveTypes(false);
@@ -43,13 +40,13 @@ public class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
         myMojo.setGroupIdPrefix("ch.bit.admin.test");
     }
 
-    @After
-    public void deleteTestRepo() throws IOException {
+    @AfterEach
+    void deleteTestRepo() throws IOException {
         testRepo.delete();
     }
 
     @Test
-    public void execute_diff_noNewArchiveTypes() throws Exception {
+    void execute_diff_noNewArchiveTypes() throws Exception {
         // act
         testRepo.checkoutCommit(0);
         myMojo.execute();
@@ -59,7 +56,7 @@ public class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
     }
 
     @Test
-    public void execute_diff_singleNewArchiveType_noOldDescriptor() throws Exception {
+    void execute_diff_singleNewArchiveType_noOldDescriptor() throws Exception {
         // act
         testRepo.checkoutCommit(1);
         myMojo.execute();
@@ -71,7 +68,7 @@ public class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
     }
 
     @Test
-    public void execute_diff_singleNewArchiveType_existingTypeShouldNotBeGenerated() throws Exception {
+    void execute_diff_singleNewArchiveType_existingTypeShouldNotBeGenerated() throws Exception {
         // set last tag on commit 1
         // commit 2 will add v2 of the event compared to commit 1
         testRepo.repo().tag()
@@ -90,7 +87,7 @@ public class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
     }
 
     @Test
-    public void execute_diff_twoNewArchiveTypes() throws Exception {
+    void execute_diff_twoNewArchiveTypes() throws Exception {
         // act
         testRepo.checkoutCommit(2);
         myMojo.execute();
@@ -102,7 +99,7 @@ public class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
     }
 
     @Test
-    public void execute_diff_withGitToken() throws Exception {
+    void execute_diff_withGitToken() throws Exception {
         // Set the environment variable for the git token to make the plugin fetch tags using JGit and a token.
         // All other tests use the system git to fetch the tags as they don't set the token.
         environmentVariables.set("ARCHIVE_TYPE_REPO_GIT_TOKEN", "test-token-value");
@@ -124,11 +121,11 @@ public class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
 
     private void assertFileExists(String file) {
         Path path = testRepo.repoDir().resolve(file);
-        assertTrue("file " + file + " exists", Files.exists(path));
+        Assertions.assertTrue(Files.exists(path), "file " + file + " exists");
     }
 
     private void assertFileDoesNotExist(String file) {
         Path path = testRepo.repoDir().resolve(file);
-        assertFalse("file " + file + " does not exist", Files.exists(path));
+        Assertions.assertFalse(Files.exists(path), "file " + file + " does not exist");
     }
 }

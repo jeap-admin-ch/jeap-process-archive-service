@@ -2,10 +2,8 @@ package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypesCompilerMojo;
 import org.apache.commons.io.FileUtils;
-import org.apache.maven.plugin.testing.MojoRule;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +13,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
+class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
     private static final String EXPECTED_V1_METADATA = """
             public static final int ARCHIVE_TYPE_VERSION = 1;
@@ -29,7 +25,7 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
             public static final String REGISTRY_URL = "gitUrl";
             public static final String REGISTRY_BRANCH = "my-branch";
             public static final String REGISTRY_COMMIT = "cafebabe";
-            
+
             public static final Map
             <String, Object> ARCHIVE_TYPE_METADATA = Map.ofEntries(
             entry("archiveTypeVersion", ARCHIVE_TYPE_VERSION),
@@ -42,7 +38,7 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
             ,entry("registryBranch", REGISTRY_BRANCH)
             ,entry("registryCommit", REGISTRY_COMMIT)
             );
-            
+
             public Map
             <String, Object> metadata() {
             return ARCHIVE_TYPE_METADATA;
@@ -57,7 +53,7 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
             public static final String REGISTRY_BRANCH = "my-branch";
             public static final String REGISTRY_COMMIT = "cafebabe";
             public static final String COMPATIBILITY_MODE = "BACKWARD";
-            
+
             public static final Map
             <String, Object> ARCHIVE_TYPE_METADATA = Map.ofEntries(
             entry("archiveTypeVersion", ARCHIVE_TYPE_VERSION),
@@ -71,22 +67,19 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
             ,entry("registryCommit", REGISTRY_COMMIT)
             ,entry("compatibilityMode", COMPATIBILITY_MODE)
             );
-            
+
             public Map
             <String, Object> metadata() {
             return ARCHIVE_TYPE_METADATA;
             }""";
 
-    @Rule
-    public MojoRule mojoRule = new MojoRule();
-
     @Test
-    public void execute_generateAllArchiveTypes_allArchiveTypesGenerated() throws Exception {
+    void execute_generateAllArchiveTypes_allArchiveTypesGenerated() throws Exception {
         // arrange
         File testDirectory = syncWithNewTempDirectory("src/test/resources/sample-registry");
         FileUtils.copyDirectory(Paths.get(Paths.get("").toAbsolutePath().getParent().toString(), ".git").toFile(), Paths.get(testDirectory.getAbsolutePath(), ".git").toFile());
 
-        ArchiveTypesCompilerMojo myMojo = (ArchiveTypesCompilerMojo) mojoRule.lookupConfiguredMojo(testDirectory, "compile-archive-types");
+        ArchiveTypesCompilerMojo myMojo = (ArchiveTypesCompilerMojo) lookupConfiguredMojo(testDirectory, "compile-archive-types");
 
         myMojo.setGenerateAllArchiveTypes(true);
         myMojo.setCurrentBranch("my-branch");
@@ -100,9 +93,9 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
         // assert
         List<String> filenames = readAllFiles(new File(testDirectory, "target/generated-sources"));
-        Assert.assertFalse(filenames.isEmpty());
+        Assertions.assertFalse(filenames.isEmpty());
 
-        assertEquals(3, filenames.stream().filter(f -> f.endsWith("/pom.xml")).count());
+        Assertions.assertEquals(3, filenames.stream().filter(f -> f.endsWith("/pom.xml")).count());
 
         assertContentOfCreatedSourceDirectory(testDirectory,
                 "target/generated-sources/jeap/_common", 2);
@@ -126,13 +119,13 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
     }
 
     @Test
-    public void execute_generateAllArchiveTypes_customPomTemplate() throws Exception {
+    void execute_generateAllArchiveTypes_customPomTemplate() throws Exception {
         // arrange
         File testDirectory = syncWithNewTempDirectory("src/test/resources/sample-registry-custom-pom");
 
         FileUtils.copyDirectory(Paths.get(Paths.get("").toAbsolutePath().getParent().toString(), ".git").toFile(), Paths.get(testDirectory.getAbsolutePath(), ".git").toFile());
 
-        ArchiveTypesCompilerMojo myMojo = (ArchiveTypesCompilerMojo) mojoRule.lookupConfiguredMojo(testDirectory, "compile-archive-types");
+        ArchiveTypesCompilerMojo myMojo = (ArchiveTypesCompilerMojo) lookupConfiguredMojo(testDirectory, "compile-archive-types");
 
         myMojo.setGenerateAllArchiveTypes(true);
         myMojo.setCurrentBranch("my-branch");
@@ -147,7 +140,7 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
         // assert
         List<String> filenames = readAllFiles(new File(testDirectory, "target/generated-sources"));
-        Assert.assertFalse(filenames.isEmpty());
+        Assertions.assertFalse(filenames.isEmpty());
 
         filenames.forEach(System.out::println);
 
@@ -164,12 +157,12 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
     }
 
     @Test
-    public void execute_generateAllArchiveTypes_correctClassifierForMasterBranch() throws Exception {
+    void execute_generateAllArchiveTypes_correctClassifierForMasterBranch() throws Exception {
         // arrange
         File testDirectory = syncWithNewTempDirectory("src/test/resources/sample-registry");
         FileUtils.copyDirectory(Paths.get(Paths.get("").toAbsolutePath().getParent().toString(), ".git").toFile(), Paths.get(testDirectory.getAbsolutePath(), ".git").toFile());
 
-        ArchiveTypesCompilerMojo myMojo = (ArchiveTypesCompilerMojo) mojoRule.lookupConfiguredMojo(testDirectory, "compile-archive-types");
+        ArchiveTypesCompilerMojo myMojo = (ArchiveTypesCompilerMojo) lookupConfiguredMojo(testDirectory, "compile-archive-types");
 
         myMojo.setGenerateAllArchiveTypes(true);
         myMojo.setCurrentBranch("master");
@@ -192,8 +185,8 @@ public class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
     private void assertContentOfCreatedSourceDirectory(File testDirectory, String child, int count) {
         final File directory = new File(testDirectory, child);
-        assertTrue(directory.exists());
-        assertEquals(count, Objects.requireNonNull(directory.listFiles()).length);
+        Assertions.assertTrue(directory.exists());
+        Assertions.assertEquals(count, Objects.requireNonNull(directory.listFiles()).length);
     }
 
     private void assertFileContains(File baseDirectory, String filename, String text) throws IOException {

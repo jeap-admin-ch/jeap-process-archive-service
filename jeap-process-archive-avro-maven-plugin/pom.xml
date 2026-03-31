@@ -114,13 +114,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
+            <groupId>org.apache.maven.plugin-testing</groupId>
+            <artifactId>maven-plugin-testing-harness</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven.plugin-testing</groupId>
-            <artifactId>maven-plugin-testing-harness</artifactId>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-xml</artifactId>
+            <version>${plexus-xml.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -155,7 +156,7 @@
         </dependency>
         <dependency>
             <groupId>uk.org.webcompere</groupId>
-            <artifactId>system-stubs-junit4</artifactId>
+            <artifactId>system-stubs-jupiter</artifactId>
             <version>2.1.8</version>
             <scope>test</scope>
         </dependency>

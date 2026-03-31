@@ -1,25 +1,20 @@
 package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.IDLProtocolMojo;
-import org.apache.maven.plugin.testing.MojoRule;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 
-import static org.junit.Assert.assertFalse;
-
-public class IdlMojoTest extends AbstractAvroMojoTest {
-    @Rule
-    public MojoRule mojoRule = new MojoRule();
+class IdlMojoTest extends AbstractAvroMojoTest {
 
     @Test
-    public void execute() throws Exception {
+    void execute() throws Exception {
         // arrange
         final File testDirectory = syncWithNewTempDirectory("src/test/resources/sample-idl");
-        final IDLProtocolMojo myMojo = (IDLProtocolMojo) mojoRule.lookupConfiguredMojo(testDirectory, "idl");
+        final IDLProtocolMojo myMojo = (IDLProtocolMojo) lookupConfiguredMojo(testDirectory, "idl");
         // act
         myMojo.execute();
         // assert
@@ -31,6 +26,6 @@ public class IdlMojoTest extends AbstractAvroMojoTest {
             System.out.println(Files.readString(outputDir.toPath().resolve(filename)));
         }
 
-        assertFalse(filenames.isEmpty());
+        Assertions.assertFalse(filenames.isEmpty());
     }
 }

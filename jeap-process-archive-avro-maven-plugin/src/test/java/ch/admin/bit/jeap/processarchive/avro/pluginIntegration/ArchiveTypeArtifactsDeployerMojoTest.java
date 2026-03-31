@@ -3,48 +3,43 @@ package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypeArtifactsDeployerMojo;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.Mojo;
-import org.apache.maven.plugin.testing.MojoRule;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class ArchiveTypeArtifactsDeployerMojoTest extends AbstractAvroMojoTest {
-
-    @Rule
-    public MojoRule mojoRule = new MojoRule();
+class ArchiveTypeArtifactsDeployerMojoTest extends AbstractAvroMojoTest {
 
     @Test
-    public void execute_noSourcesDirectory_nothingDeployed() throws Exception {
+    void execute_noSourcesDirectory_nothingDeployed() throws Exception {
         // arrange
         File testDirectory = syncWithNewTempDirectory("src/test/resources/sample-archive-type-artifacts-deploy");
         File targetDirectory = new File(testDirectory, "target/generated-sources");
-        Mojo myMojo = mojoRule.lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
+        Mojo myMojo = lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
 
         // act
         myMojo.execute();
 
         // assert
-        assertFalse(Files.exists(Path.of(targetDirectory.getAbsolutePath())));
+        Assertions.assertFalse(Files.exists(Path.of(targetDirectory.getAbsolutePath())));
     }
 
     @Test
-    public void execute_sourcesDirectoryExists_projectsDeployed() throws Exception {
+    void execute_sourcesDirectoryExists_projectsDeployed() throws Exception {
         // arrange
         final File testDirectory = syncWithNewTempDirectory("src/test/resources/sample-archive-type-artifacts-deploy");
         final File targetDirectory = new File(testDirectory, "target/generated-sources");
         Files.createDirectories(targetDirectory.toPath());
         FileUtils.copyDirectory(Paths.get("src/test/resources/sample-project").toFile(), Paths.get(targetDirectory.getAbsolutePath()).toFile());
-        ArchiveTypeArtifactsDeployerMojo myMojo = (ArchiveTypeArtifactsDeployerMojo) mojoRule.lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
+        ArchiveTypeArtifactsDeployerMojo myMojo = (ArchiveTypeArtifactsDeployerMojo) lookupConfiguredMojo(testDirectory, "deploy-archive-type-artifacts");
         Invoker invoker = mock(Invoker.class);
         InvocationResult resultMock = mock(InvocationResult.class);
         when(invoker.execute(any())).thenReturn(resultMock);
