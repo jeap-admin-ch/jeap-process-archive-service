@@ -1,12 +1,13 @@
 package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.IDLProtocolMojo;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class IdlMojoTest extends AbstractAvroMojoTest {
 
@@ -26,6 +27,6 @@ class IdlMojoTest extends AbstractAvroMojoTest {
             System.out.println(Files.readString(outputDir.toPath().resolve(filename)));
         }
 
-        Assertions.assertFalse(filenames.isEmpty());
+        assertFalse(filenames.isEmpty());
     }
 }

@@ -2,7 +2,6 @@ package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypesCompilerMojo;
 import org.apache.commons.io.FileUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
@@ -93,9 +93,9 @@ class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
         // assert
         List<String> filenames = readAllFiles(new File(testDirectory, "target/generated-sources"));
-        Assertions.assertFalse(filenames.isEmpty());
+        assertFalse(filenames.isEmpty());
 
-        Assertions.assertEquals(3, filenames.stream().filter(f -> f.endsWith("/pom.xml")).count());
+        assertEquals(3, filenames.stream().filter(f -> f.endsWith("/pom.xml")).count());
 
         assertContentOfCreatedSourceDirectory(testDirectory,
                 "target/generated-sources/jeap/_common", 2);
@@ -140,7 +140,7 @@ class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
         // assert
         List<String> filenames = readAllFiles(new File(testDirectory, "target/generated-sources"));
-        Assertions.assertFalse(filenames.isEmpty());
+        assertFalse(filenames.isEmpty());
 
         filenames.forEach(System.out::println);
 
@@ -185,8 +185,8 @@ class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
 
     private void assertContentOfCreatedSourceDirectory(File testDirectory, String child, int count) {
         final File directory = new File(testDirectory, child);
-        Assertions.assertTrue(directory.exists());
-        Assertions.assertEquals(count, Objects.requireNonNull(directory.listFiles()).length);
+        assertTrue(directory.exists());
+        assertEquals(count, Objects.requireNonNull(directory.listFiles()).length);
     }
 
     private void assertFileContains(File baseDirectory, String filename, String text) throws IOException {

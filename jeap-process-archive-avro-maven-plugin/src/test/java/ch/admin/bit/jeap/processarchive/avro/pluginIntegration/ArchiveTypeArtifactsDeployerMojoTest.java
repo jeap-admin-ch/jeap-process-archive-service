@@ -5,7 +5,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -13,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -29,7 +29,7 @@ class ArchiveTypeArtifactsDeployerMojoTest extends AbstractAvroMojoTest {
         myMojo.execute();
 
         // assert
-        Assertions.assertFalse(Files.exists(Path.of(targetDirectory.getAbsolutePath())));
+        assertFalse(Files.exists(Path.of(targetDirectory.getAbsolutePath())));
     }
 
     @Test

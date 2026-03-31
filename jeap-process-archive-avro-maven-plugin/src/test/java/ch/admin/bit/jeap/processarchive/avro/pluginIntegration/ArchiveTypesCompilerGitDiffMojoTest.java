@@ -3,7 +3,6 @@ package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypesCompilerMojo;
 import ch.admin.bit.jeap.processarchive.avro.pluginIntegration.repo.TestRegistryRepo;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +13,9 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SystemStubsExtension.class)
 class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
@@ -121,11 +123,11 @@ class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
 
     private void assertFileExists(String file) {
         Path path = testRepo.repoDir().resolve(file);
-        Assertions.assertTrue(Files.exists(path), "file " + file + " exists");
+        assertTrue(Files.exists(path), "file " + file + " exists");
     }
 
     private void assertFileDoesNotExist(String file) {
         Path path = testRepo.repoDir().resolve(file);
-        Assertions.assertFalse(Files.exists(path), "file " + file + " does not exist");
+        assertFalse(Files.exists(path), "file " + file + " does not exist");
     }
 }
