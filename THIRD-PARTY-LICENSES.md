@@ -393,7 +393,6 @@ Apache License Version 2.0
  * AWS Java SDK :: Identity SPI - [software.amazon.awssdk:identity-spi](https://aws.amazon.com/sdkforjava)
  * AWS Java SDK :: Core :: Protocols :: Json Utils - [software.amazon.awssdk:json-utils](https://aws.amazon.com/sdkforjava)
  * AWS Java SDK :: Metrics SPI - [software.amazon.awssdk:metrics-spi](https://aws.amazon.com/sdkforjava/core/metrics-spi)
- * AWS Java SDK :: HTTP Clients :: Netty Non-Blocking I/O - [software.amazon.awssdk:netty-nio-client](https://aws.amazon.com/sdkforjava/http-clients/netty-nio-client)
  * AWS Java SDK :: Profiles - [software.amazon.awssdk:profiles](https://aws.amazon.com/sdkforjava)
  * AWS Java SDK :: Core :: Protocols :: Protocol Core - [software.amazon.awssdk:protocol-core](https://aws.amazon.com/sdkforjava)
  * AWS Java SDK :: Regions - [software.amazon.awssdk:regions](https://aws.amazon.com/sdkforjava/core/regions)
