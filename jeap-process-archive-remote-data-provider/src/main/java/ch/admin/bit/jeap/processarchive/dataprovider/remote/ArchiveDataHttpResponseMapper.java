@@ -57,7 +57,7 @@ class ArchiveDataHttpResponseMapper {
 
     private static List<Metadata> metadata(HttpHeaders headers) {
 
-        return headers.entrySet().stream()
+        return headers.headerSet().stream()
                 .filter(metadataHeader -> metadataHeader.getKey().toLowerCase().startsWith(ARCHIVE_METADATA))
                 .flatMap(ArchiveDataHttpResponseMapper::toMetadataStream)
                 .collect(toList());

@@ -4,7 +4,6 @@ import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypesCompilerMoj
 import ch.admin.bit.jeap.processarchive.avro.pluginIntegration.repo.TestRegistryRepo;
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
-import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,6 @@ import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,10 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @MojoTest
 @ExtendWith(SystemStubsExtension.class)
-class ArchiveTypesCompilerGitDiffMojoTest {
-
-    @Inject
-    private MavenProject project;
+class ArchiveTypesCompilerGitDiffMojoTest extends AbstractAvroMojoTest {
 
     private TestRegistryRepo testRepo;
 
@@ -47,8 +42,7 @@ class ArchiveTypesCompilerGitDiffMojoTest {
 
     private void configureMojo(ArchiveTypesCompilerMojo mojo) throws Exception {
         File repoDir = testRepo.repoDir().toFile();
-        setVariableValueToObject(project, "basedir", repoDir);
-        project.getBuild().setDirectory(new File(repoDir, "target").getAbsolutePath());
+        ensureProjectOnMojo(mojo, repoDir);
         setVariableValueToObject(mojo, "sourceDirectory", new File(repoDir, "archive-types"));
         setVariableValueToObject(mojo, "outputDirectory", new File(repoDir, "target/generated-sources"));
 

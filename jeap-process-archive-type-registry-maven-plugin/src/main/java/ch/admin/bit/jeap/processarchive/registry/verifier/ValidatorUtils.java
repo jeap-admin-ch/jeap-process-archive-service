@@ -1,7 +1,7 @@
 package ch.admin.bit.jeap.processarchive.registry.verifier;
 
 import ch.admin.bit.jeap.processarchive.registry.verifier.common.ValidationResult;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Spliterator;
@@ -31,7 +31,7 @@ public class ValidatorUtils {
         return ValidatorUtils.streamElements(contracts)
                 .map(getVersions)
                 .flatMap(ValidatorUtils::streamElements)
-                .map(JsonNode::asText)
+                .map(JsonNode::asString)
                 .map(version -> validateVersion(version, descriptorJson, archiveTypeDescriptorPath))
                 .reduce(ValidationResult.ok(), ValidationResult::merge);
     }
@@ -45,9 +45,9 @@ public class ValidatorUtils {
         }
 
         boolean versionValid = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(versionsNode.elements(), Spliterator.ORDERED), false)
+                        Spliterators.spliteratorUnknownSize(versionsNode.values().iterator(), Spliterator.ORDERED), false)
                 .map(n -> n.get("version"))
-                .map(JsonNode::asText)
+                .map(JsonNode::asString)
                 .anyMatch(version::equals);
         if (!versionValid) {
             String message = String.format("Missing version %s is referenced in a contract in archive type descriptor '%s'",

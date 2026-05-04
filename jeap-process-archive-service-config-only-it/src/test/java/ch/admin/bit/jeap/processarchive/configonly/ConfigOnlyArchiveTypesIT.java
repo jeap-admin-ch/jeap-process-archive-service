@@ -15,7 +15,6 @@ import ch.admin.bit.jeap.processarchive.service.ProcessArchiveApplication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -50,8 +49,7 @@ class ConfigOnlyArchiveTypesIT extends KafkaIntegrationTestBase {
     private KafkaMessageConsumerFactory kafkaMessageConsumerFactory;
     @MockitoBean
     private ArtifactArchivedListener artifactArchivedListener;
-    @Captor
-    private ArgumentCaptor<ArchivedArtifact> archivedArtifactArgumentCaptor;
+    private final ArgumentCaptor<ArchivedArtifact> archivedArtifactArgumentCaptor = ArgumentCaptor.forClass(ArchivedArtifact.class);
     @MockitoBean
     private KeyReferenceCryptoService keyReferenceCryptoService;
     @MockitoBean

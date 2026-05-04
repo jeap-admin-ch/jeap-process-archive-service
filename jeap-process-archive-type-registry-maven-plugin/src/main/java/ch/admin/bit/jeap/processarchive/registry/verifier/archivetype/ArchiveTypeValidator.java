@@ -4,20 +4,21 @@ import ch.admin.bit.jeap.processarchive.registry.verifier.FileNotChangedValidato
 import ch.admin.bit.jeap.processarchive.registry.verifier.ValidationContext;
 import ch.admin.bit.jeap.processarchive.registry.verifier.common.AvroSchemaValidator;
 import ch.admin.bit.jeap.processarchive.registry.verifier.common.ValidationResult;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jackson.JsonLoader;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class ArchiveTypeValidator {
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().build();
+
     public static ValidationResult validate(ValidationContext validationContext) {
         JsonNode archiveTypeDescriptorJson;
         try {
-            archiveTypeDescriptorJson = JsonLoader.fromFile(validationContext.getDescriptor());
-        } catch (IOException e) {
+            archiveTypeDescriptorJson = OBJECT_MAPPER.readTree(validationContext.getDescriptor());
+        } catch (RuntimeException e) {
             String message = String.format("File '%s' is not a valid JSON-File: %s",
                     validationContext.getDescriptor().getAbsolutePath(), e.getMessage());
             return ValidationResult.fail(message);

@@ -5,13 +5,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
 import org.apache.maven.plugin.Mojo;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -25,12 +23,7 @@ import static org.mockito.Mockito.*;
 @MojoTest
 class ArchiveTypeArtifactsDeployerMojoTest extends AbstractAvroMojoTest {
 
-    @Inject
-    private MavenProject project;
-
     private void pointToTempDir(Mojo mojo, File testDirectory) throws IllegalAccessException {
-        setVariableValueToObject(project, "basedir", testDirectory);
-        project.getBuild().setDirectory(new File(testDirectory, "target").getAbsolutePath());
         setVariableValueToObject(mojo, "sourcesDirectory", new File(testDirectory, "target/generated-sources"));
     }
 

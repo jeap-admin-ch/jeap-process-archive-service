@@ -5,9 +5,9 @@ import ch.admin.bit.jeap.processarchive.configuration.json.deserializer.MessageC
 import ch.admin.bit.jeap.processarchive.configuration.json.model.ProcessArchiveMessageConfiguration;
 import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfigurationRepository;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.json.JsonMapper;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

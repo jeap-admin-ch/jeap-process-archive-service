@@ -4,7 +4,7 @@ import ch.admin.bit.jeap.processarchive.avro.plugin.compiler.IdlFileParser;
 import ch.admin.bit.jeap.processarchive.avro.plugin.compiler.ImportClassLoader;
 import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveTypeRegistryConstants;
 import ch.admin.bit.jeap.processarchive.registry.verifier.ValidationContext;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.apache.avro.Protocol;
@@ -52,14 +52,14 @@ public class AvroSchemaValidator {
 
     private ValidationResult validate() {
         schemaValidationResult = ValidationResult.ok();
-        String archiveTypeName = archiveTypeDescriptor.get("archiveType").textValue();
+        String archiveTypeName = archiveTypeDescriptor.get("archiveType").asString();
         List<ArchiveTypeVersion> archiveTypeVersions = getVersions()
                 .flatMap(versionNode -> loadSchema(
                         archiveTypeName,
                         versionNode.get("version").asInt(),
                         textNode(versionNode.get("compatibilityMode")),
                         intNode(versionNode.get("compatibleVersion")),
-                        versionNode.get("schema").asText()).stream())
+                        versionNode.get("schema").asString()).stream())
                 .sorted()
                 .collect(toList());
 
@@ -70,7 +70,7 @@ public class AvroSchemaValidator {
     }
 
     private String textNode(JsonNode node) {
-        return node == null ? null : node.asText();
+        return node == null ? null : node.asString();
     }
 
     private int intNode(JsonNode node) {
@@ -209,6 +209,6 @@ public class AvroSchemaValidator {
         if (versionsNode == null) {
             return Stream.of();
         }
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(versionsNode.elements(), 0), false);
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(versionsNode.values().iterator(), 0), false);
     }
 }

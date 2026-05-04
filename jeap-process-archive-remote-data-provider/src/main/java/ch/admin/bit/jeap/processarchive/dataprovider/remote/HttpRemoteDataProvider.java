@@ -5,8 +5,8 @@ import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveDataReference;
 import ch.admin.bit.jeap.security.restclient.JeapOAuth2RestClientBuilderFactory;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.web.client.ClientHttpRequestFactories;
-import org.springframework.boot.web.client.ClientHttpRequestFactorySettings;
+import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
+import org.springframework.boot.http.client.HttpClientSettings;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -75,7 +75,7 @@ class HttpRemoteDataProvider implements RemoteArchiveDataProvider {
     }
 
     private RestClient createRestClient(String oauthClientId) {
-        ClientHttpRequestFactory requestFactory = ClientHttpRequestFactories.get(ClientHttpRequestFactorySettings.DEFAULTS
+        ClientHttpRequestFactory requestFactory = ClientHttpRequestFactoryBuilder.detect().build(HttpClientSettings.defaults()
                 .withReadTimeout(timeout));
         RestClient.Builder oAuth2RestClientBuilder = jeapOAuth2RestClientBuilderFactory.createForClientRegistryId(oauthClientId);
         return oAuth2RestClientBuilder.requestFactory(requestFactory).build();

@@ -5,11 +5,15 @@ import ch.admin.bit.jeap.processarchive.avro.plugin.registry.descriptor.ArchiveT
 import ch.admin.bit.jeap.processarchive.registry.verifier.ValidationContext;
 import ch.admin.bit.jeap.processarchive.registry.verifier.common.AvroSchemaValidator;
 import ch.admin.bit.jeap.processarchive.registry.verifier.common.ValidationResult;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.IntNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import tools.jackson.databind.node.StringNode;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +31,7 @@ class AvroSchemaValidatorTest {
     @Test
     void noVersions() {
         JsonNode jsonNode = new ObjectNode(factory, Map.of(
-                "archiveType", new TextNode("Decree")));
+                "archiveType", new StringNode("Decree")));
         ValidationContext validationContext = ValidationContext.builder()
                 .descriptor(new File("test"))
                 .build();
@@ -158,12 +162,12 @@ class AvroSchemaValidatorTest {
     private static ObjectNode createVersionNode(int version, String schema) {
         return new ObjectNode(factory, Map.of(
                 "version", new IntNode(version),
-                "schema", new TextNode(schema)));
+                "schema", new StringNode(schema)));
     }
 
     private static ObjectNode createDescriptor(JsonNode versionNode) {
         return new ObjectNode(factory, Map.of(
-                "archiveType", new TextNode("Decree"),
+                "archiveType", new StringNode("Decree"),
                 "versions", versionNode));
     }
 }

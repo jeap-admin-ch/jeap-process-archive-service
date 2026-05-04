@@ -28,27 +28,28 @@
     <parent>
         <groupId>ch.admin.bit.jeap</groupId>
         <artifactId>jeap-spring-boot-parent</artifactId>
-        <version>33.3.0</version>
+        <version>34.6.0-alpha-springboot4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <artifactId>jeap-process-archive-service-parent</artifactId>
     <name>${project.groupId}:${project.artifactId}</name>
-    <version>11.8.0-SNAPSHOT</version>
+    <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <description>JEAP Process Archive Service</description>
 
     <properties>
         <file-management.version>3.2.0</file-management.version>
         <maven-invoker.version>3.3.0</maven-invoker.version>
-        <json-schema-validator.version>1.5.9</json-schema-validator.version>
-        <org.eclipse.jgit.version>7.3.0.202506031305-r</org.eclipse.jgit.version>
+        <json-schema-validator.version>3.0.2</json-schema-validator.version>
+        <org.eclipse.jgit.version>7.6.0.202603022253-r</org.eclipse.jgit.version>
         <maven.api.version>3.9.12</maven.api.version>
         <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
         <maven-plugin-testing-harness.version>3.5.0</maven-plugin-testing-harness.version>
+        <commons-io.version>2.22.0</commons-io.version>
         <plexus-xml.version>4.1.1</plexus-xml.version>
-        <wiremock.version>3.13.2</wiremock.version>
-        <wiremock-spring-boot.version>3.10.6</wiremock-spring-boot.version>
+
+        <wiremock-spring-boot.version>4.2.1</wiremock-spring-boot.version>
         <shared-archived-artifact-version-created-event.version>2.0.1</shared-archived-artifact-version-created-event.version>
         <maven.javadoc.skip>false</maven.javadoc.skip>
     </properties>
@@ -79,72 +80,72 @@
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-domain</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-type-registry</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-adapter-crypto</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-config-repository</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-config-type-repository</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-adapter-kafka</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-plugin-api</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-avro-validator</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-adapter-objectstorage</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-remote-data-provider</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-web</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-service</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-service-instance</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-test-types</artifactId>
-                <version>11.8.0-SNAPSHOT</version>
+                <version>12.0.0-alpha-springboot4-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
@@ -177,6 +178,11 @@
                 <version>${maven-plugin-plugin.version}</version>
             </dependency>
             <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
                 <version>${org.eclipse.jgit.version}</version>
@@ -196,12 +202,6 @@
                         <artifactId>plexus-container-default</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.wiremock</groupId>
-                <artifactId>wiremock-standalone</artifactId>
-                <version>${wiremock.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.wiremock.integrations</groupId>

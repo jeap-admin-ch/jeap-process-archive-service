@@ -4,11 +4,9 @@ import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypesCompilerMoj
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
-import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,9 +21,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @MojoTest
 class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
-
-    @Inject
-    private MavenProject project;
 
     private static final String EXPECTED_V1_METADATA = """
             public static final int ARCHIVE_TYPE_VERSION = 1;
@@ -90,9 +85,8 @@ class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
         return testDirectory;
     }
 
-    private void pointToTempDir(ArchiveTypesCompilerMojo mojo, File testDirectory) throws IllegalAccessException {
-        setVariableValueToObject(project, "basedir", testDirectory);
-        project.getBuild().setDirectory(new File(testDirectory, "target").getAbsolutePath());
+    private void pointToTempDir(ArchiveTypesCompilerMojo mojo, File testDirectory) throws Exception {
+        ensureProjectOnMojo(mojo, testDirectory);
         setVariableValueToObject(mojo, "sourceDirectory", new File(testDirectory, "archive-types"));
         setVariableValueToObject(mojo, "outputDirectory", new File(testDirectory, "target/generated-sources"));
     }
