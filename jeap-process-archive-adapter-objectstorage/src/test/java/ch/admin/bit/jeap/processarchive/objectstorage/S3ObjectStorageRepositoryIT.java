@@ -9,6 +9,7 @@ import ch.admin.bit.jeap.processarchive.crypto.ArchiveCryptoService;
 import ch.admin.bit.jeap.processarchive.crypto.ArchiveDataEncryption;
 import ch.admin.bit.jeap.processarchive.domain.archive.lifecycle.LifecyclePolicy;
 import ch.admin.bit.jeap.processarchive.domain.archive.lifecycle.LifecyclePolicyService;
+import ch.admin.bit.jeap.processarchive.domain.archive.objectsstorage.StorageObjectProperties;
 import ch.admin.bit.jeap.processarchive.objectstorage.lifecycle.S3LifecycleConfigurationFactory;
 import ch.admin.bit.jeap.processarchive.objectstorage.lifecycle.S3LifecycleConfigurationInitializer;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.EncryptionKeyId;

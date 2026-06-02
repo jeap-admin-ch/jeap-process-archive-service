@@ -19,4 +19,17 @@ class Instances {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    Class<Object> toClass(String className) {
+        if (className == null) {
+            return null;
+        }
+
+        try {
+            return (Class<Object>) Class.forName(className);
+        } catch (ReflectiveOperationException e) {
+            throw MessageArchiveConfigurationException.errorWhileCreatingInstance(className, e);
+        }
+    }
+
 }

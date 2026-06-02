@@ -1,6 +1,7 @@
 package ch.admin.bit.jeap.processarchive.objectstorage;
 
 import io.micrometer.core.annotation.Timed;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -24,6 +25,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class TimedS3Client {
 
+    @Getter
     private final S3Client s3Client;
 
     private final AwsCredentialsProvider awsCredentialsProvider;
@@ -81,7 +83,7 @@ public class TimedS3Client {
         try {
             s3Client.headObject(HeadObjectRequest.builder().bucket(bucketName).key(objectKey).build());
             return true;
-        } catch (NoSuchKeyException e) {
+        } catch (NoSuchKeyException _) {
             return false;
         }
     }

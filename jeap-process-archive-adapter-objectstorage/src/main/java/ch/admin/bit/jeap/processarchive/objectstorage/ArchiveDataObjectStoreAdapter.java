@@ -6,12 +6,14 @@ import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataObjectStoreSto
 import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataStorageInfo;
 import ch.admin.bit.jeap.processarchive.domain.archive.lifecycle.LifecyclePolicy;
 import ch.admin.bit.jeap.processarchive.domain.archive.lifecycle.LifecyclePolicyService;
+import ch.admin.bit.jeap.processarchive.domain.archive.objectsstorage.StorageObjectProperties;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.Metadata;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.ArchiveDataSchema;
 import ch.admin.bit.jeap.processarchive.plugin.api.storage.HashProvider;
 import ch.admin.bit.jeap.processarchive.plugin.api.storage.ObjectStorageStrategy;
 import ch.admin.bit.jeap.processarchive.plugin.api.storage.ObjectStorageTarget;
+import ch.admin.bit.jeap.processarchive.reader.ProcessArchiveReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -38,6 +40,7 @@ public class ArchiveDataObjectStoreAdapter implements ArchiveDataObjectStore {
     public static final String SCHEMAFILE_VERSION_ID_METADATA_NAME = "schema-file-version-id";
     public static final String SCHEMAFILE_KEY_METADATA_NAME = "schema-file-key";
 
+    private final Optional<ProcessArchiveReader> processArchiveReader;
     private final ObjectStorageRepository objectStorageRepository;
     private final ObjectStorageStrategy objectStorageStrategy;
     private final LifecyclePolicyService lifecyclePolicyService;
@@ -69,6 +72,16 @@ public class ArchiveDataObjectStoreAdapter implements ArchiveDataObjectStore {
                 .versionId(versionId)
                 .name(target.getName())
                 .build();
+    }
+
+    @Override
+    public Optional<StorageObjectProperties> getObjectProperties(String bucketName, String objectKey) {
+        return objectStorageRepository.getObjectProperties(bucketName, objectKey);
+    }
+
+    @Override
+    public Optional<Object> retrieveObject(Class<Object> archiveTypeClass, String objectBucket, String objectKey, String version) {
+        return processArchiveReader.map(archiveReader -> archiveReader.readArtifact(archiveTypeClass, objectBucket, objectKey, version));
     }
 
     private String storeObject(ArchiveData archiveData, ObjectStorageTarget target, LifecyclePolicy lifecyclePolicy,

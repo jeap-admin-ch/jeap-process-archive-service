@@ -2,6 +2,7 @@ package ch.admin.bit.jeap.processarchive.objectstorage;
 
 import ch.admin.bit.jeap.processarchive.crypto.ArchiveDataEncryption;
 import ch.admin.bit.jeap.processarchive.domain.archive.lifecycle.LifecyclePolicy;
+import ch.admin.bit.jeap.processarchive.domain.archive.objectsstorage.StorageObjectProperties;
 import lombok.Builder;
 import lombok.Value;
 import org.apache.commons.collections4.map.LinkedMap;

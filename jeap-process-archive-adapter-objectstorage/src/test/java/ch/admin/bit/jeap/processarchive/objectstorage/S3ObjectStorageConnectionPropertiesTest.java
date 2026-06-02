@@ -1,6 +1,7 @@
 package ch.admin.bit.jeap.processarchive.objectstorage;
 
 import ch.admin.bit.jeap.processarchive.domain.archive.lifecycle.LifecyclePolicyService;
+import ch.admin.bit.jeap.processarchive.reader.ProcessArchiveReader;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,6 +24,9 @@ class S3ObjectStorageConnectionPropertiesTest {
 
     @MockitoBean
     LifecyclePolicyService lifecyclePolicyService;
+
+    @MockitoBean
+    ProcessArchiveReader processArchiveReader;
 
     @Autowired
     S3ObjectStorageConnectionProperties s3ObjectStorageConnectionProperties;

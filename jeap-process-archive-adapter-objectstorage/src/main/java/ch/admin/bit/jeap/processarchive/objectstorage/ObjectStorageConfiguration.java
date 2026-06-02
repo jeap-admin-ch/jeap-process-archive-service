@@ -1,11 +1,15 @@
 package ch.admin.bit.jeap.processarchive.objectstorage;
 
+import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.processarchive.crypto.ArchiveCryptoService;
 import ch.admin.bit.jeap.processarchive.domain.archive.lifecycle.LifecyclePolicyService;
 import ch.admin.bit.jeap.processarchive.objectstorage.lifecycle.S3LifecycleConfigurationFactory;
 import ch.admin.bit.jeap.processarchive.objectstorage.lifecycle.S3LifecycleConfigurationInitializer;
 import ch.admin.bit.jeap.processarchive.plugin.api.storage.HashProvider;
 import ch.admin.bit.jeap.processarchive.plugin.api.storage.ObjectStorageStrategy;
+import ch.admin.bit.jeap.processarchive.reader.ProcessArchiveReader;
+import ch.admin.bit.jeap.processarchive.reader.objectstorage.DecryptingStorageObjectRepository;
+import ch.admin.bit.jeap.processarchive.reader.objectstorage.S3StorageObjectRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -15,6 +19,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
+
+import java.util.Optional;
 
 @Slf4j
 @AutoConfiguration
@@ -50,12 +56,13 @@ public class ObjectStorageConfiguration {
     }
 
     @Bean
-    public ArchiveDataObjectStoreAdapter archiveDataObjectStoreAdapter(ObjectStorageRepository objectStorageRepository,
+    public ArchiveDataObjectStoreAdapter archiveDataObjectStoreAdapter(Optional<ProcessArchiveReader> processArchiveReader,
+                                                                       ObjectStorageRepository objectStorageRepository,
                                                                        ObjectStorageStrategy objectStorageStrategy,
                                                                        LifecyclePolicyService lifecyclePolicyService,
                                                                        ObjectStorageProperties props,
                                                                        HashProvider hashProvider) {
-        return new ArchiveDataObjectStoreAdapter(objectStorageRepository, objectStorageStrategy, lifecyclePolicyService, props, hashProvider);
+        return new ArchiveDataObjectStoreAdapter(processArchiveReader, objectStorageRepository, objectStorageStrategy, lifecyclePolicyService, props, hashProvider);
     }
 
     @Profile(JEAP_PAS_S3_STORAGE_PROFILE)
@@ -82,4 +89,13 @@ public class ObjectStorageConfiguration {
     DefaultCredentialsProvider awsCredentialsProvider() {
         return DefaultCredentialsProvider.builder().build();
     }
+
+    @Profile(JEAP_PAS_S3_STORAGE_PROFILE)
+    @Bean
+    public ProcessArchiveReader archiveReader(TimedS3Client timedS3Client, Optional<KeyReferenceCryptoService> keyReferenceCryptoService){
+        return keyReferenceCryptoService
+                .map(referenceCryptoService -> new ProcessArchiveReader(new DecryptingStorageObjectRepository(timedS3Client.getS3Client(), referenceCryptoService)))
+                .orElseGet(() -> new ProcessArchiveReader(new S3StorageObjectRepository(timedS3Client.getS3Client())));
+    }
+
 }

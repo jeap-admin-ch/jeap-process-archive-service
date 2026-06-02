@@ -5,6 +5,7 @@ import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataStorageInfo;
 import ch.admin.bit.jeap.processarchive.domain.archive.lifecycle.LifecyclePolicyService;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.ArchiveDataSchema;
+import ch.admin.bit.jeap.processarchive.reader.ProcessArchiveReader;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,7 +36,10 @@ class CustomObjectStorageStrategyIT {
     @MockitoBean
     LifecyclePolicyService lifecyclePolicyService;
 
-    private final static ArchiveDataSchema ARCHIVE_DATA_SCHEMA = ArchiveDataSchema.builder()
+    @MockitoBean
+    ProcessArchiveReader processArchiveReader;
+
+    private static final ArchiveDataSchema ARCHIVE_DATA_SCHEMA = ArchiveDataSchema.builder()
             .schemaDefinition("test".getBytes(StandardCharsets.UTF_8))
             .system("test-system")
             .name("schemaname")
@@ -44,7 +48,7 @@ class CustomObjectStorageStrategyIT {
             .fileExtension("avpr")
             .build();
 
-    private final static ArchiveDataSchema OTHER_ARCHIVE_DATA_SCHEMA = ArchiveDataSchema.builder()
+    private static final ArchiveDataSchema OTHER_ARCHIVE_DATA_SCHEMA = ArchiveDataSchema.builder()
             .schemaDefinition("different-schema-test".getBytes(StandardCharsets.UTF_8))
             .system("test-system")
             .name("schemaname")

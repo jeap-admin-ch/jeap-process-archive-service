@@ -1,0 +1,14 @@
+{
+  "indexTypes": [
+    {
+      "indexType": "TestIndexTypeV1",
+      "archiveType": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestMessage",
+      "archiveTypeToSearchItemConverter": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestIndexTypeConverter"
+    },
+    {
+      "indexType": "TestIndexTypeV2",
+      "archiveType": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestMessage",
+      "archiveTypeToSearchItemConverter": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestIndexTypeConverter"
+    }
+  ]
+}

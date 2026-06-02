@@ -1,4 +1,4 @@
-package ch.admin.bit.jeap.processarchive.objectstorage;
+package ch.admin.bit.jeap.processarchive.domain.archive.objectsstorage;
 
 import lombok.Builder;
 import lombok.Value;
