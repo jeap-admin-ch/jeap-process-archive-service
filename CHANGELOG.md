@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 > - Spring Boot 3 maintenance (bug fixes, patches, and regular updates) continues on branch `release/springboot3`.
 
+## [13.3.0] - 2026-06-08
+
+### Changed
+
+- Integrate new standard openSearch API for archive data retrieval
+
 ## [13.2.0] - 2026-06-04
 
 ### Changed

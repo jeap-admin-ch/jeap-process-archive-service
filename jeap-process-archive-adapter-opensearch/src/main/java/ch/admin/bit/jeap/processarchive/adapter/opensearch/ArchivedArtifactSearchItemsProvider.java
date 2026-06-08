@@ -1,10 +1,12 @@
 package ch.admin.bit.jeap.processarchive.adapter.opensearch;
 
+import ch.admin.bit.jeap.opensearch.searchitem.api.SearchItemsProvider;
+import ch.admin.bit.jeap.opensearch.searchitem.api.exception.SearchItemsBadInputException;
+import ch.admin.bit.jeap.opensearch.searchitem.model.SearchItemContainer;
 import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataObjectStore;
 import ch.admin.bit.jeap.processarchive.domain.archive.objectsstorage.StorageObjectProperties;
 import ch.admin.bit.jeap.processarchive.domain.configuration.IndexTypeConfiguration;
 import ch.admin.bit.jeap.processarchive.domain.configuration.IndexTypeConfigurationRepository;
-import ch.admin.bit.jeap.processarchive.plugin.api.indextype.SearchItemContainer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,14 +16,22 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class SearchItemsProvider {
+public class ArchivedArtifactSearchItemsProvider implements SearchItemsProvider {
 
     private final ArchiveDataObjectStore archiveDataObjectStore;
     private final IndexTypeConfigurationRepository configurationRepository;
 
+    @Override
+    public Optional<SearchItemContainer> findSearchItem(String indexType, String originId, String originVersion) throws SearchItemsBadInputException {
+        log.info("Received request to search item with indexType '{}', originId '{}', originVersion '{}'", indexType, originId, originVersion);
 
-    public Optional<SearchItemContainer> searchItem(String originId, String indexType, String objectBucket, String objectKey, String originVersion) {
-        log.info("Searching for item with indexType '{}', originId '{}', objectBucket '{}', objectKey '{}', originVersion '{}'", indexType, originId, objectBucket, objectKey, originVersion);
+        String[] split = originId.split(":");
+        if (split.length != 2) {
+            log.error("Invalid origin id '{}'. Required format 'objectBucket:objectKey'", originId);
+            throw new SearchItemsBadInputException("Invalid origin id. Required format 'objectBucket:objectKey' : " + originId);
+        }
+        String objectBucket = split[0];
+        String objectKey = split[1];
 
         Optional<IndexTypeConfiguration> indexTypeConfigurationOptional = configurationRepository.findByName(indexType);
 
@@ -39,19 +49,16 @@ public class SearchItemsProvider {
         }
 
         Optional<Object> archivedArtifactOptional = archiveDataObjectStore.retrieveObject(indexTypeConfiguration.archiveType(), objectBucket, objectKey, originVersion);
-
         if (archivedArtifactOptional.isEmpty()) {
             log.warn("Archived artifact with object bucket '{}' and object key '{}' not found in object storage", objectBucket, objectKey);
             return Optional.empty();
         }
 
-        SearchItemContainer itemContainer = indexTypeConfiguration.archiveTypeToSearchItemConverter().convert(
+        return Optional.of(indexTypeConfiguration.archiveTypeToSearchItemConverter().convert(
                 archivedArtifactOptional.get(),
                 originId,
                 objectPropertiesOptional.get().getVersionId(),
-                objectPropertiesOptional.get().getMetadata());
-
-        return Optional.of(itemContainer);
+                objectPropertiesOptional.get().getMetadata()));
     }
 
 }
