@@ -1,12 +1,16 @@
 package ch.admin.bit.jeap.processarchive.kafka;
 
 import ch.admin.bit.jeap.messaging.kafka.contract.ContractsValidator;
+import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillCommandPublisher;
 import ch.admin.bit.jeap.processarchive.domain.archive.event.ArchivedArtifactCreatedEventProducer;
+import ch.admin.bit.jeap.processarchive.kafka.backfill.BackfillCommandProperties;
+import ch.admin.bit.jeap.processarchive.kafka.backfill.CreateArtifactCommandBuilder;
 import ch.admin.bit.jeap.processarchive.kafka.event.*;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,13 +21,15 @@ import org.springframework.context.annotation.PropertySource;
 @AutoConfiguration
 @ComponentScan
 @PropertySource("classpath:process-archive-kafka-defaults.properties")
-@EnableConfigurationProperties(ArchivedArtifactEventProperties.class)
+@EnableConfigurationProperties({ArchivedArtifactEventProperties.class, BackfillCommandProperties.class})
 @RequiredArgsConstructor
 @Slf4j
 class KafkaAdapterConfig {
 
     private final ContractsValidator contractsValidator;
     private final ArchivedArtifactEventProperties eventProperties;
+    private final BackfillCommandProperties backfillCommandProperties;
+    private final ObjectProvider<BackfillCommandPublisher> backfillCommandPublisher;
 
     @PostConstruct
     void validate() {
@@ -33,6 +39,10 @@ class KafkaAdapterConfig {
             contractsValidator.ensurePublisherContract(
                     ArchivedArtifactVersionCreatedEventBuilder.messageType(),
                     eventProperties.getEventTopic());
+        }
+        if (backfillCommandPublisher.getIfAvailable() != null) {
+            backfillCommandProperties.validateConfiguration();
+            contractsValidator.ensurePublisherContract(CreateArtifactCommandBuilder.messageType(), backfillCommandProperties.getTopic());
         }
     }
 

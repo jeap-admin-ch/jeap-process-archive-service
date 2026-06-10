@@ -4,6 +4,7 @@ import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 public class ProcessArchiveMetricsConfig {
 
     @Bean
+    @ConditionalOnMissingBean(TimedAspect.class)
     public TimedAspect timedAspect(MeterRegistry meterRegistry) {
         return new TimedAspect(meterRegistry);
     }

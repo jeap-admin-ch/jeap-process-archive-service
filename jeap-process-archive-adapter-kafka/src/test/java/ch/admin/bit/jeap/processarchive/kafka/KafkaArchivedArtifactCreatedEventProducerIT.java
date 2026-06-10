@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         classes = TestApp.class,
         properties = {
                 "spring.application.name=test",
+                "spring.flyway.enabled=false",
                 "jeap.processarchive.archivedartifact.event-topic=archived-artifact-version-created-event-topic",
                 "jeap.processarchive.archivedartifact.system-id=ch.admin.jeap.System",
                 "jeap.messaging.kafka.system-name=system",
@@ -31,11 +33,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
                 "jeap.messaging.kafka.exposeMessageKeyToConsumer=true"})
 @EnableAutoConfiguration(excludeName = {
         "ch.admin.bit.jeap.processarchive.domain.DomainConfiguration",
-        "ch.admin.bit.jeap.processarchive.configuration.json.JsonConfigurationRepositoryConfiguration"
+        "ch.admin.bit.jeap.processarchive.configuration.json.JsonConfigurationRepositoryConfiguration",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.outbox.OutboxConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.jpa.OutboxJpaConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.messaging.OutboxMessagingConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.metrics.OutboxMetricsConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.scheduling.OutboxSchedulingConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.transaction.OutboxTransactionConfig"
 })
 @JeapMessageProducerContract(value = SharedArchivedArtifactVersionCreatedEvent.TypeRef.class,
         topic = "archived-artifact-version-created-event-topic", appName = "test")
-class KafkaArchivedArtifactCreatedEventProducerIT extends KafkaIntegrationTestBase {
+class KafkaArchivedArtifactCreatedEventProducerIT extends PostgresTestContainerBase {
 
     private static final String IDEMPOTENCE_ID = "idempotenceId";
 

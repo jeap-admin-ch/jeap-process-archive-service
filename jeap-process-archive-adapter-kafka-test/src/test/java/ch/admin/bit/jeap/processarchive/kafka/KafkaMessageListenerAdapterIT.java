@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -28,6 +29,17 @@ import static org.mockito.Mockito.*;
         "jeap.processarchive.archivedartifact.event-topic=event-topic",
         "jeap.processarchive.archivedartifact.system-id=com.test.System",
         "jeap.processarchive.archivedartifact.system-name=test"
+})
+@EnableAutoConfiguration(excludeName = {
+        "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration",
+        "org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration",
+        "org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.outbox.OutboxConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.jpa.OutboxJpaConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.messaging.OutboxMessagingConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.metrics.OutboxMetricsConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.scheduling.OutboxSchedulingConfig",
+        "ch.admin.bit.jeap.messaging.transactionaloutbox.transaction.OutboxTransactionConfig"
 })
 @ExtendWith(MockitoExtension.class)
 class KafkaMessageListenerAdapterIT extends KafkaIntegrationTestBase {

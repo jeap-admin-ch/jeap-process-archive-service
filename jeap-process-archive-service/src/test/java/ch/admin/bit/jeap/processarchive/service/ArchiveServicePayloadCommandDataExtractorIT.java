@@ -43,7 +43,7 @@ import static org.mockito.Mockito.verify;
         "jeap.processarchive.archivedartifact.event-topic=event-topic",
         "jeap.processarchive.archivedartifact.system-id=com.test.System",
         "jeap.processarchive.archivedartifact.system-name=test"})
-@Import({HashProviderTestConfig.class, TestTypeLoaderConfig.class})
+@Import({HashProviderTestConfig.class, TestTypeLoaderConfig.class, PostgresTestContainerBase.class})
 class ArchiveServicePayloadCommandDataExtractorIT extends KafkaIntegrationTestBase {
 
     private static final String TOPIC = "test-command";

@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verify;
 
 @ActiveProfiles({ObjectStorageConfiguration.JEAP_PAS_TEST_INMEMORY_PROFILE, "config-mode"})
 @SpringBootTest(classes = ProcessArchiveApplication.class)
-@Import({HashProviderTestConfig.class, TestTypeLoaderConfig.class})
+@Import({HashProviderTestConfig.class, TestTypeLoaderConfig.class, PostgresTestContainerBase.class})
 class ArchiveServiceConfigModeIT extends KafkaIntegrationTestBase {
 
     private static final String DOMAIN_EVENT_TOPIC = "test-event-2";

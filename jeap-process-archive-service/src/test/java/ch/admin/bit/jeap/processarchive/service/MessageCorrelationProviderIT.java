@@ -4,10 +4,10 @@ import ch.admin.bit.jeap.crypto.api.KeyIdCryptoService;
 import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
-import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
 import ch.admin.bit.jeap.processarchive.event.test3.TestDomain3Event;
 import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomain3EventBuilder;
+import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArtifactArchivedListener;
@@ -37,7 +37,7 @@ import static org.mockito.Mockito.verify;
         "jeap.processarchive.archivedartifact.event-topic=event-topic",
         "jeap.processarchive.archivedartifact.system-id=com.test.System",
         "jeap.processarchive.archivedartifact.system-name=test"})
-@Import({HashProviderTestConfig.class, TestTypeLoaderConfig.class})
+@Import({HashProviderTestConfig.class, TestTypeLoaderConfig.class, PostgresTestContainerBase.class})
 class MessageCorrelationProviderIT extends KafkaIntegrationTestBase {
 
     private static final String DOMAIN_EVENT_TOPIC = "test-event-3";

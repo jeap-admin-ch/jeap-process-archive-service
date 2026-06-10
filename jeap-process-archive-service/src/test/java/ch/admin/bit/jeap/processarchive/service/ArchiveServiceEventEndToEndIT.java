@@ -41,7 +41,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
         "jeap.processarchive.archivedartifact.system-id=com.test.System",
         "jeap.processarchive.archivedartifact.system-name=test",
         "jeap.messaging.kafka.exposeMessageKeyToConsumer=true"})
-@Import({HashProviderTestConfig.class, TestConfig.class, TestTypeLoaderConfig.class})
+@Import({HashProviderTestConfig.class, TestConfig.class, TestTypeLoaderConfig.class, PostgresTestContainerBase.class})
 class ArchiveServiceEventEndToEndIT extends KafkaIntegrationTestBase {
 
     private static final String DOMAIN_EVENT_TOPIC = "test-event-2";
