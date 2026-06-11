@@ -7,6 +7,12 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 > - Spring Boot 3 maintenance (bug fixes, patches, and regular updates) continues on branch `release/springboot3`.
 
+## [13.4.0] - 2026-06-11
+
+### Changed
+
+- Update jeap-opensearch from 0.14.0 to 0.18.0
+
 ## [13.3.0] - 2026-06-08
 
 ### Changed
