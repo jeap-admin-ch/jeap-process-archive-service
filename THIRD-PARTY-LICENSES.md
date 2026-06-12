@@ -203,7 +203,6 @@ Apache License Version 2.0
  * net.javacrumbs.shedlock:shedlock-provider-jdbc-template - [net.javacrumbs.shedlock:shedlock-provider-jdbc-template](http://nexus.sonatype.org/oss-repository-hosting.html/shedlock-parent/providers/jdbc/shedlock-provider-jdbc-template)
  * net.javacrumbs.shedlock:shedlock-spring - [net.javacrumbs.shedlock:shedlock-spring](http://nexus.sonatype.org/oss-repository-hosting.html/shedlock-parent/spring/shedlock-spring)
  * net.javacrumbs.shedlock:shedlock-sql-support - [net.javacrumbs.shedlock:shedlock-sql-support](http://nexus.sonatype.org/oss-repository-hosting.html/shedlock-parent/providers/sql/shedlock-sql-support)
- * Logstash Logback Encoder - [net.logstash.logback:logstash-logback-encoder](https://github.com/logstash/logstash-logback-encoder)
  * Logstash Logback Encoder - [net.logstash.logback:logstash-logback-encoder](https://github.com/logfellow/logstash-logback-encoder)
  * ASM based accessors helper used by json-smart - [net.minidev:accessors-smart](https://urielch.github.io/)
  * JSON Small and Fast Parser - [net.minidev:json-smart](https://urielch.github.io/)
@@ -590,12 +589,6 @@ GNU General Public License, version 2 (GPL2), with the classpath exception
  * Jakarta Servlet - [jakarta.servlet:jakarta.servlet-api](https://projects.eclipse.org/projects/ee4j.servlet)
  * jakarta.transaction API - [jakarta.transaction:jakarta.transaction-api](https://projects.eclipse.org/projects/ee4j.jta)
 
-GNU Lesser General Public License
--------------------------------
-
- * Logback Classic Module - [ch.qos.logback:logback-classic](http://logback.qos.ch/logback-classic)
- * Logback Core Module - [ch.qos.logback:logback-core](http://logback.qos.ch/logback-core)
-
 Go License
 -------------------------------
 
@@ -630,7 +623,6 @@ MIT License
 
  * minimal-json - [com.eclipsesource.minimal-json:minimal-json](https://github.com/ralfstx/minimal-json)
  * ClassGraph - [io.github.classgraph:classgraph](https://github.com/classgraph/classgraph)
- * Logstash Logback Encoder - [net.logstash.logback:logstash-logback-encoder](https://github.com/logstash/logstash-logback-encoder)
  * Logstash Logback Encoder - [net.logstash.logback:logstash-logback-encoder](https://github.com/logfellow/logstash-logback-encoder)
  * JOpt Simple - [net.sf.jopt-simple:jopt-simple](http://jopt-simple.github.io/jopt-simple)
  * argparse4j - [net.sourceforge.argparse4j:argparse4j](http://argparse4j.github.io)
