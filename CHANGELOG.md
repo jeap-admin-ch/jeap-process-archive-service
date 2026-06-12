@@ -7,20 +7,21 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 > - Spring Boot 3 maintenance (bug fixes, patches, and regular updates) continues on branch `release/springboot3`.
 
+## [14.0.0] - 2026-06-12
+
+### Added
+- Add backfill job submission support
+- Add database persistence for backfill jobs and tasks
+- Add REST API and Kafka command publishing for backfill job processing
+
+### Changed
+- Update project parent/module versions from 13.6.0-SNAPSHOT to 14.0.0-SNAPSHOT
+
 ## [13.5.0] - 2026-06-12
 
 ### Changed
 - Update parent from 35.3.0 to 35.6.0
 - update jeap-process-archive-reader from 3.0.0 to 3.2.0
-
-## [14.0.0] - 2026-06-12
-
-### Changed
-
-- Add backfill job submission support
-- Add database persistence for backfill jobs and tasks
-- Add REST API and Kafka command publishing for backfill job processing
-- Update project parent/module versions from 13.6.0-SNAPSHOT to 14.0.0-SNAPSHOT
 
 ## [13.4.0] - 2026-06-11
 
