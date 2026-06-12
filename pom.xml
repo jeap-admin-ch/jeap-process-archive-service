@@ -39,7 +39,7 @@
     <description>JEAP Process Archive Service</description>
 
     <properties>
-        <jeap-process-archive-reader.version>3.0.0</jeap-process-archive-reader.version>
+        <jeap-process-archive-reader.version>3.2.0</jeap-process-archive-reader.version>
         <jeap-opensearch.version>0.18.0</jeap-opensearch.version>
         <file-management.version>3.2.0</file-management.version>
         <maven-invoker.version>3.3.0</maven-invoker.version>

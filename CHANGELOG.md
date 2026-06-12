@@ -10,8 +10,8 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [13.5.0] - 2026-06-12
 
 ### Changed
-
 - Update parent from 35.3.0 to 35.6.0
+- update jeap-process-archive-reader from 3.0.0 to 3.2.0
 
 ## [13.4.0] - 2026-06-11
 
