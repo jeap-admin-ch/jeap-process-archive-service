@@ -2,12 +2,12 @@ package ch.admin.bit.jeap.processarchive.service;
 
 import ch.admin.bit.jeap.crypto.api.KeyIdCryptoService;
 import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
+import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
 import ch.admin.bit.jeap.processarchive.adapter.db.BackfillJobEntity;
 import ch.admin.bit.jeap.processarchive.adapter.db.BackfillJobRepository;
 import ch.admin.bit.jeap.processarchive.adapter.db.BackfillTaskEntity;
 import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobState;
 import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillTaskState;
-import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
 import ch.admin.bit.jeap.security.resource.semanticAuthentication.SemanticApplicationRole;
 import ch.admin.bit.jeap.security.resource.token.JeapAuthenticationToken;

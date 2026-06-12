@@ -17,7 +17,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Add backfill job submission support with REST API, database persistence, and Kafka command publishing
+- Add backfill job submission support
+- Add database persistence for backfill jobs and tasks
+- Add REST API and Kafka command publishing for backfill job processing
+- Update project parent/module versions from 13.6.0-SNAPSHOT to 14.0.0-SNAPSHOT
 
 ## [13.4.0] - 2026-06-11
 
