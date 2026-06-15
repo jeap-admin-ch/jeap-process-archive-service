@@ -12,12 +12,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@ConfigurationProperties(prefix = "jeap.processarchive.backfill.command")
+@ConfigurationProperties(prefix = "jeap.processarchive.backfill")
 @Data
 @Slf4j
 public class BackfillCommandProperties {
 
-    @NotEmpty
     private String topic;
 
     @NotEmpty
@@ -25,6 +24,8 @@ public class BackfillCommandProperties {
 
     @NotEmpty
     private String serviceName;
+
+    private boolean enabled = false;
 
     public void validateConfiguration() {
         validateProperties();

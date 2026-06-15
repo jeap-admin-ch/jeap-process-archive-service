@@ -32,9 +32,7 @@ import software.amazon.awssdk.utils.Md5Utils;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,10 +44,10 @@ import static org.mockito.Mockito.when;
 @Testcontainers
 class S3ObjectStorageRepositoryIT {
 
-    private static final String MINIO_IMAGE = "quay.io/minio/minio:RELEASE.2022-09-07T22-25-02Z";
-    private static final Integer MINIO_PORT = 9000;
-    private static final String MINIO_ACCESS_KEY = "dev";
-    private static final String MINIO_SECRET_KEY = "devsecret";
+    private static final String RUSTFS_IMAGE = "rustfs/rustfs:latest";
+    private static final Integer RUSTFS_PORT = 9000;
+    private static final String RUSTFS_ACCESS_KEY = "dev";
+    private static final String RUSTFS_SECRET_KEY = "devsecret";
     private static final String TEST_BUCKET_NAME = "test-bucket";
 
     private static final LifecyclePolicy LIFECYCLE_POLICY = LifecyclePolicy.builder()
@@ -68,21 +66,21 @@ class S3ObjectStorageRepositoryIT {
     private KeyReferenceCryptoService keyReferenceCryptoService;
 
     @Container
-    private final GenericContainer<?> minioContainer =
-            new GenericContainer<>(DockerImageName.parse(MINIO_IMAGE))
-                    .withExposedPorts(MINIO_PORT)
-                    .withEnv("MINIO_ACCESS_KEY", MINIO_ACCESS_KEY)
-                    .withEnv("MINIO_SECRET_KEY", MINIO_SECRET_KEY)
-                    .withCommand("server", "/data");
+    private final GenericContainer<?> rustfsContainer =
+            new GenericContainer<>(DockerImageName.parse(RUSTFS_IMAGE))
+                    .withExposedPorts(RUSTFS_PORT)
+                    .withEnv("RUSTFS_ACCESS_KEY", RUSTFS_ACCESS_KEY)
+                    .withEnv("RUSTFS_SECRET_KEY", RUSTFS_SECRET_KEY)
+                    .withCommand("/data");
 
     @SneakyThrows
     @BeforeEach
     void setUp() {
-        String minioHost = minioContainer.getHost();
-        int minioPort = minioContainer.getFirstMappedPort();
-        String minioUrl = new URI("http", null, minioHost, minioPort, null, null, null).toString();
+        String rustfsHost = rustfsContainer.getHost();
+        int rustfsPort = rustfsContainer.getFirstMappedPort();
+        String rustfsUrl = new URI("http", null, rustfsHost, rustfsPort, null, null, null).toString();
 
-        initS3Client(minioUrl);
+        initS3Client(rustfsUrl);
         setupStorage();
         checkStorage();
 
@@ -141,8 +139,7 @@ class S3ObjectStorageRepositoryIT {
         HeadObjectResponse headObjectResponse = s3Client.headObject(HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(objectKey).build());
         assertThat(objectAsBytes.asByteArray()).isEqualTo(objectContent);
         assertThat(headObjectResponse.metadata()).containsAllEntriesOf(metadata);
-        String expirationNoLeadingZeroDayOfMonth = headObjectResponse.expiration().replace(", 0", ", ");
-        assertThat(expirationNoLeadingZeroDayOfMonth).isEqualTo(policyAsExpirationString(LIFECYCLE_POLICY));
+        assertObjectHasLifecyclePolicyTag(objectKey);
         assertThat(headObjectResponse.objectLockMode()).isEqualTo(ObjectLockMode.COMPLIANCE);
         assertThat(headObjectResponse.objectLockRetainUntilDate()).isBetween(expectedRetentionMin.toInstant(), expectedRetentionMax.toInstant());
     }
@@ -221,8 +218,7 @@ class S3ObjectStorageRepositoryIT {
         HeadObjectResponse headObjectResponse = s3Client.headObject(HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(objectKey).build());
         assertThat(objectAsBytes.asByteArray()).isEqualTo(objectContent);
         assertThat(headObjectResponse.metadata()).containsAllEntriesOf(metadata);
-        String expirationNoLeadingZeroDayOfMonth = headObjectResponse.expiration().replace(", 0", ", ");
-        assertThat(expirationNoLeadingZeroDayOfMonth).isEqualTo(policyAsExpirationString(LIFECYCLE_POLICY));
+        assertObjectHasLifecyclePolicyTag(objectKey);
         assertThat(headObjectResponse.objectLockMode()).isEqualTo(ObjectLockMode.GOVERNANCE);
         assertThat(headObjectResponse.objectLockRetainUntilDate()).isBetween(expectedRetentionMin.toInstant(), expectedRetentionMax.toInstant());
     }
@@ -244,8 +240,7 @@ class S3ObjectStorageRepositoryIT {
         HeadObjectResponse headObjectResponse = s3Client.headObject(HeadObjectRequest.builder().bucket(TEST_BUCKET_NAME).key(objectKey).build());
         assertThat(objectAsBytes.asByteArray()).isEqualTo(objectContent);
         assertThat(headObjectResponse.metadata()).containsAllEntriesOf(metadata);
-        String expirationNoLeadingZeroDayOfMonth = headObjectResponse.expiration().replace(", 0", ", ");
-        assertThat(expirationNoLeadingZeroDayOfMonth).isEqualTo(policyAsExpirationString(LIFECYCLE_POLICY));
+        assertObjectHasLifecyclePolicyTag(objectKey);
         assertThat(headObjectResponse.objectLockMode()).isNull();
         assertThat(headObjectResponse.objectLockRetainUntilDate()).isNull();
     }
@@ -257,9 +252,14 @@ class S3ObjectStorageRepositoryIT {
         return cal.getTime();
     }
 
-    private String policyAsExpirationString(LifecyclePolicy policy) {
-        return String.format("expiry-date=\"%s\", rule-id=\"%s_%s_%s_%s\"", ZonedDateTime.now().plusDays(1).toLocalDate().atStartOfDay(ZoneId.of("GMT"))
-                .plusDays(policy.getRetainDays()).format(DateTimeFormatter.RFC_1123_DATE_TIME), policy.getSystemName(), policy.getArchiveTypeName(), policy.getRetainDays(), policy.getRetainDays());
+    private void assertObjectHasLifecyclePolicyTag(String objectKey) {
+        GetObjectTaggingResponse taggingResponse = s3Client.getS3Client().getObjectTagging(GetObjectTaggingRequest.builder()
+                .bucket(TEST_BUCKET_NAME)
+                .key(objectKey)
+                .build());
+
+        assertThat(taggingResponse.tagSet())
+                .contains(S3LifecycleConfigurationInitializer.lifecyclePolicyTag(LIFECYCLE_POLICY));
     }
 
     @Test
@@ -282,12 +282,12 @@ class S3ObjectStorageRepositoryIT {
 
     private void initS3Client(String url) {
         S3ObjectStorageConnectionProperties connectionProperties = new S3ObjectStorageConnectionProperties();
-        connectionProperties.setAccessKey(MINIO_ACCESS_KEY);
-        connectionProperties.setSecretKey(MINIO_SECRET_KEY);
+        connectionProperties.setAccessKey(RUSTFS_ACCESS_KEY);
+        connectionProperties.setSecretKey(RUSTFS_SECRET_KEY);
         connectionProperties.setAccessUrl(url);
         connectionProperties.setRegion("aws-global");
 
-        s3Client = new TimedS3Client(connectionProperties, StaticCredentialsProvider.create(AwsBasicCredentials.create(MINIO_ACCESS_KEY, MINIO_SECRET_KEY)));
+        s3Client = new TimedS3Client(connectionProperties, StaticCredentialsProvider.create(AwsBasicCredentials.create(RUSTFS_ACCESS_KEY, RUSTFS_SECRET_KEY)));
     }
 
     private void setupStorage() {

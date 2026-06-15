@@ -6,9 +6,11 @@ import ch.admin.bit.jeap.processarchive.domain.backfill.CreateArtifactCommandDat
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(value = "jeap.processarchive.backfill.enabled", havingValue = "true")
 @ConditionalOnBean(TransactionalOutbox.class)
 @RequiredArgsConstructor
 @Slf4j

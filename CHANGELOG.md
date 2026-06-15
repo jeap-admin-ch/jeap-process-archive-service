@@ -7,6 +7,11 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 > - Spring Boot 3 maintenance (bug fixes, patches, and regular updates) continues on branch `release/springboot3`.
 
+## [14.0.1] - 2026-06-17
+
+### Added
+- Add backfill job command consumer
+
 ## [14.0.0] - 2026-06-12
 
 ### Added

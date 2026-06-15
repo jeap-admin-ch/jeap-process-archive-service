@@ -37,14 +37,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles(ObjectStorageConfiguration.JEAP_PAS_TEST_INMEMORY_PROFILE)
 @SpringBootTest(classes = ProcessArchiveApplication.class, properties = {
         "spring.cloud.vault.enabled=false",
-        "test.service.uri=http://localhost/unused/{id}",
+        "test.service.uri=http://localhost/unused/{id}?version={version}",
         "jeap.processarchive.objectstorage.storage.bucket=testbucket",
         "jeap.processarchive.archivedartifact.event-topic=event-topic",
         "jeap.processarchive.archivedartifact.system-id=com.test.System",
         "jeap.processarchive.archivedartifact.system-name=test",
-        "jeap.processarchive.backfill.command.topic=backfill-create-artifact-command",
         "jeap.messaging.kafka.publish-without-contract-allowed=true",
-        "jeap.messaging.kafka.consume-without-contract-allowed=true"})
+        "jeap.messaging.kafka.consume-without-contract-allowed=true",
+        "jeap.processarchive.backfill.enabled=true",
+        "jeap.processarchive.backfill.topic=jeap-process-archive-createartifact",
+})
 @AutoConfigureMockMvc
 @Import({HashProviderTestConfig.class, TestConfig.class, TestTypeLoaderConfig.class, PostgresTestContainerBase.class})
 class BackfillJobSubmitIT extends KafkaIntegrationTestBase {

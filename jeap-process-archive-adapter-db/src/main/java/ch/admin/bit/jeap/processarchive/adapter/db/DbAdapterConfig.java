@@ -1,13 +1,25 @@
 package ch.admin.bit.jeap.processarchive.adapter.db;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.persistence.autoconfigure.EntityScan;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@AutoConfiguration
-@ComponentScan
+import javax.sql.DataSource;
+
+@ConditionalOnProperty(value = "jeap.processarchive.backfill.enabled", havingValue = "true")
+@AutoConfiguration(after = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
+@ConditionalOnBean(DataSource.class)
 @EntityScan(basePackageClasses = BackfillJobEntity.class)
 @EnableJpaRepositories(basePackageClasses = BackfillJobRepository.class)
 class DbAdapterConfig {
+
+    @Bean
+    JpaBackfillJobAdapter jpaBackfillJobAdapter(BackfillJobRepository backfillJobRepository) {
+        return new JpaBackfillJobAdapter(backfillJobRepository);
+    }
 }

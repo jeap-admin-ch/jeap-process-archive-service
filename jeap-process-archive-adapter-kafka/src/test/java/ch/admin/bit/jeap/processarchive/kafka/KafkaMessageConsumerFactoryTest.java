@@ -100,7 +100,6 @@ class KafkaMessageConsumerFactoryTest {
         assertThrows(IllegalStateException.class, () -> kafkaMessageConsumerFactory.startConsumer("topicName", messageNames, "clusterNotDefined"));
     }
 
-
     @Test
     void ensureConsumerContract_contractV2(){
 

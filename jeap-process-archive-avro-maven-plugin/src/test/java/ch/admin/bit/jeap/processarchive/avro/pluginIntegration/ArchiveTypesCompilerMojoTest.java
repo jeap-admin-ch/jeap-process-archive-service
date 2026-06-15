@@ -1,7 +1,6 @@
 package ch.admin.bit.jeap.processarchive.avro.pluginIntegration;
 
 import ch.admin.bit.jeap.processarchive.avro.plugin.mojo.ArchiveTypesCompilerMojo;
-import org.apache.commons.io.FileUtils;
 import org.apache.maven.api.plugin.testing.InjectMojo;
 import org.apache.maven.api.plugin.testing.MojoTest;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 
@@ -80,9 +78,7 @@ class ArchiveTypesCompilerMojoTest extends AbstractAvroMojoTest {
             }""";
 
     private File setupTestDirectory(Path tempDir, String resourcePath) throws Exception {
-        File testDirectory = syncToTempDirectory(resourcePath, tempDir);
-        FileUtils.copyDirectory(Paths.get(Paths.get("").toAbsolutePath().getParent().toString(), ".git").toFile(), Paths.get(testDirectory.getAbsolutePath(), ".git").toFile());
-        return testDirectory;
+        return syncToTempDirectory(resourcePath, tempDir);
     }
 
     private void pointToTempDir(ArchiveTypesCompilerMojo mojo, File testDirectory) throws Exception {

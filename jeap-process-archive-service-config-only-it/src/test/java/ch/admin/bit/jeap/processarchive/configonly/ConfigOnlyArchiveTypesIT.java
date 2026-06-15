@@ -4,8 +4,8 @@ import ch.admin.bit.jeap.crypto.api.KeyIdCryptoService;
 import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
-import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
+import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomain2EventBuilder;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
@@ -29,24 +29,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import org.springframework.kafka.test.context.EmbeddedKafka;
-
 /**
  * Integration test verifying that the PAS works with only config-based archive types,
  * without any classpath archive type provider (no Avro archive type descriptors).
  */
 @ActiveProfiles(ObjectStorageConfiguration.JEAP_PAS_TEST_INMEMORY_PROFILE)
 @SpringBootTest(classes = ProcessArchiveApplication.class)
-@Import({HashProviderTestConfig.class, PostgresTestContainerBase.class})
-@EmbeddedKafka(partitions = 1, topics = {"test-event-2"})
-class ConfigOnlyArchiveTypesIT extends PostgresTestContainerBase {
+@Import(HashProviderTestConfig.class)
+class ConfigOnlyArchiveTypesIT extends KafkaIntegrationTestBase {
 
     private static final String DOMAIN_EVENT_TOPIC = "test-event-2";
     private static final String PAYLOAD_DATA = "config-only-payload";
     private static final String EVENT_IDEMPOTENCE_ID = UUID.randomUUID().toString();
     private static final String ARCHIVE_IDEMPOTENCE_ID = "TestDomain2Event_" + EVENT_IDEMPOTENCE_ID;
-
-    private static final int TEST_TIMEOUT = 30000;
 
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;

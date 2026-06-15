@@ -40,7 +40,7 @@ public class TestConsumer {
         this.events.add(event);
     }
 
-    @TestKafkaListener(topics = "backfill-create-artifact-command")
+    @TestKafkaListener(topics = "jeap-process-archive-createartifact")
     public void onCreateArtifactCommand(@Payload CreateArtifactCommand command) {
         log.info("Received {}", command);
         this.createArtifactCommands.add(command);

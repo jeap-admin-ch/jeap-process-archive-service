@@ -38,7 +38,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = BackfillJobController.class)
+@WebMvcTest(controllers = BackfillJobController.class, properties = {
+      "jeap.processarchive.backfill.enabled=true",
+      "jeap.processarchive.backfill.topic=jeap-process-archive-createartifact"
+})
 @ContextConfiguration(classes = {
         BackfillJobControllerTest.TestApplication.class,
         BackfillJobController.class,

@@ -1,7 +1,6 @@
 package ch.admin.bit.jeap.processarchive.kafka;
 
 import ch.admin.bit.jeap.messaging.kafka.contract.ContractsValidator;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillCommandPublisher;
 import ch.admin.bit.jeap.processarchive.domain.archive.event.ArchivedArtifactCreatedEventProducer;
 import ch.admin.bit.jeap.processarchive.kafka.backfill.BackfillCommandProperties;
 import ch.admin.bit.jeap.processarchive.kafka.backfill.CreateArtifactCommandBuilder;
@@ -10,7 +9,6 @@ import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArti
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,7 +27,6 @@ class KafkaAdapterConfig {
     private final ContractsValidator contractsValidator;
     private final ArchivedArtifactEventProperties eventProperties;
     private final BackfillCommandProperties backfillCommandProperties;
-    private final ObjectProvider<BackfillCommandPublisher> backfillCommandPublisher;
 
     @PostConstruct
     void validate() {
@@ -40,9 +37,10 @@ class KafkaAdapterConfig {
                     ArchivedArtifactVersionCreatedEventBuilder.messageType(),
                     eventProperties.getEventTopic());
         }
-        if (backfillCommandPublisher.getIfAvailable() != null) {
+        if (backfillCommandProperties.isEnabled()) {
             backfillCommandProperties.validateConfiguration();
             contractsValidator.ensurePublisherContract(CreateArtifactCommandBuilder.messageType(), backfillCommandProperties.getTopic());
+            contractsValidator.ensureConsumerContract(CreateArtifactCommandBuilder.messageType(), backfillCommandProperties.getTopic());
         }
     }
 

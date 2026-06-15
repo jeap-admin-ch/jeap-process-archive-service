@@ -1,14 +1,14 @@
 package ch.admin.bit.jeap.processarchive.adapter.db;
 
-import ch.admin.bit.jeap.processarchive.domain.backfill.*;
+import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJob;
+import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobPort;
+import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillTask;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
 
-@Component
 @RequiredArgsConstructor
 class JpaBackfillJobAdapter implements BackfillJobPort {
 
