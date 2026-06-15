@@ -425,6 +425,8 @@ Bouncy Castle Licence
 EPL-2.0
 -------------------------------
 
+ * Logback Classic Module - [ch.qos.logback:logback-classic](http://logback.qos.ch/logback-classic)
+ * Logback Core Module - [ch.qos.logback:logback-core](http://logback.qos.ch/logback-core)
  * Core :: ALPN :: Client - [org.eclipse.jetty:jetty-alpn-client](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-client)
  * Core :: ALPN :: Java Client - [org.eclipse.jetty:jetty-alpn-java-client](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-java-client)
  * Core :: ALPN :: Java Server - [org.eclipse.jetty:jetty-alpn-java-server](https://jetty.org/jetty-core/jetty-alpn/jetty-alpn-java-server)
@@ -455,8 +457,6 @@ Eclipse Distribution License - v 1.0
 Eclipse Public License v2.0
 -------------------------------
 
- * Logback Classic Module - [ch.qos.logback:logback-classic](http://logback.qos.ch/logback-classic)
- * Logback Core Module - [ch.qos.logback:logback-core](http://logback.qos.ch/logback-core)
  * Jakarta Annotations API - [jakarta.annotation:jakarta.annotation-api](https://projects.eclipse.org/projects/ee4j.ca)
  * Jakarta Servlet - [jakarta.servlet:jakarta.servlet-api](https://projects.eclipse.org/projects/ee4j.servlet)
  * AspectJ Weaver - [org.aspectj:aspectjweaver](https://www.eclipse.org/aspectj/)
@@ -490,12 +490,6 @@ GNU General Public License, version 2 (GPL2), with the classpath exception
  * Jakarta Annotations API - [jakarta.annotation:jakarta.annotation-api](https://projects.eclipse.org/projects/ee4j.ca)
  * Jakarta Servlet - [jakarta.servlet:jakarta.servlet-api](https://projects.eclipse.org/projects/ee4j.servlet)
 
-GNU Lesser General Public License
--------------------------------
-
- * Logback Classic Module - [ch.qos.logback:logback-classic](http://logback.qos.ch/logback-classic)
- * Logback Core Module - [ch.qos.logback:logback-core](http://logback.qos.ch/logback-core)
-
 Go License
 -------------------------------
 
@@ -505,6 +499,12 @@ LGPL 2.1
 -------------------------------
 
  * Javassist - [org.javassist:javassist](http://www.javassist.org/)
+
+LGPL-2.1-only
+-------------------------------
+
+ * Logback Classic Module - [ch.qos.logback:logback-classic](http://logback.qos.ch/logback-classic)
+ * Logback Core Module - [ch.qos.logback:logback-core](http://logback.qos.ch/logback-core)
 
 LGPL-2.1-or-later
 -------------------------------
