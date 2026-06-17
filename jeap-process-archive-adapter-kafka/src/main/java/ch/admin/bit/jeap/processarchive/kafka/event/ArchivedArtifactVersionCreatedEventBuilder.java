@@ -10,8 +10,6 @@ import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArti
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.toList;
-
 public class ArchivedArtifactVersionCreatedEventBuilder extends AvroDomainEventBuilder<ArchivedArtifactVersionCreatedEventBuilder, SharedArchivedArtifactVersionCreatedEvent> {
 
     private String serviceName;
@@ -32,6 +30,7 @@ public class ArchivedArtifactVersionCreatedEventBuilder extends AvroDomainEventB
     public SharedArchivedArtifactVersionCreatedEvent build() {
         setReferences(buildReferences());
         setPayload(buildPayload());
+        variant(systemName + "_" + archivedArtifact.getArchiveData().getSchema());
         return super.build();
     }
 
@@ -109,7 +108,7 @@ public class ArchivedArtifactVersionCreatedEventBuilder extends AvroDomainEventB
                         .setName(metadata.getName())
                         .setValue(metadata.getValue())
                         .build())
-                .collect(toList());
+                .toList();
     }
 
 

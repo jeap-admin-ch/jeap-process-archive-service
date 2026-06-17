@@ -86,7 +86,8 @@ class ArchivedArtifactVersionCreatedEventFactoryTest {
         assertEquals(key, event.getReferences().getStorageObject().getStorageObjectKey());
         assertEquals(versionId, event.getReferences().getStorageObject().getStorageObjectVersionId());
         assertEquals(1, event.getPayload().getMetadata().size());
-        assertEquals(name, event.getPayload().getMetadata().get(0).getName());
-        assertEquals(value, event.getPayload().getMetadata().get(0).getValue());
+        assertEquals(name, event.getPayload().getMetadata().getFirst().getName());
+        assertEquals(value, event.getPayload().getMetadata().getFirst().getValue());
+        assertEquals(system + "_" + schema, event.getType().getVariant());
     }
 }

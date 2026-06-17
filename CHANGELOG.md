@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-> - Spring Boot 3 maintenance (bug fixes, patches, and regular updates) continues on branch `release/springboot3`.
+## [14.1.0] - 2026-06-18
+
+### Changed
+- The SharedArtifactVersionCreatedEvent produced by the PAS now contains the system and the name of the schema of the data as variant (System_SchemaName)
 
 ## [14.0.1] - 2026-06-17
 
