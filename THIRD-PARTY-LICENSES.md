@@ -58,7 +58,7 @@ Apache License Version 2.0
  * ch.admin.bit.jeap:jeap-spring-boot-security-starter-test - [ch.admin.bit.jeap:jeap-spring-boot-security-starter-test](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-security-starter-test)
  * ch.admin.bit.jeap:jeap-spring-boot-swagger - [ch.admin.bit.jeap:jeap-spring-boot-swagger](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-swagger)
  * ch.admin.bit.jeap:jeap-spring-boot-swagger-starter - [ch.admin.bit.jeap:jeap-spring-boot-swagger-starter](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-swagger-starter)
- * _shared-messaging-common - [ch.admin.bit.jeap.messagetype._shared:_shared-messaging-common](https://github.com/jeap-admin-ch/jeap-message-type-registry/tree/main)
+ * ch.admin.bit.jeap.messagetype._shared:_shared-messaging-common - [ch.admin.bit.jeap.messagetype._shared:_shared-messaging-common](https://github.com/jeap-admin-ch/jeap-message-type-registry/tree/main)
  * shared-archived-artifact-version-created-event - [ch.admin.bit.jeap.messagetype._shared:shared-archived-artifact-version-created-event](https://github.com/jeap-admin-ch/jeap-message-type-registry/tree/main)
  * ch.admin.bit.jeap.messagetype.jeap:create-artifact-command - [ch.admin.bit.jeap.messagetype.jeap:create-artifact-command](https://github.com/jeap-admin-ch/jeap-message-type-registry/tree/main)
  * AWS SDK for Java - Core - [com.amazonaws:aws-java-sdk-core](https://aws.amazon.com/sdkforjava)
