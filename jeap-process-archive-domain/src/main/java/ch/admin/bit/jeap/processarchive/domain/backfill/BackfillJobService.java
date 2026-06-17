@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -44,6 +45,10 @@ public class BackfillJobService {
         BackfillJob job = createOpenJob(submission);
         backfillJobPort.saveJob(job);
         publishCommands(job, configuration);
+    }
+
+    public Optional<BackfillJob> getBackfillJob(UUID jobId) {
+        return backfillJobPort.findById(jobId);
     }
 
     private void validateRequest(BackfillJobSubmission submission) {

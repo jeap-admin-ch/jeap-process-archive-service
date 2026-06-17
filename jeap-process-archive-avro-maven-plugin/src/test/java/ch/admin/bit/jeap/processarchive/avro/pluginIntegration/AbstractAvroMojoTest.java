@@ -46,8 +46,22 @@ abstract class AbstractAvroMojoTest {
 
     File syncToTempDirectory(String srcTestDirectory, Path tempDir) throws IOException {
         Path tmpTestDir = Files.createDirectory(tempDir.resolve("test"));
-        FileUtils.copyDirectory(new File(srcTestDirectory), tmpTestDir.toFile());
+        FileUtils.copyDirectory(resolveTestDirectory(srcTestDirectory), tmpTestDir.toFile());
         return tmpTestDir.toFile();
+    }
+
+    private File resolveTestDirectory(String srcTestDirectory) {
+        File directory = new File(srcTestDirectory);
+        if (directory.isDirectory()) {
+            return directory;
+        }
+
+        directory = new File("jeap-process-archive-avro-maven-plugin", srcTestDirectory);
+        if (directory.isDirectory()) {
+            return directory;
+        }
+
+        return new File(srcTestDirectory);
     }
 
     List<String> readAllFiles(File dir) throws IOException {
