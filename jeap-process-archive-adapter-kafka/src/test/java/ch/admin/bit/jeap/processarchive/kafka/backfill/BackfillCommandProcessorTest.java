@@ -131,6 +131,38 @@ class BackfillCommandProcessorTest {
     }
 
     @Test
+    void processCommandWithoutReferenceVersionCallsRemoteProviderWithoutVersion() {
+        CreateArtifactCommand command = createCommandWithoutVersion();
+        BackfillJobEntity job = createJob(createTask(REFERENCE_ID, null, BackfillTaskState.OPEN));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(createConfiguration()));
+        when(backfillJobRepository.findWithTasksByJobId(JOB_ID)).thenReturn(Optional.of(job));
+        when(remoteArchiveDataProvider.readArchiveData(any(), any(), any())).thenReturn(null);
+
+        processor.processCommand(command);
+
+        assertThat(command.getIdentity().getIdempotenceId()).isEqualTo(JOB_ID + "-12:" + REFERENCE_ID + ":none");
+        assertThat(command.getReferences().getArchiveData().getReferenceVersion()).isNull();
+        ArgumentCaptor<ArchiveDataReference> referenceCaptor = ArgumentCaptor.forClass(ArchiveDataReference.class);
+        verify(remoteArchiveDataProvider).readArchiveData(eq("endpoint"), eq("oauth-client"), referenceCaptor.capture());
+        assertThat(referenceCaptor.getValue().getId()).isEqualTo(REFERENCE_ID);
+        assertThat(referenceCaptor.getValue().getVersion()).isNull();
+        verify(backfillJobRepository, never()).save(any());
+    }
+
+    @Test
+    void createCommandUsesDistinctIdempotenceIdsForVersionlessAndDashVersionedReferences() {
+        CreateArtifactCommand versionlessReferenceWithDash = createCommand("reference-id-3", null);
+        CreateArtifactCommand versionedReference = createCommand("reference-id", 3);
+
+        assertThat(versionlessReferenceWithDash.getIdentity().getIdempotenceId())
+                .isEqualTo(JOB_ID + "-14:reference-id-3:none");
+        assertThat(versionedReference.getIdentity().getIdempotenceId())
+                .isEqualTo(JOB_ID + "-12:reference-id:v3");
+        assertThat(versionlessReferenceWithDash.getIdentity().getIdempotenceId())
+                .isNotEqualTo(versionedReference.getIdentity().getIdempotenceId());
+    }
+
+    @Test
     void processCommandMarksTaskAndJobFailedWhenArchiveDataProcessingFails() {
         BackfillTaskEntity task = createTask(REFERENCE_ID, REFERENCE_VERSION, BackfillTaskState.OPEN);
         BackfillJobEntity job = createJob(task);
@@ -151,11 +183,23 @@ class BackfillCommandProcessorTest {
     }
 
     private CreateArtifactCommand createCommand() {
+        return createCommand(REFERENCE_VERSION);
+    }
+
+    private CreateArtifactCommand createCommandWithoutVersion() {
+        return createCommand(null);
+    }
+
+    private CreateArtifactCommand createCommand(Integer referenceVersion) {
+        return createCommand(REFERENCE_ID, referenceVersion);
+    }
+
+    private CreateArtifactCommand createCommand(String referenceId, Integer referenceVersion) {
         BackfillCommandProperties properties = new BackfillCommandProperties();
         properties.setSystemName("system");
         properties.setServiceName("service");
         return CreateArtifactCommandBuilder.builder(properties)
-                .commandData(new CreateArtifactCommandData(JOB_ID, REFERENCE_ID, REFERENCE_VERSION, MESSAGE_NAME, TOPIC_NAME))
+                .commandData(new CreateArtifactCommandData(JOB_ID, referenceId, referenceVersion, MESSAGE_NAME, TOPIC_NAME))
                 .build();
     }
 
@@ -215,7 +259,7 @@ class BackfillCommandProcessorTest {
         return job;
     }
 
-    private BackfillTaskEntity createTask(String referenceId, int referenceVersion, BackfillTaskState state) {
+    private BackfillTaskEntity createTask(String referenceId, Integer referenceVersion, BackfillTaskState state) {
         BackfillTaskEntity task = new BackfillTaskEntity();
         task.setReferenceId(referenceId);
         task.setReferenceVersion(referenceVersion);

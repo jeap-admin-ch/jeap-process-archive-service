@@ -6,6 +6,7 @@ import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
 import ch.admin.bit.jeap.processarchive.adapter.db.BackfillJobEntity;
 import ch.admin.bit.jeap.processarchive.adapter.db.BackfillJobRepository;
 import ch.admin.bit.jeap.processarchive.adapter.db.BackfillTaskEntity;
+import ch.admin.bit.jeap.processarchive.command.CreateArtifactCommand;
 import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobResult;
 import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobState;
 import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillTaskState;
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,6 +74,7 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
 
     @Test
     void putBackfillJob_persistsJobAndTasksAndPublishesCreateArtifactCommands() throws Exception {
+        int commandCountBefore = commandsForJob(JOB_ID).size();
         String request = """
                 message: TestDomainEvent
                 topic: test-event-1
@@ -101,13 +104,47 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
                         org.assertj.core.groups.Tuple.tuple("DOC-2024-002", 2, BackfillTaskState.OPEN));
 
         await().atMost(Duration.ofSeconds(30))
-                .untilAsserted(() -> assertThat(testConsumer.getCreateArtifactCommands()).hasSize(2));
-        assertThat(testConsumer.getCreateArtifactCommands())
+                .untilAsserted(() -> assertThat(commandsForJob(JOB_ID)).hasSize(commandCountBefore + 2));
+        assertThat(commandsForJob(JOB_ID))
                 .extracting(command -> command.getReferences().getArchiveData().getReferenceId(),
                         command -> command.getReferences().getArchiveData().getReferenceVersion())
                 .containsExactlyInAnyOrder(
                         org.assertj.core.groups.Tuple.tuple("DOC-2024-001", 1),
                         org.assertj.core.groups.Tuple.tuple("DOC-2024-002", 2));
+    }
+
+    @Test
+    void putBackfillJob_withoutReferenceVersion_persistsNullVersionAndPublishesCreateArtifactCommand() throws Exception {
+        UUID jobId = UUID.randomUUID();
+        int commandCountBefore = testConsumer.getCreateArtifactCommands().size();
+        String request = """
+                message: TestDomainEvent
+                topic: test-event-1
+                archiveDataReferences:
+                  - id: DOC-2024-005
+                """;
+
+        mockMvc.perform(put("/api/jobs/{jobId}", jobId)
+                        .contentType("application/yaml")
+                        .content(request)
+                        .with(authentication(createAuthenticationForUserRoles()))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        BackfillJobEntity job = backfillJobRepository.findWithTasksByJobId(jobId).orElseThrow();
+        assertThat(job.getTasks())
+                .extracting(BackfillTaskEntity::getReferenceId, BackfillTaskEntity::getReferenceVersion, BackfillTaskEntity::getTaskState)
+                .containsExactly(org.assertj.core.groups.Tuple.tuple("DOC-2024-005", null, BackfillTaskState.OPEN));
+
+        await().atMost(Duration.ofSeconds(30))
+                .untilAsserted(() -> assertThat(testConsumer.getCreateArtifactCommands()).hasSize(commandCountBefore + 1));
+        assertThat(testConsumer.getCreateArtifactCommands())
+                .filteredOn(command -> command.getPayload().getJobId().equals(jobId.toString()))
+                .singleElement()
+                .satisfies(command -> {
+                    assertThat(command.getReferences().getArchiveData().getReferenceId()).isEqualTo("DOC-2024-005");
+                    assertThat(command.getReferences().getArchiveData().getReferenceVersion()).isNull();
+                });
     }
 
     @Test
@@ -129,6 +166,11 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
                         .with(authentication(createAuthenticationForUserRoles()))
                         .with(csrf()))
                 .andExpect(status().isOk());
+
+        await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
+            BackfillJobEntity asyncProcessedJob = backfillJobRepository.findWithTasksByJobId(jobId).orElseThrow();
+            assertThat(asyncProcessedJob.getTasks()).allMatch(task -> task.getTaskState() != BackfillTaskState.OPEN);
+        });
 
         BackfillJobEntity job = backfillJobRepository.findWithTasksByJobId(jobId).orElseThrow();
         job.setJobState(BackfillJobState.COMPLETED);
@@ -184,5 +226,11 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
                 .resource("backfilljob")
                 .operation("read")
                 .build();
+    }
+
+    private List<CreateArtifactCommand> commandsForJob(UUID jobId) {
+        return testConsumer.getCreateArtifactCommands().stream()
+                .filter(command -> command.getPayload().getJobId().equals(jobId.toString()))
+                .toList();
     }
 }

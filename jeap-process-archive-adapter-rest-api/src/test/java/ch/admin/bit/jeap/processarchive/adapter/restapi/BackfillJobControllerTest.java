@@ -14,6 +14,7 @@ import ch.admin.bit.jeap.security.resource.token.JeapAuthenticationToken;
 import ch.admin.bit.jeap.security.test.resource.JeapAuthenticationTestTokenBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -41,6 +42,7 @@ import java.util.UUID;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -72,6 +74,12 @@ class BackfillJobControllerTest {
                 version: 1
               - id: DOC-2024-002
                 version: 1
+            """;
+    private static final String REQUEST_YAML_WITHOUT_VERSION = """
+            message: JmeDecreeDocumentCreatedEvent
+            topic: jme-process-archive-decreedocumentcreated
+            archiveDataReferences:
+              - id: DOC-2024-001
             """;
     private static final Instant STARTED = Instant.parse("2026-05-08T07:26:37.123Z");
     private static final Instant REPORT_CREATED = Instant.parse("2026-05-08T07:30:15.456Z");
@@ -124,6 +132,21 @@ class BackfillJobControllerTest {
     }
 
     @Test
+    void createBackfillJob_withoutReferenceVersion_returnsOkAndSubmitsJobWithoutVersion() throws Exception {
+        mockMvc.perform(put("/api/jobs/{jobId}", JOB_ID)
+                        .contentType(BackfillJobController.APPLICATION_YAML_VALUE)
+                        .content(REQUEST_YAML_WITHOUT_VERSION)
+                        .with(authenticationForUserRoles(WRITE_ROLE))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<BackfillJobSubmission> submissionCaptor = ArgumentCaptor.forClass(BackfillJobSubmission.class);
+        verify(backfillJobService).submitBackfillJob(submissionCaptor.capture());
+        assertEquals("DOC-2024-001", submissionCaptor.getValue().archiveDataReferences().getFirst().id());
+        assertNull(submissionCaptor.getValue().archiveDataReferences().getFirst().version());
+    }
+
+    @Test
     void createBackfillJob_conflictingExistingJob_returnsConflict() throws Exception {
         doThrow(BackfillJobException.conflict("conflict")).when(backfillJobService).submitBackfillJob(any());
 
@@ -169,6 +192,18 @@ class BackfillJobControllerTest {
                 .andExpect(content().string(containsString("id: \"DOC-2024-001\"")))
                 .andExpect(content().string(containsString("id: \"DOC-2024-002\"")))
                 .andExpect(content().string(containsString("state: \"open\"")));
+    }
+
+    @Test
+    void getReport_runningJobWithoutVersion_omitsVersion() throws Exception {
+        when(backfillJobService.getBackfillJob(JOB_ID)).thenReturn(Optional.of(runningJobWithoutVersion()));
+
+        mockMvc.perform(get("/api/jobs/{jobId}/report", JOB_ID)
+                        .accept(BackfillJobController.APPLICATION_YAML_VALUE)
+                        .with(authenticationForUserRoles(READ_ROLE)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("id: \"DOC-2024-001\"")))
+                .andExpect(content().string(not(containsString("version:"))));
     }
 
     @Test
@@ -232,6 +267,20 @@ class BackfillJobControllerTest {
                 List.of(
                         new BackfillTask(1L, "DOC-2024-001", 1, BackfillTaskState.OPEN, null, null),
                         new BackfillTask(2L, "DOC-2024-002", 1, BackfillTaskState.OPEN, null, null)));
+    }
+
+    private BackfillJob runningJobWithoutVersion() {
+        return new BackfillJob(
+                JOB_ID,
+                "JmeDecreeDocumentCreatedEvent",
+                "jme-process-archive-decreedocumentcreated",
+                BackfillJobState.OPEN,
+                null,
+                STARTED,
+                null,
+                "John Doe",
+                "287365",
+                List.of(new BackfillTask(1L, "DOC-2024-001", null, BackfillTaskState.OPEN, null, null)));
     }
 
     private BackfillJob completedJob() {

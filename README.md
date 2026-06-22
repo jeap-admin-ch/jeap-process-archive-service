@@ -6,6 +6,11 @@ to a process. Such artifacts might be required to be archived for audit purposes
 Process artifact archival is triggered by messages, and artifacts can either be derived from the message's payload
 or fetched from a business service using its REST API.
 
+## Backfill
+
+The jEAP Process Archive Service supports backfilling of process artifacts later on. 
+More information can be found in the [backfill documentation](./docs/backfill.md).
+
 ## License
 
 This repository is Open Source Software licensed under the [Apache License 2.0](./LICENSE).

@@ -10,7 +10,7 @@ import ch.admin.bit.jeap.processarchive.domain.backfill.CreateArtifactCommandDat
 
 public class CreateArtifactCommandBuilder extends AvroCommandBuilder<CreateArtifactCommandBuilder, CreateArtifactCommand> {
 
-    private static final String MESSAGE_TYPE_VERSION = "1.0.0";
+    private static final String MESSAGE_TYPE_VERSION = "1.0.1";
 
     private final BackfillCommandProperties properties;
     private CreateArtifactCommandData commandData;
@@ -31,7 +31,7 @@ public class CreateArtifactCommandBuilder extends AvroCommandBuilder<CreateArtif
 
     @Override
     public CreateArtifactCommand build() {
-        idempotenceId = "%s-%s-%d".formatted(commandData.jobId(), commandData.referenceId(), commandData.referenceVersion());
+        idempotenceId = idempotenceId(commandData);
         setReferences(CreateArtifactCommandReferences.newBuilder()
                 .setArchiveData(ArchiveDataReference.newBuilder()
                         .setReferenceId(commandData.referenceId())
@@ -45,6 +45,12 @@ public class CreateArtifactCommandBuilder extends AvroCommandBuilder<CreateArtif
                 .build());
         setProcessId(commandData.jobId().toString());
         return super.build();
+    }
+
+    private String idempotenceId(CreateArtifactCommandData commandData) {
+        String referenceVersion = commandData.referenceVersion() == null ? "none" : "v" + commandData.referenceVersion();
+        return "%s-%d:%s:%s".formatted(commandData.jobId(), commandData.referenceId().length(),
+                commandData.referenceId(), referenceVersion);
     }
 
     @Override

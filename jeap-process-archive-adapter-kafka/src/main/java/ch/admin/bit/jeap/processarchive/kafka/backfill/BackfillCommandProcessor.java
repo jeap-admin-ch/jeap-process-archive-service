@@ -26,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -98,7 +99,7 @@ public class BackfillCommandProcessor {
     private BackfillTaskEntity findTask(BackfillJobEntity job, String referenceId, Integer referenceVersion) {
         return job.getTasks().stream()
                 .filter(candidate -> referenceId.equals(candidate.getReferenceId()))
-                .filter(candidate -> referenceVersion.equals(candidate.getReferenceVersion()))
+                .filter(candidate -> Objects.equals(referenceVersion, candidate.getReferenceVersion()))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException(
                         "Backfill task for job '%s', reference '%s' version '%s' not found".formatted(job.getJobId(), referenceId, referenceVersion)));
@@ -161,4 +162,3 @@ public class BackfillCommandProcessor {
         return exception.getMessage() == null ? exception.getClass().getName() : exception.getMessage();
     }
 }
-

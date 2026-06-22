@@ -66,6 +66,26 @@ class BackfillJobServiceTest {
     }
 
     @Test
+    void submitBackfillJob_withoutReferenceVersion_persistsTaskAndPublishesCommandWithoutVersion() {
+        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, TOPIC_NAME,
+                List.of(new BackfillArchiveDataReference("DOC-2024-001", null)),
+                new BackfillJobSubmitter("Jane DevOps", "U12345"));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(remoteDataConfiguration()));
+        when(backfillJobPort.existsById(JOB_ID)).thenReturn(false);
+
+        backfillJobService.submitBackfillJob(submission);
+
+        ArgumentCaptor<BackfillJob> jobCaptor = ArgumentCaptor.forClass(BackfillJob.class);
+        verify(backfillJobPort).saveJob(jobCaptor.capture());
+        assertNull(jobCaptor.getValue().tasks().getFirst().referenceVersion());
+
+        ArgumentCaptor<CreateArtifactCommandData> commandCaptor = ArgumentCaptor.forClass(CreateArtifactCommandData.class);
+        verify(backfillCommandPublisher).publish(commandCaptor.capture());
+        assertEquals("DOC-2024-001", commandCaptor.getValue().referenceId());
+        assertNull(commandCaptor.getValue().referenceVersion());
+    }
+
+    @Test
     void submitBackfillJob_existingJobWithSameContent_isIdempotent() {
         BackfillJobSubmission submission = submission();
         when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(remoteDataConfiguration()));
@@ -133,6 +153,14 @@ class BackfillJobServiceTest {
 
         assertEquals(BackfillJobExceptionReason.INVALID_REQUEST, exception.getReason());
         verifyNoInteractions(backfillJobPort, backfillCommandPublisher);
+    }
+
+    @Test
+    void submitBackfillJob_nonPositiveReferenceVersion_throwsBadRequest() {
+        BackfillJobException exception = assertThrows(BackfillJobException.class,
+                () -> new BackfillArchiveDataReference("DOC-2024-001", 0));
+
+        assertEquals(BackfillJobExceptionReason.INVALID_REQUEST, exception.getReason());
     }
 
     private BackfillJobSubmission submission() {

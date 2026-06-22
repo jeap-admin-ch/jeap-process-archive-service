@@ -110,7 +110,8 @@ class BackfillJobProcessingIT extends KafkaIntegrationTestBase {
                         .with(csrf()))
                 .andExpect(status().isOk());
 
-        String eventIdempotenceId = "CreateArtifactCommand_%s-%s-%d-event".formatted(JOB_ID, REFERENCE_ID, REFERENCE_VERSION);
+        String eventIdempotenceId = "CreateArtifactCommand_%s-%d:%s:v%d-event"
+                .formatted(JOB_ID, REFERENCE_ID.length(), REFERENCE_ID, REFERENCE_VERSION);
         await().atMost(Duration.ofSeconds(30))
                 .until(() -> testConsumer.eventWithIdempotenceIdReceived(eventIdempotenceId));
 

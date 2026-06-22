@@ -27,7 +27,7 @@ public class BackfillTaskEntity {
     @Column(name = "reference_id", nullable = false)
     private String referenceId;
 
-    @Column(name = "reference_version", nullable = false)
+    @Column(name = "reference_version")
     private Integer referenceVersion;
 
     @Enumerated(EnumType.STRING)
