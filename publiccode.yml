@@ -1,7 +1,7 @@
 publiccodeYmlVersion: 0.5.0
 name: jeap-process-archive-service
 applicationSuite: jEAP
-softwareVersion: 14.1.2
+softwareVersion: 14.2.0
 releaseDate: 2026-06-23
 url: "https://github.com/jeap-admin-ch/jeap-process-archive-service.git"
 landingURL: "https://github.com/jeap-admin-ch/jeap"
