@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [15.0.0] - 2026-06-30
+
+### Dependencies
+- **ch.admin.bit.jeap:jeap-spring-boot-parent**: 35.11.0 → 36.1.0 (major)
+- **ch.admin.bit.jeap:jeap-process-archive-reader**: 3.3.0 → 4.0.0 (major)
+- **ch.admin.bit.jeap:jeap-opensearch-index-type**: 0.18.0 → 1.5.0 (major)
+- **ch.admin.bit.jeap:jeap-opensearch-searchitem-model**: 0.18.0 → 1.5.0 (major)
+- **ch.admin.bit.jeap:jeap-opensearch-searchitem-api**: 0.18.0 → 1.5.0 (major)
+- **com.networknt:json-schema-validator**: 3.0.3 → 3.0.5 (patch)
+- **org.apache.avro:avro-maven-plugin**: 1.12.0 → 1.12.1 (patch)
+- **org.eclipse.jgit:org.eclipse.jgit**: 7.6.0.202603022253-r → 7.7.0.202606012155-r (minor)
+- **org.checkerframework:checker-qual**: 3.49.3 → 4.2.0 (major)
+
 ## [14.3.0] - 2026-06-24
 
 ### Added
