@@ -5,7 +5,7 @@ import java.util.UUID;
 
 public record BackfillJobSubmission(UUID jobId,
                                     String messageName,
-                                    String topicName,
+                                    String configId,
                                     List<BackfillArchiveDataReference> archiveDataReferences,
                                     BackfillJobSubmitter submitter) {
 

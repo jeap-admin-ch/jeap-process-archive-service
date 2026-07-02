@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public record BackfillJob(UUID jobId,
                           String messageName,
-                          String topicName,
+                          String configId,
                           BackfillJobState jobState,
                           BackfillJobResult jobResult,
                           Instant startedAt,

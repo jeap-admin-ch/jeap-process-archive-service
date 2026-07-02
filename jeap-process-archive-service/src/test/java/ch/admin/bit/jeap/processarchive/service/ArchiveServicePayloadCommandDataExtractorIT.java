@@ -49,7 +49,6 @@ class ArchiveServicePayloadCommandDataExtractorIT extends KafkaIntegrationTestBa
     private static final String TOPIC = "test-command";
     private static final String MESSAGE = "test-message";
     private static final String IDEMPOTENCE_ID = UUID.randomUUID().toString();
-    private static final String ARCHIVE_IDEMPOTENCE_ID = "TestCommand_" + IDEMPOTENCE_ID;
 
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
@@ -79,7 +78,8 @@ class ArchiveServicePayloadCommandDataExtractorIT extends KafkaIntegrationTestBa
         assertEquals(testCommand.getProcessId(), archivedArtifact.getProcessId());
         Decree decree = deserialize(archivedArtifact.getArchiveData().getPayload());
         assertEquals(MESSAGE, decree.getPayload());
-        assertEquals(ARCHIVE_IDEMPOTENCE_ID, archivedArtifact.getIdempotenceId());
+        assertEquals("TestCommand_" + IDEMPOTENCE_ID + "_JME_Decree_" + archivedArtifact.getArchiveData().getReferenceId(),
+                archivedArtifact.getIdempotenceId());
     }
 
     private Decree deserialize(byte[] payload) throws IOException {

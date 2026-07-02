@@ -70,7 +70,8 @@ class ArchiveServiceEventEndToEndIT extends KafkaIntegrationTestBase {
         kafkaTemplate.send(DOMAIN_EVENT_TOPIC, testDomainEvent).get();
 
         // then
-        String idempotenceId = "TestDomain2Event_" + testDomainEvent.getIdentity().getIdempotenceId() + "-event";
+        String idempotenceId = "TestDomain2Event_" + testDomainEvent.getIdentity().getIdempotenceId()
+                + "_JME_Decree_" + testDomainEvent.getIdentity().getEventId() + "-event";
         await().atMost(Duration.ofSeconds(30))
                 .until(() -> testConsumer.eventWithIdempotenceIdReceived(idempotenceId));
         SharedArchivedArtifactVersionCreatedEvent event = testConsumer.getEventByIdempotenceId(idempotenceId);

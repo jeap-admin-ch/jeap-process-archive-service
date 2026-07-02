@@ -9,10 +9,7 @@ import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataStorageInfo;
 import ch.admin.bit.jeap.processarchive.domain.archive.RemoteArchiveDataProvider;
 import ch.admin.bit.jeap.processarchive.domain.archive.event.ArchivedArtifactCreatedEventProducer;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.ArchiveDataSchemaValidationService;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobResult;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobState;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillTaskState;
-import ch.admin.bit.jeap.processarchive.domain.backfill.CreateArtifactCommandData;
+import ch.admin.bit.jeap.processarchive.domain.backfill.*;
 import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfigurationRepository;
 import ch.admin.bit.jeap.processarchive.domain.configuration.RemoteDataMessageArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
@@ -24,10 +21,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class BackfillCommandProcessorTest {
@@ -59,7 +58,7 @@ class BackfillCommandProcessorTest {
         ArchiveDataSchema schema = createSchema();
         ArchiveDataStorageInfo storageInfo = createStorageInfo();
         BackfillJobEntity job = createJob(createTask(REFERENCE_ID, REFERENCE_VERSION, BackfillTaskState.OPEN));
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(createConfiguration()));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of(createConfiguration()));
         when(remoteArchiveDataProvider.readArchiveData(any(), any(), any())).thenReturn(archiveData);
         when(schemaValidationService.validateArchiveDataSchema(archiveData)).thenReturn(schema);
         when(archiveDataObjectStore.store(archiveData, schema)).thenReturn(storageInfo);
@@ -97,7 +96,7 @@ class BackfillCommandProcessorTest {
         BackfillTaskEntity completedTask = createTask(REFERENCE_ID, REFERENCE_VERSION, BackfillTaskState.OPEN);
         BackfillTaskEntity openTask = createTask("other-reference-id", 1, BackfillTaskState.OPEN);
         BackfillJobEntity job = createJob(completedTask, openTask);
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(createConfiguration()));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of(createConfiguration()));
         when(remoteArchiveDataProvider.readArchiveData(any(), any(), any())).thenReturn(createArchiveData());
         ArchiveDataSchema schema = createSchema();
         when(schemaValidationService.validateArchiveDataSchema(any())).thenReturn(schema);
@@ -117,7 +116,7 @@ class BackfillCommandProcessorTest {
     @Test
     void processCommandDoesNotUpdateStateWhenRemoteProviderReturnsNoData() {
         BackfillJobEntity job = createJob(createTask(REFERENCE_ID, REFERENCE_VERSION, BackfillTaskState.OPEN));
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(createConfiguration()));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of(createConfiguration()));
         when(backfillJobRepository.findWithTasksByJobId(JOB_ID)).thenReturn(Optional.of(job));
         when(remoteArchiveDataProvider.readArchiveData(any(), any(), any())).thenReturn(null);
 
@@ -134,7 +133,7 @@ class BackfillCommandProcessorTest {
     void processCommandWithoutReferenceVersionCallsRemoteProviderWithoutVersion() {
         CreateArtifactCommand command = createCommandWithoutVersion();
         BackfillJobEntity job = createJob(createTask(REFERENCE_ID, null, BackfillTaskState.OPEN));
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(createConfiguration()));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of(createConfiguration()));
         when(backfillJobRepository.findWithTasksByJobId(JOB_ID)).thenReturn(Optional.of(job));
         when(remoteArchiveDataProvider.readArchiveData(any(), any(), any())).thenReturn(null);
 
@@ -166,7 +165,7 @@ class BackfillCommandProcessorTest {
     void processCommandMarksTaskAndJobFailedWhenArchiveDataProcessingFails() {
         BackfillTaskEntity task = createTask(REFERENCE_ID, REFERENCE_VERSION, BackfillTaskState.OPEN);
         BackfillJobEntity job = createJob(task);
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(createConfiguration()));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of(createConfiguration()));
         when(backfillJobRepository.findWithTasksByJobId(JOB_ID)).thenReturn(Optional.of(job));
         when(remoteArchiveDataProvider.readArchiveData(any(), any(), any()))
                 .thenThrow(new IllegalArgumentException("remote data unavailable"));
@@ -180,6 +179,41 @@ class BackfillCommandProcessorTest {
         assertThat(job.getReportCreatedAt()).isNotNull();
         verify(backfillJobRepository).save(job);
         verifyNoInteractions(schemaValidationService, archiveDataObjectStore, eventProducer);
+    }
+
+    @Test
+    void processCommandThrowsWhenMultipleRemoteDataConfigurationsRegisteredForSameTopicAndJobHasNoConfigId() {
+        BackfillJobEntity job = createJob(createTask(REFERENCE_ID, REFERENCE_VERSION, BackfillTaskState.OPEN));
+        when(backfillJobRepository.findWithTasksByJobId(JOB_ID)).thenReturn(Optional.of(job));
+        when(configurationRepository.findByName(MESSAGE_NAME))
+                .thenReturn(List.of(createConfiguration(), createConfiguration()));
+
+        CreateArtifactCommand command = createCommand();
+        assertThrows(BackfillJobException.class, () -> processor.processCommand(command));
+
+        verifyNoInteractions(remoteArchiveDataProvider, schemaValidationService, archiveDataObjectStore, eventProducer);
+    }
+
+    @Test
+    void processCommandSelectsRemoteDataConfigurationByJobConfigId() {
+        ArchiveData archiveData = createArchiveData();
+        ArchiveDataSchema schema = createSchema();
+        BackfillJobEntity job = createJob(createTask(REFERENCE_ID, REFERENCE_VERSION, BackfillTaskState.OPEN));
+        job.setConfigId("config-b");
+        RemoteDataMessageArchiveConfiguration configA = configurationWithIdAndEndpoint("config-a", "endpoint-a");
+        RemoteDataMessageArchiveConfiguration configB = configurationWithIdAndEndpoint("config-b", "endpoint-b");
+        when(backfillJobRepository.findWithTasksByJobId(JOB_ID)).thenReturn(Optional.of(job));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of(configA, configB));
+        when(remoteArchiveDataProvider.readArchiveData(any(), any(), any())).thenReturn(archiveData);
+        when(schemaValidationService.validateArchiveDataSchema(archiveData)).thenReturn(schema);
+        when(archiveDataObjectStore.store(archiveData, schema)).thenReturn(createStorageInfo());
+
+        processor.processCommand(createCommand());
+
+        // The configuration selected by the job's config-id (config-b, endpoint-b) is used
+        verify(remoteArchiveDataProvider).readArchiveData(eq("endpoint-b"), eq("oauth-client"), any());
+        verify(eventProducer).onArchivedArtifact(any());
+        assertThat(job.getTasks().getFirst().getTaskState()).isEqualTo(BackfillTaskState.SUCCEEDED);
     }
 
     private CreateArtifactCommand createCommand() {
@@ -204,10 +238,26 @@ class BackfillCommandProcessorTest {
     }
 
     private RemoteDataMessageArchiveConfiguration createConfiguration() {
+        return createConfiguration(TOPIC_NAME);
+    }
+
+    private RemoteDataMessageArchiveConfiguration createConfiguration(String topicName) {
         return RemoteDataMessageArchiveConfiguration.builder()
                 .messageName(MESSAGE_NAME)
-                .topicName(TOPIC_NAME)
+                .topicName(topicName)
                 .dataReaderEndpoint("endpoint")
+                .oauthClientId("oauth-client")
+                .remoteArchiveDataProvider(remoteArchiveDataProvider)
+                .meterRegistry(mock(MeterRegistry.class))
+                .build();
+    }
+
+    private RemoteDataMessageArchiveConfiguration configurationWithIdAndEndpoint(String id, String endpoint) {
+        return RemoteDataMessageArchiveConfiguration.builder()
+                .id(id)
+                .messageName(MESSAGE_NAME)
+                .topicName(TOPIC_NAME)
+                .dataReaderEndpoint(endpoint)
                 .oauthClientId("oauth-client")
                 .remoteArchiveDataProvider(remoteArchiveDataProvider)
                 .meterRegistry(mock(MeterRegistry.class))
@@ -249,7 +299,6 @@ class BackfillCommandProcessorTest {
         BackfillJobEntity job = new BackfillJobEntity();
         job.setJobId(JOB_ID);
         job.setMessageName(MESSAGE_NAME);
-        job.setTopicName(TOPIC_NAME);
         job.setJobState(BackfillJobState.OPEN);
         job.setStartedAt(Instant.now());
         for (BackfillTaskEntity task : tasks) {

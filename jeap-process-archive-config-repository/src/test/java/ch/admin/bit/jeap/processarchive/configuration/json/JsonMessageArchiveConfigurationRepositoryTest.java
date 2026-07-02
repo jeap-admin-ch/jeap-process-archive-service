@@ -16,7 +16,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
@@ -45,7 +44,7 @@ class JsonMessageArchiveConfigurationRepositoryTest {
     @Test
     void getAllDomainEventReferenceDefinitions_eventsFound() {
         List<MessageArchiveConfiguration> allMessageArchiveConfigurationDefinitions = jsonDomainEventArchiveConfigurationRepository.getAll();
-        assertEquals(7, allMessageArchiveConfigurationDefinitions.size());
+        assertEquals(9, allMessageArchiveConfigurationDefinitions.size());
     }
 
     @Test
@@ -55,48 +54,52 @@ class JsonMessageArchiveConfigurationRepositoryTest {
 
     @Test
     void findByName_eventNotFound() {
-        Optional<MessageArchiveConfiguration> dummy = jsonDomainEventArchiveConfigurationRepository.findByName("dummy");
-        assertFalse(dummy.isPresent());
+        List<MessageArchiveConfiguration> dummy = jsonDomainEventArchiveConfigurationRepository.findByName("dummy");
+        assertTrue(dummy.isEmpty());
     }
 
     @Test
     void findByName_eventFound_payload() {
-        Optional<MessageArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("JmeRaceStartedEvent");
-        assertTrue(jmeRaceStartedEvent.isPresent());
-        PayloadDataMessageArchiveConfiguration domainEventReference = (PayloadDataMessageArchiveConfiguration) jmeRaceStartedEvent.get();
+        PayloadDataMessageArchiveConfiguration domainEventReference = (PayloadDataMessageArchiveConfiguration) findSingle("JmeRaceStartedEvent");
         assertEquals("JmeRaceStartedEvent", domainEventReference.getMessageName());
         assertEquals("jme-race-started", domainEventReference.getTopicName());
         assertEquals(TestDomainEventArchiveDataProvider.class, domainEventReference.getMessageArchiveDataProvider().getClass());
     }
 
     @Test
+    void findByName_multipleConfigurationsForSameMessage_returnsAll() {
+        List<MessageArchiveConfiguration> configurations = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithMultipleConfigs");
+
+        assertEquals(2, configurations.size());
+        assertTrue(configurations.stream().allMatch(config -> config.getMessageName().equals("eventWithMultipleConfigs")));
+        assertTrue(configurations.stream().allMatch(config -> config.getTopicName().equals("topic-multi")));
+        assertTrue(configurations.stream().anyMatch(PayloadDataMessageArchiveConfiguration.class::isInstance));
+        assertTrue(configurations.stream().anyMatch(RemoteDataMessageArchiveConfiguration.class::isInstance));
+    }
+
+    @Test
     void findByName_eventFound_cluster() {
-        Optional<MessageArchiveConfiguration> eventWithCluster = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithCluster");
-        assertTrue(eventWithCluster.isPresent());
-        assertEquals("eventWithCluster", eventWithCluster.get().getMessageName());
-        assertEquals("topic-cluster", eventWithCluster.get().getTopicName());
-        assertEquals("cluster-name", eventWithCluster.get().getClusterName());
+        MessageArchiveConfiguration eventWithCluster = findSingle("eventWithCluster");
+        assertEquals("eventWithCluster", eventWithCluster.getMessageName());
+        assertEquals("topic-cluster", eventWithCluster.getTopicName());
+        assertEquals("cluster-name", eventWithCluster.getClusterName());
     }
 
     @Test
     void conditionHasBeenInstantiated() {
-        Optional<MessageArchiveConfiguration> eventWithCondition = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithCondition");
-        assertTrue(eventWithCondition.isPresent());
-        assertSame(TestCondition.class, eventWithCondition.get().getArchiveDataCondition().getClass());
+        MessageArchiveConfiguration eventWithCondition = findSingle("eventWithCondition");
+        assertSame(TestCondition.class, eventWithCondition.getArchiveDataCondition().getClass());
     }
 
     @Test
     void conditionHasBeenInstantiatedWithRemoteDataProvider() {
-        Optional<MessageArchiveConfiguration> eventWithConditionRemoteData = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithConditionRemoteData");
-        assertTrue(eventWithConditionRemoteData.isPresent());
-        assertSame(TestCondition.class, eventWithConditionRemoteData.get().getArchiveDataCondition().getClass());
+        MessageArchiveConfiguration eventWithConditionRemoteData = findSingle("eventWithConditionRemoteData");
+        assertSame(TestCondition.class, eventWithConditionRemoteData.getArchiveDataCondition().getClass());
     }
 
     @Test
     void findByName_eventFound_reference() {
-        Optional<MessageArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("JmeRaceMobileCheckpointPassedEvent");
-        assertTrue(jmeRaceStartedEvent.isPresent());
-        RemoteDataMessageArchiveConfiguration domainEventReferenceDefinition = (RemoteDataMessageArchiveConfiguration) jmeRaceStartedEvent.get();
+        RemoteDataMessageArchiveConfiguration domainEventReferenceDefinition = (RemoteDataMessageArchiveConfiguration) findSingle("JmeRaceMobileCheckpointPassedEvent");
         assertEquals("JmeRaceMobileCheckpointPassedEvent", domainEventReferenceDefinition.getMessageName());
         assertEquals("jme-race-mobilecheckpoint-passed", domainEventReferenceDefinition.getTopicName());
         assertEquals(TestReferenceProvider.class, domainEventReferenceDefinition.getReferenceProvider().getClass());
@@ -106,9 +109,7 @@ class JsonMessageArchiveConfigurationRepositoryTest {
 
     @Test
     void findByName_eventFound_processDataArchiveProvider() {
-        Optional<MessageArchiveConfiguration> jmeRaceStartedEvent = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithConditionRemoteDataInPayload");
-        assertTrue(jmeRaceStartedEvent.isPresent());
-        RemoteDataMessageArchiveConfiguration domainEventReferenceDefinition = (RemoteDataMessageArchiveConfiguration) jmeRaceStartedEvent.get();
+        RemoteDataMessageArchiveConfiguration domainEventReferenceDefinition = (RemoteDataMessageArchiveConfiguration) findSingle("eventWithConditionRemoteDataInPayload");
         assertEquals("eventWithConditionRemoteDataInPayload", domainEventReferenceDefinition.getMessageName());
         assertEquals("jme-race-mobilecheckpoint-passed", domainEventReferenceDefinition.getTopicName());
         assertEquals(TestArchiveDataReferenceProvider.class, domainEventReferenceDefinition.getArchiveDataReferenceProvider().getClass());
@@ -118,8 +119,104 @@ class JsonMessageArchiveConfigurationRepositoryTest {
 
     @Test
     void correlationProviderHasBeenInstantiated() {
-        Optional<MessageArchiveConfiguration> eventWithCorrelationProvider = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithCorrelationProvider");
-        assertTrue(eventWithCorrelationProvider.isPresent());
-        assertSame(TestCorrelationProvider.class, eventWithCorrelationProvider.get().getCorrelationProvider().getClass());
+        MessageArchiveConfiguration eventWithCorrelationProvider = findSingle("eventWithCorrelationProvider");
+        assertSame(TestCorrelationProvider.class, eventWithCorrelationProvider.getCorrelationProvider().getClass());
+    }
+
+    @Test
+    void validateConfigurationsShareTopic_sameTopic_doesNotThrow() {
+        List<MessageArchiveConfiguration> configurations = List.of(
+                payloadConfiguration("SameTopicEvent", "topic-a", null),
+                payloadConfiguration("SameTopicEvent", "topic-a", null));
+
+        assertDoesNotThrow(() -> JsonMessageArchiveConfigurationRepository.validateConfigurationsShareTopic("SameTopicEvent", configurations));
+    }
+
+    @Test
+    void validateConfigurationsShareTopic_differentTopics_throws() {
+        List<MessageArchiveConfiguration> configurations = List.of(
+                payloadConfiguration("MixedTopicEvent", "topic-a", null),
+                payloadConfiguration("MixedTopicEvent", "topic-b", null));
+
+        MessageArchiveConfigurationException exception = assertThrows(MessageArchiveConfigurationException.class,
+                () -> JsonMessageArchiveConfigurationRepository.validateConfigurationsShareTopic("MixedTopicEvent", configurations));
+        assertTrue(exception.getMessage().contains("topic-a"));
+        assertTrue(exception.getMessage().contains("topic-b"));
+    }
+
+    @Test
+    void findByName_multipleConfigurationsForSameMessage_haveDistinctIds() {
+        List<MessageArchiveConfiguration> configurations = jsonDomainEventArchiveConfigurationRepository.findByName("eventWithMultipleConfigs");
+
+        assertEquals(List.of("payload", "remote"),
+                configurations.stream().map(MessageArchiveConfiguration::getId).sorted().toList());
+    }
+
+    @Test
+    void validateConfigurationIds_singleConfigurationWithoutId_doesNotThrow() {
+        List<MessageArchiveConfiguration> configurations = List.of(payloadConfiguration(null, "SingleEvent", "topic-a", null));
+
+        assertDoesNotThrow(() -> JsonMessageArchiveConfigurationRepository.validateConfigurationIds("SingleEvent", configurations));
+    }
+
+    @Test
+    void validateConfigurationIds_multipleConfigurationsWithUniqueIds_doesNotThrow() {
+        List<MessageArchiveConfiguration> configurations = List.of(
+                payloadConfiguration("a", "MultiEvent", "topic-a", null),
+                payloadConfiguration("b", "MultiEvent", "topic-a", null));
+
+        assertDoesNotThrow(() -> JsonMessageArchiveConfigurationRepository.validateConfigurationIds("MultiEvent", configurations));
+    }
+
+    @Test
+    void validateConfigurationIds_multipleConfigurationsWithMissingId_throws() {
+        List<MessageArchiveConfiguration> configurations = List.of(
+                payloadConfiguration("a", "MultiEvent", "topic-a", null),
+                payloadConfiguration(null, "MultiEvent", "topic-a", null));
+
+        MessageArchiveConfigurationException exception = assertThrows(MessageArchiveConfigurationException.class,
+                () -> JsonMessageArchiveConfigurationRepository.validateConfigurationIds("MultiEvent", configurations));
+        assertTrue(exception.getMessage().contains("non-blank 'id'"));
+    }
+
+    @Test
+    void validateConfigurationIds_multipleConfigurationsWithDuplicateIds_throws() {
+        List<MessageArchiveConfiguration> configurations = List.of(
+                payloadConfiguration("dup", "MultiEvent", "topic-a", null),
+                payloadConfiguration("dup", "MultiEvent", "topic-a", null));
+
+        MessageArchiveConfigurationException exception = assertThrows(MessageArchiveConfigurationException.class,
+                () -> JsonMessageArchiveConfigurationRepository.validateConfigurationIds("MultiEvent", configurations));
+        assertTrue(exception.getMessage().contains("duplicate ids"));
+    }
+
+    @Test
+    void validateConfigurationIds_idTooLong_throws() {
+        String tooLongId = "x".repeat(256);
+        List<MessageArchiveConfiguration> configurations = List.of(payloadConfiguration(tooLongId, "SingleEvent", "topic-a", null));
+
+        MessageArchiveConfigurationException exception = assertThrows(MessageArchiveConfigurationException.class,
+                () -> JsonMessageArchiveConfigurationRepository.validateConfigurationIds("SingleEvent", configurations));
+        assertTrue(exception.getMessage().contains("must not exceed"));
+    }
+
+    private static MessageArchiveConfiguration payloadConfiguration(String messageName, String topicName, String clusterName) {
+        return payloadConfiguration(null, messageName, topicName, clusterName);
+    }
+
+    private static MessageArchiveConfiguration payloadConfiguration(String id, String messageName, String topicName, String clusterName) {
+        return PayloadDataMessageArchiveConfiguration.builder()
+                .id(id)
+                .messageName(messageName)
+                .topicName(topicName)
+                .clusterName(clusterName)
+                .messageArchiveDataProvider(message -> null)
+                .build();
+    }
+
+    private MessageArchiveConfiguration findSingle(String messageName) {
+        List<MessageArchiveConfiguration> configurations = jsonDomainEventArchiveConfigurationRepository.findByName(messageName);
+        assertEquals(1, configurations.size(), "Expected exactly one configuration for " + messageName);
+        return configurations.getFirst();
     }
 }

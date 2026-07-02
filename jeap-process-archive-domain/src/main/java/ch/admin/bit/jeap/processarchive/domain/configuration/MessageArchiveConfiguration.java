@@ -13,6 +13,11 @@ import lombok.ToString;
 @ToString
 public abstract class MessageArchiveConfiguration {
 
+    /**
+     * Optional identifier of this configuration, unique per message name. Mandatory when a message has
+     * multiple configurations; used to disambiguate configurations (e.g. for backfill jobs).
+     */
+    private final String id;
     private final String messageName;
     private final String topicName;
     private final String clusterName;

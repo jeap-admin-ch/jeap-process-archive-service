@@ -1,10 +1,6 @@
 package ch.admin.bit.jeap.processarchive.adapter.restapi;
 
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJob;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobResult;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobState;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillTask;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillTaskState;
+import ch.admin.bit.jeap.processarchive.domain.backfill.*;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -16,7 +12,7 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record BackfillJobReport(
         String message,
-        String topic,
+        @JsonProperty("config-id") String configId,
         @JsonProperty("job-state") String jobState,
         @JsonProperty("job-result") String jobResult,
         @JsonProperty("job-id") UUID jobId,
@@ -29,7 +25,7 @@ public record BackfillJobReport(
     static BackfillJobReport from(BackfillJob job) {
         return new BackfillJobReport(
                 job.messageName(),
-                job.topicName(),
+                job.configId(),
                 value(job.jobState()),
                 value(job.jobResult()),
                 job.jobId(),

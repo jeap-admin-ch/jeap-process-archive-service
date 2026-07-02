@@ -46,6 +46,20 @@
       "topicName": "jme-race-started",
       "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestDomainEventArchiveDataProvider",
       "correlationProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestCorrelationProvider"
+    },
+    {
+      "id": "payload",
+      "eventName": "eventWithMultipleConfigs",
+      "topicName": "topic-multi",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestDomainEventArchiveDataProvider"
+    },
+    {
+      "id": "remote",
+      "eventName": "eventWithMultipleConfigs",
+      "topicName": "topic-multi",
+      "archiveDataReferenceProvider": "ch.admin.bit.jeap.processarchive.configuration.json.test.TestArchiveDataReferenceProvider",
+      "uri": "${jme.event-service.uri}/api/v1/archive/eventWithMultipleConfigs",
+      "oauthClientId": "my-pas-service"
     }
   ]
 }

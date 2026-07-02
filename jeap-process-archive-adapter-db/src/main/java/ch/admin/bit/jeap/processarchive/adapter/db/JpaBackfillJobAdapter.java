@@ -33,7 +33,7 @@ class JpaBackfillJobAdapter implements BackfillJobPort {
         BackfillJobEntity entity = new BackfillJobEntity();
         entity.setJobId(job.jobId());
         entity.setMessageName(job.messageName());
-        entity.setTopicName(job.topicName());
+        entity.setConfigId(job.configId());
         entity.setJobState(job.jobState());
         entity.setJobResult(job.jobResult());
         entity.setStartedAt(job.startedAt());
@@ -59,7 +59,7 @@ class JpaBackfillJobAdapter implements BackfillJobPort {
         return new BackfillJob(
                 entity.getJobId(),
                 entity.getMessageName(),
-                entity.getTopicName(),
+                entity.getConfigId(),
                 entity.getJobState(),
                 entity.getJobResult(),
                 entity.getStartedAt(),

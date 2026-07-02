@@ -66,7 +66,7 @@ class MessageArchiveServiceTest {
             .schemaDefinition("test".getBytes(StandardCharsets.UTF_8))
             .build();
     private static final String EVENT_IDEMPOTENCE_ID = UUID.randomUUID().toString();
-    private static final String ARCHIVE_IDEMPOTENCE_ID = "TestEvent_" + EVENT_IDEMPOTENCE_ID;
+    private static final String ARCHIVE_IDEMPOTENCE_ID = "TestEvent_" + EVENT_IDEMPOTENCE_ID + "_JME_MySchema_" + REFERENCE_ID + "_" + DATA_VERSION;
     private static final String ENDPOINT = "endpoint";
     private static final String CLIENT_ID = "clientId";
     private static final String OBJECT_NAME = "objectName";
@@ -117,7 +117,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         assertEquals(1, archivedArtifacts.size());
@@ -129,6 +129,101 @@ class MessageArchiveServiceTest {
         assertSame(KEY, archivedArtifact.getStorageObjectKey());
         assertSame(OBJECT_NAME, archivedArtifact.getStorageObjectId());
         assertSame(VERSION_ID, archivedArtifact.getStorageObjectVersionId());
+    }
+
+    @Test
+    void archive_multipleConfigurations_archivesDistinctArtifacts() {
+        // given
+        String processId = "test-process-id";
+        when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of(processId));
+
+        ArchiveData archiveData2 = ArchiveData.builder()
+                .system("JME")
+                .schema("MySchema")
+                .schemaVersion(1)
+                .referenceId("referenceId2")
+                .version(DATA_VERSION)
+                .payload("payload2".getBytes(StandardCharsets.UTF_8))
+                .contentType(CONTENT_TYPE)
+                .metadata(List.of())
+                .build();
+        ArchiveDataStorageInfo storageInfo2 = ArchiveDataStorageInfo.builder()
+                .bucket(BUCKET).key("key2").versionId("version-id-2").name("objectName2").build();
+        doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
+        doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(archiveData2);
+        when(archiveDataObjectStore.store(archiveData2, ARCHIVE_DATA_SCHEMA)).thenReturn(storageInfo2);
+
+        List<ArchivedArtifact> archivedArtifacts = new ArrayList<>();
+        ArtifactArchivedListener artifactArchivedListener = archivedArtifacts::add;
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
+                List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
+        MessageArchiveConfiguration configuration1 = PayloadDataMessageArchiveConfiguration.builder()
+                .topicName("topic").messageName("event")
+                .messageArchiveDataProvider(message -> ARCHIVE_DATA)
+                .build();
+        MessageArchiveConfiguration configuration2 = PayloadDataMessageArchiveConfiguration.builder()
+                .topicName("topic").messageName("event")
+                .messageArchiveDataProvider(message -> archiveData2)
+                .build();
+
+        // when
+        messageArchiveService.archive(List.of(configuration1, configuration2), domainEvent);
+
+        // then
+        assertEquals(2, archivedArtifacts.size());
+        assertEquals(ARCHIVE_IDEMPOTENCE_ID, archivedArtifacts.get(0).getIdempotenceId());
+        assertEquals("TestEvent_" + EVENT_IDEMPOTENCE_ID + "_JME_MySchema_referenceId2_" + DATA_VERSION,
+                archivedArtifacts.get(1).getIdempotenceId());
+        assertNotEquals(archivedArtifacts.get(0).getIdempotenceId(), archivedArtifacts.get(1).getIdempotenceId());
+    }
+
+    @Test
+    void archive_multipleConfigurationsProduceSameArtifact_throwsAndPublishesNothing() {
+        // given
+        when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of("test-process-id"));
+        ArtifactArchivedListener artifactArchivedListener = mock(ArtifactArchivedListener.class);
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
+                List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
+        MessageArchiveConfiguration configuration1 = PayloadDataMessageArchiveConfiguration.builder()
+                .topicName("topic").messageName("event")
+                .messageArchiveDataProvider(message -> ARCHIVE_DATA)
+                .build();
+        MessageArchiveConfiguration configuration2 = PayloadDataMessageArchiveConfiguration.builder()
+                .topicName("topic").messageName("event")
+                .messageArchiveDataProvider(message -> ARCHIVE_DATA)
+                .build();
+
+        // when / then
+        List<MessageArchiveConfiguration> configuration3 = List.of(configuration1, configuration2);
+        ProcessArchiveException exception = assertThrows(ProcessArchiveException.class,
+                () -> messageArchiveService.archive(configuration3, domainEvent));
+        assertThat(exception).hasMessageContaining("same");
+        assertThat(exception.isRetryable()).isFalse();
+        verify(artifactArchivedListener, never()).onArtifactArchived(any());
+        verify(archiveDataObjectStore, never()).store(any(), any());
+    }
+
+    @Test
+    void archive_retryReprocessesMessage_reStoresToS3AndRepublishesEvent() {
+        // given: at-least-once retry semantics - reprocessing the same message must re-store and re-publish
+        when(domainEvent.getOptionalProcessId()).thenReturn(Optional.of("test-process-id"));
+        doReturn(ARCHIVE_DATA_SCHEMA).when(schemaValidationService).validateArchiveDataSchema(ARCHIVE_DATA);
+        ArtifactArchivedListener artifactArchivedListener = mock(ArtifactArchivedListener.class);
+        MessageArchiveService messageArchiveService = new MessageArchiveService(
+                List.of(artifactArchivedListener), archiveDataObjectStore, schemaValidationService, featureManager);
+        MessageArchiveConfiguration configuration = PayloadDataMessageArchiveConfiguration.builder()
+                .topicName("topic")
+                .messageName("event")
+                .messageArchiveDataProvider(this::domainEventDataProviderStub)
+                .build();
+
+        // when: the same message is processed twice (e.g. a Kafka retry after a downstream failure)
+        messageArchiveService.archive(List.of(configuration), domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
+
+        // then: the artifact is stored to S3 again and the SharedArchivedArtifactVersionCreatedEvent is published again
+        verify(archiveDataObjectStore, times(2)).store(ARCHIVE_DATA, ARCHIVE_DATA_SCHEMA);
+        verify(artifactArchivedListener, times(2)).onArtifactArchived(any());
     }
 
     @Test
@@ -152,7 +247,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         assertEquals(1, archivedArtifacts.size());
@@ -187,7 +282,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         assertEquals(0, archivedArtifacts.size());
@@ -214,7 +309,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         assertEquals(0, archivedArtifacts.size());
@@ -242,7 +337,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         assertEquals(1, archivedArtifacts.size());
@@ -270,7 +365,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         assertEquals(0, archivedArtifacts.size());
@@ -296,7 +391,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         assertEquals(0, archivedArtifacts.size());
@@ -323,7 +418,7 @@ class MessageArchiveServiceTest {
 
         // when
         assertThrows(SchemaValidationException.class, () ->
-                messageArchiveService.archive(configuration, domainEvent));
+                messageArchiveService.archive(List.of(configuration), domainEvent));
     }
 
     private ArchiveDataReference referenceProvider(MessageReferences messageReferences) {
@@ -342,7 +437,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         try {
-            messageArchiveService.archive(configuration, domainEvent);
+            messageArchiveService.archive(List.of(configuration), domainEvent);
             fail("Expected ProcessArchiveException");
         } catch (ProcessArchiveException ex) {
             assertThat(ex).hasMessageContaining("no process ID present in message");
@@ -366,7 +461,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         assertEquals(1, archivedArtifacts.size());
@@ -386,7 +481,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        assertThrows(ProcessArchiveException.class, () -> messageArchiveService.archive(configuration, domainEvent));
+        assertThrows(ProcessArchiveException.class, () -> messageArchiveService.archive(List.of(configuration), domainEvent));
     }
 
     @Test
@@ -407,7 +502,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         verify(artifactArchivedListener, times(1)).onArtifactArchived(any());
@@ -431,7 +526,7 @@ class MessageArchiveServiceTest {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         verify(artifactArchivedListener, never()).onArtifactArchived(any());

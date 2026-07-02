@@ -8,10 +8,10 @@ import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataObjectStore;
 import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataStorageInfo;
 import ch.admin.bit.jeap.processarchive.domain.archive.event.ArchivedArtifactCreatedEventProducer;
 import ch.admin.bit.jeap.processarchive.domain.archive.schema.ArchiveDataSchemaValidationService;
+import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillArchiveConfigurationResolver;
 import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobResult;
 import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobState;
 import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillTaskState;
-import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfigurationRepository;
 import ch.admin.bit.jeap.processarchive.domain.configuration.RemoteDataMessageArchiveConfiguration;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
@@ -21,7 +21,6 @@ import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.ArchiveDat
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,11 +47,14 @@ public class BackfillCommandProcessor {
         String referenceId = command.getReferences().getArchiveData().getReferenceId();
         Integer referenceVersion = command.getReferences().getArchiveData().getReferenceVersion();
 
-        log.debug("Processing CreateArtifactCommand for backfill job '{}' and reference '{}' version '{}'.",
-                jobId, referenceId, referenceVersion);
-
-        RemoteDataMessageArchiveConfiguration configuration = loadRemoteDataConfiguration(messageName);
         BackfillJobEntity job = loadBackfillJob(jobId);
+        String configId = job.getConfigId();
+
+        log.debug("Processing CreateArtifactCommand for backfill job '{}', configId '{}' and reference '{}' version '{}'.",
+                jobId, configId, referenceId, referenceVersion);
+
+        RemoteDataMessageArchiveConfiguration configuration = BackfillArchiveConfigurationResolver.resolve(
+                messageName, configId, configurationRepository.findByName(messageName));
         BackfillTaskEntity task = findTask(job, referenceId, referenceVersion);
 
         try {
@@ -69,15 +71,6 @@ public class BackfillCommandProcessor {
         } catch (RuntimeException e) {
             markTaskFailed(job, task, e);
         }
-    }
-
-    private RemoteDataMessageArchiveConfiguration loadRemoteDataConfiguration(String messageName) {
-        MessageArchiveConfiguration configuration = configurationRepository.findByName(messageName)
-                .orElseThrow(() -> new IllegalStateException("No archive configuration found for message '%s'".formatted(messageName)));
-        if (configuration instanceof RemoteDataMessageArchiveConfiguration remoteDataConfiguration) {
-            return remoteDataConfiguration;
-        }
-        throw new IllegalStateException("Archive configuration for message '%s' is not a remote data configuration".formatted(messageName));
     }
 
     private ArchiveData readArchiveData(RemoteDataMessageArchiveConfiguration configuration, String referenceId, Integer referenceVersion) {
@@ -127,8 +120,8 @@ public class BackfillCommandProcessor {
     }
 
     private void markTaskFailed(BackfillJobEntity job, BackfillTaskEntity task, RuntimeException exception) {
-        log.warn("Failed to process CreateArtifactCommand for backfill job '{}' and reference '{}' version '{}'.",
-                job.getJobId(), task.getReferenceId(), task.getReferenceVersion(), exception);
+        log.warn("Failed to process CreateArtifactCommand for backfill job '{}', configId '{}' and reference '{}' version '{}'.",
+                job.getJobId(), job.getConfigId(), task.getReferenceId(), task.getReferenceVersion(), exception);
         task.setTaskState(BackfillTaskState.FAILED);
         task.setErrorMessage(errorMessage(exception));
         updateJobStateIfAllTasksFinished(job);

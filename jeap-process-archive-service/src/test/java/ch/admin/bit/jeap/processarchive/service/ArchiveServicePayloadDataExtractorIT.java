@@ -49,7 +49,6 @@ class ArchiveServicePayloadDataExtractorIT extends KafkaIntegrationTestBase {
     private static final String DOMAIN_EVENT_TOPIC = "test-event-2";
     private static final String PAYLOAD_DATA = "payload-data";
     private static final String EVENT_IDEMPOTENCE_ID = UUID.randomUUID().toString();
-    private static final String ARCHIVE_IDEMPOTENCE_ID = "TestDomain2Event_" + EVENT_IDEMPOTENCE_ID;
 
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
@@ -79,7 +78,9 @@ class ArchiveServicePayloadDataExtractorIT extends KafkaIntegrationTestBase {
         assertEquals(testDomainEvent.getProcessId(), archivedArtifact.getProcessId());
         Decree decree = deserialize(archivedArtifact.getArchiveData().getPayload());
         assertEquals(PAYLOAD_DATA, decree.getPayload());
-        assertEquals(ARCHIVE_IDEMPOTENCE_ID, archivedArtifact.getIdempotenceId());
+        String expectedIdempotenceId = "TestDomain2Event_" + EVENT_IDEMPOTENCE_ID
+                + "_JME_Decree_" + archivedArtifact.getArchiveData().getReferenceId();
+        assertEquals(expectedIdempotenceId, archivedArtifact.getIdempotenceId());
     }
 
     private Decree deserialize(byte[] payload) throws IOException {

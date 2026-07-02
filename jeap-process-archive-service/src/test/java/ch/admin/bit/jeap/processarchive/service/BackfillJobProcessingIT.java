@@ -97,7 +97,6 @@ class BackfillJobProcessingIT extends KafkaIntegrationTestBase {
 
         String request = """
                 message: TestDomainEvent
-                topic: test-event-1
                 archiveDataReferences:
                   - id: DOC-2024-7121
                     version: 1
@@ -144,7 +143,6 @@ class BackfillJobProcessingIT extends KafkaIntegrationTestBase {
 
         String request = """
                 message: TestDomainEvent
-                topic: test-event-1
                 archiveDataReferences:
                   - id: DOC-2024-ERROR
                     version: 1

@@ -12,10 +12,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @ConditionalOnBean({BackfillJobPort.class, BackfillCommandPublisher.class})
@@ -30,8 +27,9 @@ public class BackfillJobService {
     @Transactional
     public void submitBackfillJob(BackfillJobSubmission submission) {
         validateRequest(submission);
-        MessageArchiveConfiguration configuration = validateArchiveConfiguration(submission.messageName(), submission.topicName());
 
+        // Idempotency is decided on the submitted content before (re-)resolving the current configuration, so a
+        // repeat of an already-accepted job stays idempotent even if the archive configuration changed meanwhile.
         if (backfillJobPort.existsById(submission.jobId())) {
             BackfillJob existingJob = backfillJobPort.findById(submission.jobId())
                     .orElseThrow(() -> BackfillJobException.conflict("Backfill job already exists but could not be loaded: " + submission.jobId()));
@@ -41,6 +39,12 @@ public class BackfillJobService {
             }
             throw BackfillJobException.conflict("Backfill job '%s' already exists with different content".formatted(submission.jobId()));
         }
+
+        RemoteDataMessageArchiveConfiguration configuration = BackfillArchiveConfigurationResolver.resolve(
+                submission.messageName(), submission.configId(), configurationRepository.findByName(submission.messageName()));
+        log.info("Submitting backfill job '{}' for message '{}', configId '{}' with {} reference(s).",
+                submission.jobId(), submission.messageName(), submission.configId(),
+                submission.archiveDataReferences().size());
 
         BackfillJob job = createOpenJob(submission);
         backfillJobPort.saveJob(job);
@@ -61,23 +65,9 @@ public class BackfillJobService {
         if (!StringUtils.hasText(submission.messageName())) {
             throw BackfillJobException.invalidRequest("message must not be empty");
         }
-        if (!StringUtils.hasText(submission.topicName())) {
-            throw BackfillJobException.invalidRequest("topic must not be empty");
-        }
         if (CollectionUtils.isEmpty(submission.archiveDataReferences())) {
             throw BackfillJobException.invalidRequest("archiveDataReferences must not be empty");
         }
-    }
-
-    private MessageArchiveConfiguration validateArchiveConfiguration(String messageName, String topicName) {
-        MessageArchiveConfiguration configuration = configurationRepository.findByName(messageName)
-                .filter(config -> topicName.equals(config.getTopicName()))
-                .orElseThrow(() -> BackfillJobException.configurationNotFound(messageName, topicName));
-
-        if (!(configuration instanceof RemoteDataMessageArchiveConfiguration)) {
-            throw BackfillJobException.configurationNotRemoteData(messageName, topicName);
-        }
-        return configuration;
     }
 
     private BackfillJob createOpenJob(BackfillJobSubmission submission) {
@@ -89,7 +79,7 @@ public class BackfillJobService {
         return new BackfillJob(
                 submission.jobId(),
                 submission.messageName(),
-                submission.topicName(),
+                submission.configId(),
                 BackfillJobState.OPEN,
                 null,
                 Instant.now(),
@@ -110,7 +100,7 @@ public class BackfillJobService {
 
     private boolean hasSameContent(BackfillJob existingJob, BackfillJobSubmission submission) {
         return existingJob.messageName().equals(submission.messageName()) &&
-                existingJob.topicName().equals(submission.topicName()) &&
+                Objects.equals(existingJob.configId(), submission.configId()) &&
                 sortedReferences(existingJob.tasks()).equals(sortedReferencesFromSubmission(submission));
     }
 

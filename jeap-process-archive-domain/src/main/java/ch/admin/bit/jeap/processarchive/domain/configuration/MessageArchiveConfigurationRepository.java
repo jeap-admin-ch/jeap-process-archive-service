@@ -1,11 +1,14 @@
 package ch.admin.bit.jeap.processarchive.domain.configuration;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface MessageArchiveConfigurationRepository {
 
     List<MessageArchiveConfiguration> getAll();
 
-    Optional<MessageArchiveConfiguration> findByName(String messageName);
+    /**
+     * @return all archive configurations registered for the given message name. Multiple configurations may be
+     * registered for the same message (and topic) to archive multiple artifacts per message. Empty if none.
+     */
+    List<MessageArchiveConfiguration> findByName(String messageName);
 }

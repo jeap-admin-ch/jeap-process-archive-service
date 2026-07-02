@@ -24,8 +24,8 @@ public class BackfillJobEntity {
     @Column(name = "message_name", nullable = false)
     private String messageName;
 
-    @Column(name = "topic_name", nullable = false)
-    private String topicName;
+    @Column(name = "config_id")
+    private String configId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "job_state", nullable = false)

@@ -61,6 +61,7 @@ public class MessageConfigurationDeserializer {
             }
 
             return PayloadDataMessageArchiveConfiguration.builder()
+                    .id(config.getId())
                     .messageName(messageName)
                     .topicName(topicName)
                     .clusterName(config.getClusterName())
@@ -76,6 +77,7 @@ public class MessageConfigurationDeserializer {
         }
 
         return RemoteDataMessageArchiveConfiguration.builder()
+                .id(config.getId())
                 .remoteArchiveDataProvider(remoteArchiveDataProvider)
                 .messageName(messageName)
                 .topicName(topicName)

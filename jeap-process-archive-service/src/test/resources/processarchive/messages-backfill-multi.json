@@ -1,0 +1,18 @@
+{
+  "messages": [
+    {
+      "id": "config-a",
+      "messageName": "TestDomain4Event",
+      "topicName": "test-event-4",
+      "archiveDataReferenceProvider": "ch.admin.bit.jeap.processarchive.service.test.TestArchiveDataReferenceProvider",
+      "uri": "http://localhost:12334/a/{id}/{version}"
+    },
+    {
+      "id": "config-b",
+      "messageName": "TestDomain4Event",
+      "topicName": "test-event-4",
+      "archiveDataReferenceProvider": "ch.admin.bit.jeap.processarchive.service.test.TestArchiveDataReferenceProvider",
+      "uri": "http://localhost:12334/b/{id}/{version}"
+    }
+  ]
+}

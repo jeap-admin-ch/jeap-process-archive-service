@@ -18,14 +18,15 @@ public class PayloadDataMessageArchiveConfiguration extends MessageArchiveConfig
     MessageArchiveDataProvider<Message> messageArchiveDataProvider;
 
     @Builder
-    private PayloadDataMessageArchiveConfiguration(@NonNull String messageName,
+    private PayloadDataMessageArchiveConfiguration(String id,
+                                                   @NonNull String messageName,
                                                    @NonNull String topicName,
                                                    String clusterName,
                                                    ArchiveDataCondition<Message> archiveDataCondition,
                                                    @NonNull MessageArchiveDataProvider<Message> messageArchiveDataProvider,
                                                    MessageCorrelationProvider<Message> correlationProvider,
                                                    String featureFlag) {
-        super(messageName, topicName, clusterName, archiveDataCondition, correlationProvider, featureFlag);
+        super(id, messageName, topicName, clusterName, archiveDataCondition, correlationProvider, featureFlag);
         this.messageArchiveDataProvider = messageArchiveDataProvider;
     }
 

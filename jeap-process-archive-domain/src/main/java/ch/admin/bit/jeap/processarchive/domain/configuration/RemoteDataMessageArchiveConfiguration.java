@@ -29,7 +29,8 @@ public class RemoteDataMessageArchiveConfiguration extends MessageArchiveConfigu
 
     @Builder
     @SuppressWarnings("java:S107")
-    private RemoteDataMessageArchiveConfiguration(@NonNull RemoteArchiveDataProvider remoteArchiveDataProvider,
+    private RemoteDataMessageArchiveConfiguration(String id,
+                                                  @NonNull RemoteArchiveDataProvider remoteArchiveDataProvider,
                                                   ArchiveDataCondition<Message> archiveDataCondition,
                                                   @NonNull String messageName,
                                                   @NonNull String topicName,
@@ -41,7 +42,7 @@ public class RemoteDataMessageArchiveConfiguration extends MessageArchiveConfigu
                                                   @NonNull MeterRegistry meterRegistry,
                                                   MessageCorrelationProvider<Message> correlationProvider,
                                                   String featureFlag) {
-        super(messageName, topicName, clusterName, archiveDataCondition, correlationProvider, featureFlag);
+        super(id, messageName, topicName, clusterName, archiveDataCondition, correlationProvider, featureFlag);
         this.remoteArchiveDataProvider = remoteArchiveDataProvider;
         this.archiveDataCondition = archiveDataCondition;
         this.referenceProvider = referenceProvider;

@@ -33,6 +33,14 @@ public final class ProcessArchiveException extends RuntimeException {
                 format("Failed to read archive data for message %s with ID %s", message.getType().getName(), message.getIdentity().getId()), ex, true);
     }
 
+    static ProcessArchiveException duplicateArtifactIdempotenceId(Message message, String idempotenceId) {
+        return new ProcessArchiveException(
+                format("Multiple archive configurations for message %s with ID %s produced artifacts with the same " +
+                                "idempotence ID '%s'. Configurations registered for the same message must produce distinct artifacts " +
+                                "(distinct system/schema/referenceId/version).",
+                        message.getType().getName(), message.getIdentity().getId(), idempotenceId));
+    }
+
     static ProcessArchiveException processIdFromCorrelationProviderMissing(Message message,
                                                                            MessageCorrelationProvider<Message> correlationProvider) {
         return new ProcessArchiveException(

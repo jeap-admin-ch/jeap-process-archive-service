@@ -40,7 +40,7 @@ class BackfillJobServiceTest {
     @Test
     void submitBackfillJob_validRequest_persistsOpenJobAndPublishesCommands() {
         BackfillJobSubmission submission = submission();
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(remoteDataConfiguration()));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of(remoteDataConfiguration()));
         when(backfillJobPort.existsById(JOB_ID)).thenReturn(false);
 
         backfillJobService.submitBackfillJob(submission);
@@ -50,7 +50,6 @@ class BackfillJobServiceTest {
         BackfillJob savedJob = jobCaptor.getValue();
         assertEquals(JOB_ID, savedJob.jobId());
         assertEquals(MESSAGE_NAME, savedJob.messageName());
-        assertEquals(TOPIC_NAME, savedJob.topicName());
         assertEquals(BackfillJobState.OPEN, savedJob.jobState());
         assertNull(savedJob.jobResult());
         assertNull(savedJob.reportCreatedAt());
@@ -67,10 +66,10 @@ class BackfillJobServiceTest {
 
     @Test
     void submitBackfillJob_withoutReferenceVersion_persistsTaskAndPublishesCommandWithoutVersion() {
-        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, TOPIC_NAME,
+        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, null,
                 List.of(new BackfillArchiveDataReference("DOC-2024-001", null)),
                 new BackfillJobSubmitter("Jane DevOps", "U12345"));
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(remoteDataConfiguration()));
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of(remoteDataConfiguration()));
         when(backfillJobPort.existsById(JOB_ID)).thenReturn(false);
 
         backfillJobService.submitBackfillJob(submission);
@@ -88,7 +87,6 @@ class BackfillJobServiceTest {
     @Test
     void submitBackfillJob_existingJobWithSameContent_isIdempotent() {
         BackfillJobSubmission submission = submission();
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(remoteDataConfiguration()));
         when(backfillJobPort.existsById(JOB_ID)).thenReturn(true);
         when(backfillJobPort.findById(JOB_ID)).thenReturn(Optional.of(existingJob()));
 
@@ -100,9 +98,8 @@ class BackfillJobServiceTest {
 
     @Test
     void submitBackfillJob_existingJobWithDifferentContent_throwsConflict() {
-        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, TOPIC_NAME,
+        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, null,
                 List.of(new BackfillArchiveDataReference("DOC-2024-003", 1)), submission().submitter());
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(remoteDataConfiguration()));
         when(backfillJobPort.existsById(JOB_ID)).thenReturn(true);
         when(backfillJobPort.findById(JOB_ID)).thenReturn(Optional.of(existingJob()));
 
@@ -117,7 +114,7 @@ class BackfillJobServiceTest {
     @Test
     void submitBackfillJob_missingConfiguration_throwsBadRequest() {
         BackfillJobSubmission submission = submission();
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.empty());
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of());
 
         BackfillJobException exception = assertThrows(BackfillJobException.class,
                 () -> backfillJobService.submitBackfillJob(submission));
@@ -127,10 +124,87 @@ class BackfillJobServiceTest {
     }
 
     @Test
+    void submitBackfillJob_multipleRemoteDataConfigurations_throwsAmbiguous() {
+        BackfillJobSubmission submission = submission();
+        when(configurationRepository.findByName(MESSAGE_NAME))
+                .thenReturn(List.of(remoteDataConfiguration(), remoteDataConfiguration()));
+
+        BackfillJobException exception = assertThrows(BackfillJobException.class,
+                () -> backfillJobService.submitBackfillJob(submission));
+
+        assertEquals(BackfillJobExceptionReason.CONFIGURATION_AMBIGUOUS, exception.getReason());
+        verifyNoInteractions(backfillCommandPublisher);
+    }
+
+    @Test
+    void submitBackfillJob_multipleConfigurationsWithConfigId_resolvesMatchingConfigurationAndStoresConfigId() {
+        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, "config-b",
+                List.of(new BackfillArchiveDataReference("DOC-2024-001", 1)),
+                new BackfillJobSubmitter("Jane DevOps", "U12345"));
+        when(configurationRepository.findByName(MESSAGE_NAME))
+                .thenReturn(List.of(remoteDataConfiguration("config-a"), remoteDataConfiguration("config-b")));
+        when(backfillJobPort.existsById(JOB_ID)).thenReturn(false);
+
+        backfillJobService.submitBackfillJob(submission);
+
+        ArgumentCaptor<BackfillJob> jobCaptor = ArgumentCaptor.forClass(BackfillJob.class);
+        verify(backfillJobPort).saveJob(jobCaptor.capture());
+        assertEquals("config-b", jobCaptor.getValue().configId());
+        verify(backfillCommandPublisher).publish(any());
+    }
+
+    @Test
+    void submitBackfillJob_multipleConfigurationsWithoutConfigId_throwsAmbiguous() {
+        BackfillJobSubmission submission = submission();
+        when(configurationRepository.findByName(MESSAGE_NAME))
+                .thenReturn(List.of(remoteDataConfiguration("config-a"), remoteDataConfiguration("config-b")));
+
+        BackfillJobException exception = assertThrows(BackfillJobException.class,
+                () -> backfillJobService.submitBackfillJob(submission));
+
+        assertEquals(BackfillJobExceptionReason.CONFIGURATION_AMBIGUOUS, exception.getReason());
+        verifyNoInteractions(backfillCommandPublisher);
+    }
+
+    @Test
+    void submitBackfillJob_configIdNotMatchingAnyConfiguration_throwsNotFound() {
+        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, "unknown",
+                List.of(new BackfillArchiveDataReference("DOC-2024-001", 1)),
+                new BackfillJobSubmitter("Jane DevOps", "U12345"));
+        when(configurationRepository.findByName(MESSAGE_NAME))
+                .thenReturn(List.of(remoteDataConfiguration("config-a"), remoteDataConfiguration("config-b")));
+
+        BackfillJobException exception = assertThrows(BackfillJobException.class,
+                () -> backfillJobService.submitBackfillJob(submission));
+
+        assertEquals(BackfillJobExceptionReason.CONFIGURATION_NOT_FOUND, exception.getReason());
+        verifyNoInteractions(backfillCommandPublisher);
+    }
+
+    @Test
+    void submitBackfillJob_existingJobWithDifferentConfigId_throwsConflict() {
+        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, "config-a",
+                List.of(new BackfillArchiveDataReference("DOC-2024-001", 1)),
+                new BackfillJobSubmitter("Jane DevOps", "U12345"));
+        when(backfillJobPort.existsById(JOB_ID)).thenReturn(true);
+        BackfillJob existingWithOtherConfig = new BackfillJob(JOB_ID, MESSAGE_NAME, "config-b",
+                BackfillJobState.OPEN, null, null, null, "Other User", "U00000",
+                List.of(new BackfillTask(1L, "DOC-2024-001", 1, BackfillTaskState.OPEN, null, null)));
+        when(backfillJobPort.findById(JOB_ID)).thenReturn(Optional.of(existingWithOtherConfig));
+
+        BackfillJobException exception = assertThrows(BackfillJobException.class,
+                () -> backfillJobService.submitBackfillJob(submission));
+
+        assertEquals(BackfillJobExceptionReason.CONFLICT, exception.getReason());
+        verify(backfillJobPort, never()).saveJob(any());
+        verifyNoInteractions(backfillCommandPublisher);
+    }
+
+    @Test
     void submitBackfillJob_configurationIsNotRemoteData_throwsBadRequest() {
         BackfillJobSubmission submission = submission();
         MessageArchiveDataProvider<?> dataProvider = mock(MessageArchiveDataProvider.class);
-        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(Optional.of(PayloadDataMessageArchiveConfiguration.builder()
+        when(configurationRepository.findByName(MESSAGE_NAME)).thenReturn(List.of(PayloadDataMessageArchiveConfiguration.builder()
                 .messageName(MESSAGE_NAME)
                 .topicName(TOPIC_NAME)
                 .messageArchiveDataProvider((MessageArchiveDataProvider) dataProvider)
@@ -145,7 +219,7 @@ class BackfillJobServiceTest {
 
     @Test
     void submitBackfillJob_emptyReferences_throwsBadRequest() {
-        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, TOPIC_NAME, List.of(),
+        BackfillJobSubmission submission = new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, null, List.of(),
                 new BackfillJobSubmitter("Jane DevOps", "U12345"));
 
         BackfillJobException exception = assertThrows(BackfillJobException.class,
@@ -164,7 +238,7 @@ class BackfillJobServiceTest {
     }
 
     private BackfillJobSubmission submission() {
-        return new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, TOPIC_NAME,
+        return new BackfillJobSubmission(JOB_ID, MESSAGE_NAME, null,
                 List.of(
                         new BackfillArchiveDataReference("DOC-2024-001", 1),
                         new BackfillArchiveDataReference("DOC-2024-002", 1)),
@@ -172,7 +246,7 @@ class BackfillJobServiceTest {
     }
 
     private BackfillJob existingJob() {
-        return new BackfillJob(JOB_ID, MESSAGE_NAME, TOPIC_NAME, BackfillJobState.OPEN, null, null, null,
+        return new BackfillJob(JOB_ID, MESSAGE_NAME, null, BackfillJobState.OPEN, null, null, null,
                 "Other User", "U00000",
                 List.of(
                         new BackfillTask(1L, "DOC-2024-002", 1, BackfillTaskState.OPEN, null, null),
@@ -180,7 +254,12 @@ class BackfillJobServiceTest {
     }
 
     private RemoteDataMessageArchiveConfiguration remoteDataConfiguration() {
+        return remoteDataConfiguration(null);
+    }
+
+    private RemoteDataMessageArchiveConfiguration remoteDataConfiguration(String id) {
         return RemoteDataMessageArchiveConfiguration.builder()
+                .id(id)
                 .messageName(MESSAGE_NAME)
                 .topicName(TOPIC_NAME)
                 .dataReaderEndpoint("http://source-service/{id}/{version}")

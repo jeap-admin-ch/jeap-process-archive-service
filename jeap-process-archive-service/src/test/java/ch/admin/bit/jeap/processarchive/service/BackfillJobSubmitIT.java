@@ -77,7 +77,6 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
         int commandCountBefore = commandsForJob(JOB_ID).size();
         String request = """
                 message: TestDomainEvent
-                topic: test-event-1
                 archiveDataReferences:
                   - id: DOC-2024-001
                     version: 1
@@ -94,7 +93,6 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
 
         BackfillJobEntity job = backfillJobRepository.findWithTasksByJobId(JOB_ID).orElseThrow();
         assertThat(job.getMessageName()).isEqualTo("TestDomainEvent");
-        assertThat(job.getTopicName()).isEqualTo("test-event-1");
         assertThat(job.getJobState()).isEqualTo(BackfillJobState.OPEN);
         assertThat(job.getJobResult()).isNull();
         assertThat(job.getTasks())
@@ -119,7 +117,6 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
         int commandCountBefore = testConsumer.getCreateArtifactCommands().size();
         String request = """
                 message: TestDomainEvent
-                topic: test-event-1
                 archiveDataReferences:
                   - id: DOC-2024-005
                 """;
@@ -152,7 +149,6 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
         UUID jobId = UUID.randomUUID();
         String request = """
                 message: TestDomainEvent
-                topic: test-event-1
                 archiveDataReferences:
                   - id: DOC-2024-003
                     version: 1
@@ -169,7 +165,9 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
 
         await().atMost(Duration.ofSeconds(30)).untilAsserted(() -> {
             BackfillJobEntity asyncProcessedJob = backfillJobRepository.findWithTasksByJobId(jobId).orElseThrow();
-            assertThat(asyncProcessedJob.getTasks()).allMatch(task -> task.getTaskState() != BackfillTaskState.OPEN);
+            assertThat(asyncProcessedJob.getTasks())
+                    .isNotEmpty()
+                    .allMatch(task -> task.getTaskState() != BackfillTaskState.OPEN);
         });
 
         BackfillJobEntity job = backfillJobRepository.findWithTasksByJobId(jobId).orElseThrow();
@@ -191,7 +189,6 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/yaml"))
                 .andExpect(content().string(containsString("message: TestDomainEvent")))
-                .andExpect(content().string(containsString("topic: test-event-1")))
                 .andExpect(content().string(containsString("job-state: completed")))
                 .andExpect(content().string(containsString("job-result: partially-succeeded")))
                 .andExpect(content().string(containsString("job-id: " + jobId + "")))

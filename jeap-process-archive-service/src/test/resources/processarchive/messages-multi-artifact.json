@@ -1,0 +1,30 @@
+{
+  "messages": [
+    {
+      "id": "payload-1",
+      "messageName": "TestDomain2Event",
+      "topicName": "test-event-2",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.service.test.TestDomainEventDataProvider"
+    },
+    {
+      "id": "payload-2",
+      "messageName": "TestDomain2Event",
+      "topicName": "test-event-2",
+      "domainEventArchiveDataProvider": "ch.admin.bit.jeap.processarchive.service.test.TestSecondArtifactDataProvider"
+    },
+    {
+      "id": "remote-a",
+      "messageName": "TestDomain2Event",
+      "topicName": "test-event-2",
+      "archiveDataReferenceProvider": "ch.admin.bit.jeap.processarchive.service.test.TestDomain2RemoteReferenceProviderA",
+      "uri": "${test.service.uri}"
+    },
+    {
+      "id": "remote-b",
+      "messageName": "TestDomain2Event",
+      "topicName": "test-event-2",
+      "archiveDataReferenceProvider": "ch.admin.bit.jeap.processarchive.service.test.TestDomain2RemoteReferenceProviderB",
+      "uri": "${test.service.uri}"
+    }
+  ]
+}

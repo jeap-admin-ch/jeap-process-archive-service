@@ -41,7 +41,6 @@ class ConfigOnlyArchiveTypesIT extends KafkaIntegrationTestBase {
     private static final String DOMAIN_EVENT_TOPIC = "test-event-2";
     private static final String PAYLOAD_DATA = "config-only-payload";
     private static final String EVENT_IDEMPOTENCE_ID = UUID.randomUUID().toString();
-    private static final String ARCHIVE_IDEMPOTENCE_ID = "TestDomain2Event_" + EVENT_IDEMPOTENCE_ID;
 
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
@@ -72,7 +71,8 @@ class ConfigOnlyArchiveTypesIT extends KafkaIntegrationTestBase {
 
         ArchivedArtifact archivedArtifact = archivedArtifactArgumentCaptor.getValue();
         assertThat(archivedArtifact.getProcessId()).isEqualTo(testDomainEvent.getProcessId());
-        assertThat(archivedArtifact.getIdempotenceId()).isEqualTo(ARCHIVE_IDEMPOTENCE_ID);
+        assertThat(archivedArtifact.getIdempotenceId()).isEqualTo("TestDomain2Event_" + EVENT_IDEMPOTENCE_ID
+                + "_TestSystem_ConfigOnlyType_" + archivedArtifact.getArchiveData().getReferenceId());
         assertThat(archivedArtifact.getReferenceIdType()).isEqualTo("ch.admin.bit.jeap.test.ConfigOnlyArtifact");
         assertThat(archivedArtifact.getExpirationDays()).isEqualTo(45);
         assertThat(archivedArtifact.getArchiveData()).isNotNull();

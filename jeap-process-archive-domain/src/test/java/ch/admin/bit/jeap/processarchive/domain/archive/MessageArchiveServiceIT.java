@@ -117,7 +117,7 @@ class MessageArchiveServiceIT {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         verify(artifactArchivedListener, times(1)).onArtifactArchived(any());
@@ -137,7 +137,7 @@ class MessageArchiveServiceIT {
                 .build();
 
         // when
-        messageArchiveService.archive(configuration, domainEvent);
+        messageArchiveService.archive(List.of(configuration), domainEvent);
 
         // then
         verify(artifactArchivedListener, never()).onArtifactArchived(any());

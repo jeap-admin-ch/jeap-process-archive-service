@@ -7,6 +7,8 @@ import ch.admin.bit.jeap.processarchive.domain.configuration.MessageArchiveConfi
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class MessageReceiver {
@@ -15,9 +17,11 @@ public class MessageReceiver {
     private final MessageArchiveService messageArchiveService;
 
     public void messageReceived(Message message) {
-        MessageArchiveConfiguration configuration = configurationRepository.findByName(message.getType().getName())
-                .orElseThrow(MessageReceiverException.unexpectedMessage(message));
+        List<MessageArchiveConfiguration> configurations = configurationRepository.findByName(message.getType().getName());
+        if (configurations.isEmpty()) {
+            throw MessageReceiverException.unexpectedMessage(message).get();
+        }
 
-        messageArchiveService.archive(configuration, message);
+        messageArchiveService.archive(configurations, message);
     }
 }

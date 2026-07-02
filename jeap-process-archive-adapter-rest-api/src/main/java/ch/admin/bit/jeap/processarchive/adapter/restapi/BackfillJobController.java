@@ -14,18 +14,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -59,8 +53,8 @@ public class BackfillJobController {
             @PathVariable UUID jobId,
             @Valid @RequestBody BackfillJobRequest request,
             Authentication authentication) {
-        log.info("Received backfill job submit request for job '{}', message '{}' and topic '{}'.",
-                jobId, request.message(), request.topic());
+        log.info("Received backfill job submit request for job '{}', message '{}' and config-id '{}'.",
+                jobId, request.message(), request.configId());
 
         backfillJobService.submitBackfillJob(toSubmission(jobId, request, jwt(authentication)));
         return ResponseEntity.ok().build();
@@ -73,7 +67,7 @@ public class BackfillJobController {
                             mediaType = APPLICATION_YAML_VALUE,
                             examples = @ExampleObject(value = """
                                     message: JmeDecreeDocumentCreatedEvent
-                                    topic: jme-process-archive-decreedocumentcreated
+                                    config-id: decree-document
                                     job-state: completed
                                     job-result: partially-succeeded
                                     job-id: 88dbb65f-9634-4685-bc86-17b72d715d3e
@@ -114,7 +108,7 @@ public class BackfillJobController {
         return new BackfillJobSubmission(
                 jobId,
                 request.message(),
-                request.topic(),
+                request.configId(),
                 references,
                 new BackfillJobSubmitter(claim(jwt, "name"), claim(jwt, "ext_id")));
     }

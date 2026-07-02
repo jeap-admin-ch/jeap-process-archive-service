@@ -14,7 +14,10 @@ import org.springframework.stereotype.Component;
 import org.togglz.core.manager.FeatureManager;
 import org.togglz.core.util.NamedFeature;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static net.logstash.logback.argument.StructuredArguments.keyValue;
 
@@ -28,35 +31,69 @@ public class MessageArchiveService {
     private final ArchiveDataSchemaValidationService validationService;
     private final FeatureManager featureManager;
 
+    /**
+     * Archives all artifacts extracted from a single message. Multiple configurations may be registered for the same
+     * message to archive multiple artifacts. The idempotence IDs of all resulting artifacts must be distinct; this is
+     * enforced before any artifact is stored so that a misconfiguration fails fast instead of silently dropping events.
+     */
     @Timed(value = "jeap_pas_archive_message", description = "Archive Message from fetch to commit")
-    public void archive(MessageArchiveConfiguration configuration, Message message) {
-        if (!configuration.acceptsMessage(message)) {
-            log.debug("Condition prevented archiving data for message {}", message.getIdentity().getId());
-            return;
-        }
+    public void archive(List<MessageArchiveConfiguration> configurations, Message message) {
+        List<PendingArchiveData> pendingArchiveData = extractArchiveData(configurations, message);
+        ensureDistinctIdempotenceIds(pendingArchiveData, message);
+        pendingArchiveData.forEach(this::storeAndPublish);
+    }
 
+    private List<PendingArchiveData> extractArchiveData(List<MessageArchiveConfiguration> configurations, Message message) {
+        List<PendingArchiveData> pendingArchiveData = new ArrayList<>();
+        for (MessageArchiveConfiguration configuration : configurations) {
+            if (configuration.acceptsMessage(message)) {
+                addArchiveData(message, configuration, pendingArchiveData);
+            } else {
+                log.debug("Condition prevented archiving data for message {}", message.getIdentity().getId());
+            }
+        }
+        return pendingArchiveData;
+    }
+
+    private void addArchiveData(Message message, MessageArchiveConfiguration configuration, List<PendingArchiveData> pendingArchiveData) {
         ArchiveData archiveData = readArchiveData(configuration, message);
-
-        if (archiveData == null) {
+        if (archiveData != null) {
+            String processId = readOriginProcessId(configuration, message);
+            String idempotenceId = createArchiveArtifactIdempotenceId(message, archiveData);
+            pendingArchiveData.add(new PendingArchiveData(configuration, archiveData, processId, idempotenceId));
+        } else {
             log.info("No data to archive for message {}", message.getIdentity().getId());
-            return;
         }
+    }
 
-        String processId = readOriginProcessId(configuration, message);
-        log.info("Extracted archive data from message {}: {} {} {}",
-                keyValue("messageType", message.getType().getName()),
-                keyValue("processId", processId),
+    private void ensureDistinctIdempotenceIds(List<PendingArchiveData> pendingArchiveData, Message message) {
+        Set<String> idempotenceIds = new HashSet<>();
+        for (PendingArchiveData pending : pendingArchiveData) {
+            if (!idempotenceIds.add(pending.idempotenceId())) {
+                throw ProcessArchiveException.duplicateArtifactIdempotenceId(message, pending.idempotenceId());
+            }
+        }
+    }
+
+    private void storeAndPublish(PendingArchiveData pending) {
+        ArchiveData archiveData = pending.archiveData();
+        log.info("Extracted archive data from message {}: {} {} {} {}",
+                keyValue("messageType", pending.configuration().getMessageName()),
+                keyValue("configId", pending.configuration().getId()),
+                keyValue("processId", pending.processId()),
                 keyValue("referenceId", archiveData.getReferenceId()),
                 keyValue("version", archiveData.getVersion()));
 
         ArchiveDataSchema schema = validationService.validateArchiveDataSchema(archiveData);
+        ArchivedArtifact archivedArtifact = archiveArtifact(archiveData, schema, pending.processId(), pending.idempotenceId());
 
-        ArchivedArtifact archivedArtifact = archiveArtifact(archiveData, schema, processId, createArchiveArtifactIdempotenceId(message));
-
-        if (isFeatureFlagActive(configuration)) {
+        if (isFeatureFlagActive(pending.configuration())) {
             artifactArchivedListener.forEach(listener -> listener.onArtifactArchived(archivedArtifact));
         }
+    }
 
+    private record PendingArchiveData(MessageArchiveConfiguration configuration, ArchiveData archiveData,
+                                      String processId, String idempotenceId) {
     }
 
     private boolean isFeatureFlagActive(MessageArchiveConfiguration configuration) {
@@ -92,14 +129,23 @@ public class MessageArchiveService {
     }
 
     /**
-     * Create the idempotenceId for the archive with the name of the type and the idempotenceId of the message.
-     * The idempotenceId of a message is only unique within the message type.
+     * Create the idempotenceId for the archive from the message type, the idempotenceId of the message and a
+     * discriminator derived from the artifact (system, schema, referenceId and - if present - version).
+     * The idempotenceId of a message is only unique within the message type, and a single message may produce
+     * multiple artifacts (one per configuration registered for the message), so the discriminator is required to
+     * keep the idempotenceId unique per artifact.
      *
-     * @param message the message with the information to archive
+     * @param message     the message with the information to archive
+     * @param archiveData the extracted archive data of the artifact
      * @return the idempotenceId for the archive
      */
-    private String createArchiveArtifactIdempotenceId(Message message) {
-        return message.getType().getName() + "_" + message.getIdentity().getIdempotenceId();
+    private String createArchiveArtifactIdempotenceId(Message message, ArchiveData archiveData) {
+        return message.getType().getName()
+                + "_" + message.getIdentity().getIdempotenceId()
+                + "_" + archiveData.getSystem()
+                + "_" + archiveData.getSchema()
+                + "_" + archiveData.getReferenceId()
+                + (archiveData.getVersion() != null ? "_" + archiveData.getVersion() : "");
     }
 
     private String readOriginProcessId(MessageArchiveConfiguration configuration, Message message) {

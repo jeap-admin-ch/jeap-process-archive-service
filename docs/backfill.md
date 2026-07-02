@@ -9,7 +9,8 @@ Backfill is intended for controlled operational use, for example after enabling 
 The normal PAS flow archives artifacts when configured domain events are consumed. Backfill starts from explicit archive data references instead:
 
 1. A user submits a YAML backfill job to PAS.
-2. PAS validates that the requested message and topic match a configured remote-data archive type.
+2. PAS validates that the requested message matches a configured remote-data archive type (selected with `config-id`
+   when the message has several).
 3. PAS persists the job and one task per archive data reference in the database.
 4. PAS publishes one `CreateArtifactCommand` per task to the configured Kafka topic.
 5. The backfill command consumer reads the command, loads the archive data from the source service using the configured remote data reader endpoint, validates the archive data schema, stores the data, and publishes the archived artifact event.
@@ -64,7 +65,8 @@ The PAS instance must also provide the usual dependencies used by archiving:
 
 ## Archive type configuration requirements
 
-The submitted `message` and `topic` must match a configured PAS archive type. The archive type must be a remote-data configuration with a data reader endpoint, for example:
+The submitted `message` must match a configured PAS archive type. The archive type must be a remote-data configuration
+with a data reader endpoint, for example:
 
 ```yaml
 messageType: JmeDecreeDocumentCreatedEvent
@@ -76,6 +78,14 @@ oauthClientId: source-service-client
 During processing, PAS calls the configured remote archive data provider with the `id` from the submitted reference. The source service must return archive data in the format expected by PAS, including the archive data metadata needed for schema validation.
 
 If a source service requires a version, configure a versioned endpoint such as `https://source-service.example/api/archive-data/{id}?version={version}` and include `version` for every submitted archive data reference. Versionless references require a URI template without `{version}`.
+
+### Multiple configurations per message
+
+A message may have [multiple archive configurations](consuming-messages.md#multiple-artifacts-per-message). When more
+than one **remote-data** configuration is registered for the submitted `message`, the request must select one with
+`config-id` (the configuration's `id` from `messages.json`); otherwise the request is rejected as ambiguous (
+`400 Bad Request`). When only one remote-data configuration exists, `config-id` is optional. The selected `config-id` is
+stored on the job, echoed in the report, and used when the `CreateArtifactCommand` is processed.
 
 ## REST API
 
@@ -96,7 +106,6 @@ Request body for an unversioned data reader endpoint such as `https://source-ser
 
 ```yaml
 message: JmeDecreeDocumentCreatedEvent
-topic: jme-process-archive-decreedocumentcreated
 archiveDataReferences:
   - id: DOC-2024-001
   - id: DOC-2024-002
@@ -106,7 +115,6 @@ Request body for a versioned data reader endpoint such as `https://source-servic
 
 ```yaml
 message: JmeDecreeDocumentCreatedEvent
-topic: jme-process-archive-decreedocumentcreated
 archiveDataReferences:
   - id: DOC-2024-001
     version: 1
@@ -116,24 +124,34 @@ archiveDataReferences:
 
 Use the unversioned shape when the configured endpoint does not contain `{version}`. Use the versioned shape when the endpoint contains `{version}`; in that case every reference must include `version`.
 
+Request body selecting a specific configuration when the message has multiple remote-data configurations:
+
+```yaml
+message: JmeDecreeDocumentCreatedEvent
+config-id: decree-document
+archiveDataReferences:
+  - id: DOC-2024-001
+    version: 1
+```
+
 Fields:
 
-| Field | Required | Description |
-| --- | --- | --- |
-| `message` | Yes | Name of the configured message/archive type. |
-| `topic` | Yes | Topic configured for the message/archive type. |
-| `archiveDataReferences` | Yes | Non-empty list of archive data references to process. |
-| `archiveDataReferences[].id` | Yes | Business reference id understood by the source service. |
-| `archiveDataReferences[].version` | No | Business reference version understood by the source service. Required only when the configured data reader endpoint contains `{version}`. |
+| Field                             | Required    | Description                                                                                                                               |
+|-----------------------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `message`                         | Yes         | Name of the configured message/archive type.                                                                                              |
+| `config-id`                       | Conditional | The `id` of the target configuration. Mandatory when the message has multiple remote-data configurations; optional otherwise.             |
+| `archiveDataReferences`           | Yes         | Non-empty list of archive data references to process.                                                                                     |
+| `archiveDataReferences[].id`      | Yes         | Business reference id understood by the source service.                                                                                   |
+| `archiveDataReferences[].version` | No          | Business reference version understood by the source service. Required only when the configured data reader endpoint contains `{version}`. |
 
 Responses:
 
-| Status | Meaning |
-| --- | --- |
-| `200 OK` | Job accepted, or the same job was already submitted with identical content. |
-| `400 Bad Request` | Invalid YAML/request content, unknown archive configuration, topic mismatch, or unsupported non-remote archive configuration. |
-| `403 Forbidden` | Caller does not have `backfilljob:write`. |
-| `409 Conflict` | A job with the same `jobId` already exists with different content. |
+| Status            | Meaning                                                                                                                                         |
+|-------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| `200 OK`          | Job accepted, or the same job was already submitted with identical content.                                                                     |
+| `400 Bad Request` | Invalid YAML/request content, unknown archive configuration, unsupported non-remote archive configuration, or an ambiguous/unknown `config-id`. |
+| `403 Forbidden`   | Caller does not have `backfilljob:write`.                                                                                                       |
+| `409 Conflict`    | A job with the same `jobId` already exists with different content.                                                                              |
 
 Example:
 
@@ -165,7 +183,7 @@ Example report for a completed job:
 
 ```yaml
 message: JmeDecreeDocumentCreatedEvent
-topic: jme-process-archive-decreedocumentcreated
+config-id: decree-document
 job-state: completed
 job-result: partially-succeeded
 job-id: 88dbb65f-9634-4685-bc86-17b72d715d3e
@@ -229,6 +247,13 @@ The report includes submitter information from the JWT claims `name` and `ext_id
 - Use small enough batches that reports remain easy to inspect and failed references can be resubmitted deliberately.
 - Backfill processing is asynchronous. A successful submit response only means that the job and tasks were persisted and commands were published.
 - Failed tasks are not automatically retried by submitting the same job again, because identical submissions are treated as idempotent once the job exists. Create a new job for references that should be retried.
+- The submitted `config-id` is part of the job content for idempotency: resubmitting the same `jobId` with a different (
+  or newly added) `config-id` is treated as different content and returns `409 Conflict`. Use a new `jobId` in that
+  case.
 - If the source service returns no archive data for a reference, the command processing logs this and leaves the task open. Check source-service data and PAS logs before resubmitting.
 - Ensure the configured source endpoint and OAuth client can read the historical data for every requested reference.
 - The backfill topic is both the publisher and consumer topic for PAS. Configure contracts and access accordingly.
+- Backfilled artifacts use a backfill-specific event idempotence id derived from the `CreateArtifactCommand` identity,
+  which differs from the discriminated idempotence id of the live message-driven path. This is intentional (one command
+  produces exactly one artifact, so the id is unique and stable across retries); an artifact archived both live and via
+  backfill is therefore not de-duplicated across the two paths by idempotence id.

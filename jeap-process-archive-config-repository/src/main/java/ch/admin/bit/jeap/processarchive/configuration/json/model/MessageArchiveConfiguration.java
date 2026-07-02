@@ -6,6 +6,12 @@ import lombok.Data;
 @Data
 public class MessageArchiveConfiguration {
 
+    /**
+     * Optional identifier of this configuration. Optional when a message has a single configuration,
+     * mandatory and unique when a message has multiple configurations. Used to disambiguate
+     * configurations, e.g. for backfill jobs.
+     */
+    private String id;
     @JsonAlias("eventName")
     private String messageName;
     private String topicName;

@@ -1,13 +1,6 @@
 package ch.admin.bit.jeap.processarchive.adapter.restapi;
 
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobException;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJob;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobResult;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobService;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobState;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillJobSubmission;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillTask;
-import ch.admin.bit.jeap.processarchive.domain.backfill.BackfillTaskState;
+import ch.admin.bit.jeap.processarchive.domain.backfill.*;
 import ch.admin.bit.jeap.security.resource.configuration.SemanticMethodSecurityExpressionHandler;
 import ch.admin.bit.jeap.security.resource.semanticAuthentication.SemanticApplicationRole;
 import ch.admin.bit.jeap.security.resource.token.JeapAuthenticationToken;
@@ -20,9 +13,9 @@ import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.yaml.JacksonYamlHttpMessageConverter;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -68,7 +61,6 @@ class BackfillJobControllerTest {
     private static final UUID JOB_ID = UUID.fromString("2ad48b66-472b-4a83-8efe-66a5f53ca111");
     private static final String REQUEST_YAML = """
             message: JmeDecreeDocumentCreatedEvent
-            topic: jme-process-archive-decreedocumentcreated
             archiveDataReferences:
               - id: DOC-2024-001
                 version: 1
@@ -77,7 +69,6 @@ class BackfillJobControllerTest {
             """;
     private static final String REQUEST_YAML_WITHOUT_VERSION = """
             message: JmeDecreeDocumentCreatedEvent
-            topic: jme-process-archive-decreedocumentcreated
             archiveDataReferences:
               - id: DOC-2024-001
             """;
@@ -147,6 +138,28 @@ class BackfillJobControllerTest {
     }
 
     @Test
+    void createBackfillJob_withConfigId_passesConfigIdToSubmission() throws Exception {
+        String requestYaml = """
+                message: JmeDecreeDocumentCreatedEvent
+                config-id: decree-doc
+                archiveDataReferences:
+                  - id: DOC-2024-001
+                    version: 1
+                """;
+
+        mockMvc.perform(put("/api/jobs/{jobId}", JOB_ID)
+                        .contentType(BackfillJobController.APPLICATION_YAML_VALUE)
+                        .content(requestYaml)
+                        .with(authenticationForUserRoles(WRITE_ROLE))
+                        .with(csrf()))
+                .andExpect(status().isOk());
+
+        ArgumentCaptor<BackfillJobSubmission> submissionCaptor = ArgumentCaptor.forClass(BackfillJobSubmission.class);
+        verify(backfillJobService).submitBackfillJob(submissionCaptor.capture());
+        assertEquals("decree-doc", submissionCaptor.getValue().configId());
+    }
+
+    @Test
     void createBackfillJob_conflictingExistingJob_returnsConflict() throws Exception {
         doThrow(BackfillJobException.conflict("conflict")).when(backfillJobService).submitBackfillJob(any());
 
@@ -180,7 +193,6 @@ class BackfillJobControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(BackfillJobController.APPLICATION_YAML_VALUE))
                 .andExpect(content().string(containsString("message: \"JmeDecreeDocumentCreatedEvent\"")))
-                .andExpect(content().string(containsString("topic: \"jme-process-archive-decreedocumentcreated\"")))
                 .andExpect(content().string(containsString("job-state: \"open\"")))
                 .andExpect(content().string(not(containsString("job-result:"))))
                 .andExpect(content().string(containsString("job-id: \"2ad48b66-472b-4a83-8efe-66a5f53ca111\"")))
@@ -216,7 +228,7 @@ class BackfillJobControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(BackfillJobController.APPLICATION_YAML_VALUE))
                 .andExpect(content().string(containsString("message: \"JmeDecreeDocumentCreatedEvent\"")))
-                .andExpect(content().string(containsString("topic: \"jme-process-archive-decreedocumentcreated\"")))
+                .andExpect(content().string(containsString("config-id: \"decree-doc\"")))
                 .andExpect(content().string(containsString("job-state: \"completed\"")))
                 .andExpect(content().string(containsString("job-result: \"partially-succeeded\"")))
                 .andExpect(content().string(containsString("job-id: \"2ad48b66-472b-4a83-8efe-66a5f53ca111\"")))
@@ -257,7 +269,7 @@ class BackfillJobControllerTest {
         return new BackfillJob(
                 JOB_ID,
                 "JmeDecreeDocumentCreatedEvent",
-                "jme-process-archive-decreedocumentcreated",
+                null,
                 BackfillJobState.OPEN,
                 null,
                 STARTED,
@@ -273,7 +285,7 @@ class BackfillJobControllerTest {
         return new BackfillJob(
                 JOB_ID,
                 "JmeDecreeDocumentCreatedEvent",
-                "jme-process-archive-decreedocumentcreated",
+                null,
                 BackfillJobState.OPEN,
                 null,
                 STARTED,
@@ -287,7 +299,7 @@ class BackfillJobControllerTest {
         return new BackfillJob(
                 JOB_ID,
                 "JmeDecreeDocumentCreatedEvent",
-                "jme-process-archive-decreedocumentcreated",
+                "decree-doc",
                 BackfillJobState.COMPLETED,
                 BackfillJobResult.PARTIALLY_SUCCEEDED,
                 STARTED,

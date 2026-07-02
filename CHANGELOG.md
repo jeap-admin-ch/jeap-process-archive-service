@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [16.0.0] - 2026-07-02
+
+### Added
+
+- Support for archiving multiple artifacts per message: multiple archive configurations may now be registered for the
+  same message/topic in `messages.json`, each producing one artifact.
+- Optional `id` attribute on archive configurations in `messages.json`, mandatory and unique when a message has multiple
+  configurations.
+- Backfill jobs can target a specific configuration via an optional `config-id` (mandatory when a message has multiple
+  remote-data configurations).
+- Backfill jobs no longer take a `topic`; the archive configuration is resolved from the `message` (and `config-id`).
+
+### Changed
+
+- **BREAKING**: The artifact and event idempotence ID now includes an artifact discriminator (
+  `<messageType>_<messageIdempotenceId>_<system>_<schema>_<referenceId>[_<version>]`). The idempotence ID format and
+  length changed; consumers relying on the previous `<messageType>_<messageIdempotenceId>` format or its length must
+  adapt.
+
 ## [15.0.1] - 2026-07-01
 
 ### Fixed
