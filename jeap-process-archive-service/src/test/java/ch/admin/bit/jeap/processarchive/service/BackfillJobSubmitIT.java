@@ -91,15 +91,16 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
                         .with(csrf()))
                 .andExpect(status().isOk());
 
+        // No job/task state assertions here: the backfill consumer in this service processes the published
+        // commands asynchronously and may already have transitioned states. Initial OPEN state is covered
+        // by BackfillJobServiceTest.
         BackfillJobEntity job = backfillJobRepository.findWithTasksByJobId(JOB_ID).orElseThrow();
         assertThat(job.getMessageName()).isEqualTo("TestDomainEvent");
-        assertThat(job.getJobState()).isEqualTo(BackfillJobState.OPEN);
-        assertThat(job.getJobResult()).isNull();
         assertThat(job.getTasks())
-                .extracting(BackfillTaskEntity::getReferenceId, BackfillTaskEntity::getReferenceVersion, BackfillTaskEntity::getTaskState)
+                .extracting(BackfillTaskEntity::getReferenceId, BackfillTaskEntity::getReferenceVersion)
                 .containsExactlyInAnyOrder(
-                        org.assertj.core.groups.Tuple.tuple("DOC-2024-001", 1, BackfillTaskState.OPEN),
-                        org.assertj.core.groups.Tuple.tuple("DOC-2024-002", 2, BackfillTaskState.OPEN));
+                        org.assertj.core.groups.Tuple.tuple("DOC-2024-001", 1),
+                        org.assertj.core.groups.Tuple.tuple("DOC-2024-002", 2));
 
         await().atMost(Duration.ofSeconds(30))
                 .untilAsserted(() -> assertThat(commandsForJob(JOB_ID)).hasSize(commandCountBefore + 2));
@@ -130,8 +131,8 @@ class BackfillJobSubmitIT extends KafkaIntegrationTestBase {
 
         BackfillJobEntity job = backfillJobRepository.findWithTasksByJobId(jobId).orElseThrow();
         assertThat(job.getTasks())
-                .extracting(BackfillTaskEntity::getReferenceId, BackfillTaskEntity::getReferenceVersion, BackfillTaskEntity::getTaskState)
-                .containsExactly(org.assertj.core.groups.Tuple.tuple("DOC-2024-005", null, BackfillTaskState.OPEN));
+                .extracting(BackfillTaskEntity::getReferenceId, BackfillTaskEntity::getReferenceVersion)
+                .containsExactly(org.assertj.core.groups.Tuple.tuple("DOC-2024-005", null));
 
         await().atMost(Duration.ofSeconds(30))
                 .untilAsserted(() -> assertThat(testConsumer.getCreateArtifactCommands()).hasSize(commandCountBefore + 1));

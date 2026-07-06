@@ -134,8 +134,7 @@ class BackfillJobProcessingIT extends KafkaIntegrationTestBase {
         });
     }
 
-
-    
+    @Test
     void putBackfillJob_remoteArchiveDataErrorMarksTaskAndJobAsFailed() throws Exception {
         stubFor(get(urlEqualTo("/testdata/" + ERROR_REFERENCE_ID + "/" + ERROR_REFERENCE_VERSION)).willReturn(aResponse()
                 .withStatus(500)
