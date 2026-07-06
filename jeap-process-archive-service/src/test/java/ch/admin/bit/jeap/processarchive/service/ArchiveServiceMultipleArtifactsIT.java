@@ -5,6 +5,7 @@ import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
+import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveArtifactIdempotenceId;
 import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomain2EventBuilder;
@@ -115,7 +116,8 @@ class ArchiveServiceMultipleArtifactsIT extends KafkaIntegrationTestBase {
     }
 
     private String idempotenceId(String referenceId) {
-        return "TestDomain2Event_" + EVENT_IDEMPOTENCE_ID + "_JME_Decree_" + referenceId;
+        return ArchiveArtifactIdempotenceId.create("TestDomain2Event", EVENT_IDEMPOTENCE_ID,
+                "JME", "Decree", referenceId, null);
     }
 
     private void stubRemoteArtifact(String referenceId) throws IOException {

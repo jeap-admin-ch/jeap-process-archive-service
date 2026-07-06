@@ -6,6 +6,7 @@ import ch.admin.bit.jeap.event.shared.processarchive.archivedartifactversioncrea
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
+import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveArtifactIdempotenceId;
 import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataObjectStore;
 import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
@@ -70,8 +71,9 @@ class ArchiveServiceEventEndToEndIT extends KafkaIntegrationTestBase {
         kafkaTemplate.send(DOMAIN_EVENT_TOPIC, testDomainEvent).get();
 
         // then
-        String idempotenceId = "TestDomain2Event_" + testDomainEvent.getIdentity().getIdempotenceId()
-                + "_JME_Decree_" + testDomainEvent.getIdentity().getEventId() + "-event";
+        String idempotenceId = ArchiveArtifactIdempotenceId.create(
+                "TestDomain2Event", testDomainEvent.getIdentity().getIdempotenceId(),
+                "JME", "Decree", testDomainEvent.getIdentity().getEventId(), null) + "-event";
         await().atMost(Duration.ofSeconds(30))
                 .until(() -> testConsumer.eventWithIdempotenceIdReceived(idempotenceId));
         SharedArchivedArtifactVersionCreatedEvent event = testConsumer.getEventByIdempotenceId(idempotenceId);

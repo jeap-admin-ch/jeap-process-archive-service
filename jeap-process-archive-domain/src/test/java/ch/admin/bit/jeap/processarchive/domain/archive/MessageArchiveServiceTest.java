@@ -66,7 +66,8 @@ class MessageArchiveServiceTest {
             .schemaDefinition("test".getBytes(StandardCharsets.UTF_8))
             .build();
     private static final String EVENT_IDEMPOTENCE_ID = UUID.randomUUID().toString();
-    private static final String ARCHIVE_IDEMPOTENCE_ID = "TestEvent_" + EVENT_IDEMPOTENCE_ID + "_JME_MySchema_" + REFERENCE_ID + "_" + DATA_VERSION;
+    private static final String ARCHIVE_IDEMPOTENCE_ID =
+            ArchiveArtifactIdempotenceId.create("TestEvent", EVENT_IDEMPOTENCE_ID, ARCHIVE_DATA);
     private static final String ENDPOINT = "endpoint";
     private static final String CLIENT_ID = "clientId";
     private static final String OBJECT_NAME = "objectName";
@@ -124,6 +125,7 @@ class MessageArchiveServiceTest {
         ArchivedArtifact archivedArtifact = archivedArtifacts.getFirst();
         assertSame(ARCHIVE_DATA, archivedArtifact.getArchiveData());
         assertEquals(ARCHIVE_IDEMPOTENCE_ID, archivedArtifact.getIdempotenceId());
+        assertTrue(archivedArtifact.getIdempotenceId().matches("TestEvent_[0-9a-f]{64}"));
         assertSame(processId, archivedArtifact.getProcessId());
         assertSame(BUCKET, archivedArtifact.getStorageObjectBucket());
         assertSame(KEY, archivedArtifact.getStorageObjectKey());
@@ -172,7 +174,7 @@ class MessageArchiveServiceTest {
         // then
         assertEquals(2, archivedArtifacts.size());
         assertEquals(ARCHIVE_IDEMPOTENCE_ID, archivedArtifacts.get(0).getIdempotenceId());
-        assertEquals("TestEvent_" + EVENT_IDEMPOTENCE_ID + "_JME_MySchema_referenceId2_" + DATA_VERSION,
+        assertEquals(ArchiveArtifactIdempotenceId.create("TestEvent", EVENT_IDEMPOTENCE_ID, archiveData2),
                 archivedArtifacts.get(1).getIdempotenceId());
         assertNotEquals(archivedArtifacts.get(0).getIdempotenceId(), archivedArtifacts.get(1).getIdempotenceId());
     }

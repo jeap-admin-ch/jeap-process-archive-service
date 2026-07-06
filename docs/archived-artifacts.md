@@ -56,12 +56,13 @@ Each archived artifact gets an idempotence id, and the published event's idempot
 with a `-event` suffix. The id is derived deterministically so retries are idempotent:
 
 ```text
-<messageType>_<messageIdempotenceId>_<system>_<schema>_<referenceId>[_<version>]
+<messageType>_<sha256-hex-of(messageIdempotenceId_system_schema_referenceId[_version])>
 ```
 
-The message part (`<messageType>_<messageIdempotenceId>`) carries the incoming message identity; the
-discriminator (`system`, `schema`, `referenceId`, and `version` when present) makes the id unique per
-artifact. This matters when one message produces
+The message type prefix keeps the id attributable in logs; the SHA-256 hash (64 lowercase hex characters)
+covers the incoming message's idempotence id and a discriminator (`system`, `schema`, `referenceId`, and
+`version` when present) that makes the id unique per artifact, while keeping the id length fixed at the
+message type name plus 65 characters. This matters when one message produces
 [multiple artifacts](consuming-messages.md#multiple-artifacts-per-message): the PAS requires the ids of
 all artifacts of a message to be distinct and fails fast otherwise.
 

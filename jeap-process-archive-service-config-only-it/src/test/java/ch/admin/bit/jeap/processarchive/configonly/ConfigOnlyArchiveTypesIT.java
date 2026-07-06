@@ -5,6 +5,7 @@ import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
+import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveArtifactIdempotenceId;
 import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomain2EventBuilder;
@@ -71,8 +72,9 @@ class ConfigOnlyArchiveTypesIT extends KafkaIntegrationTestBase {
 
         ArchivedArtifact archivedArtifact = archivedArtifactArgumentCaptor.getValue();
         assertThat(archivedArtifact.getProcessId()).isEqualTo(testDomainEvent.getProcessId());
-        assertThat(archivedArtifact.getIdempotenceId()).isEqualTo("TestDomain2Event_" + EVENT_IDEMPOTENCE_ID
-                + "_TestSystem_ConfigOnlyType_" + archivedArtifact.getArchiveData().getReferenceId());
+        assertThat(archivedArtifact.getIdempotenceId()).isEqualTo(
+                ArchiveArtifactIdempotenceId.create("TestDomain2Event", EVENT_IDEMPOTENCE_ID,
+                        "TestSystem", "ConfigOnlyType", archivedArtifact.getArchiveData().getReferenceId(), null));
         assertThat(archivedArtifact.getReferenceIdType()).isEqualTo("ch.admin.bit.jeap.test.ConfigOnlyArtifact");
         assertThat(archivedArtifact.getExpirationDays()).isEqualTo(45);
         assertThat(archivedArtifact.getArchiveData()).isNotNull();

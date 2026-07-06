@@ -6,6 +6,7 @@ import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
 import ch.admin.bit.jeap.processarchive.command.test.TestCommand;
+import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveArtifactIdempotenceId;
 import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestCommandBuilder;
 import ch.admin.bit.jeap.processarchive.objectstorage.ObjectStorageConfiguration;
@@ -78,7 +79,8 @@ class ArchiveServicePayloadCommandDataExtractorIT extends KafkaIntegrationTestBa
         assertEquals(testCommand.getProcessId(), archivedArtifact.getProcessId());
         Decree decree = deserialize(archivedArtifact.getArchiveData().getPayload());
         assertEquals(MESSAGE, decree.getPayload());
-        assertEquals("TestCommand_" + IDEMPOTENCE_ID + "_JME_Decree_" + archivedArtifact.getArchiveData().getReferenceId(),
+        assertEquals(ArchiveArtifactIdempotenceId.create("TestCommand", IDEMPOTENCE_ID,
+                        "JME", "Decree", archivedArtifact.getArchiveData().getReferenceId(), null),
                 archivedArtifact.getIdempotenceId());
     }
 

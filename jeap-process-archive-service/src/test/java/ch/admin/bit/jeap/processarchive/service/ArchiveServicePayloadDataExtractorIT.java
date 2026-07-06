@@ -5,6 +5,7 @@ import ch.admin.bit.jeap.crypto.api.KeyReferenceCryptoService;
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
+import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveArtifactIdempotenceId;
 import ch.admin.bit.jeap.processarchive.event.test2.TestDomain2Event;
 import ch.admin.bit.jeap.processarchive.kafka.KafkaMessageConsumerFactory;
 import ch.admin.bit.jeap.processarchive.kafka.TestDomain2EventBuilder;
@@ -78,8 +79,8 @@ class ArchiveServicePayloadDataExtractorIT extends KafkaIntegrationTestBase {
         assertEquals(testDomainEvent.getProcessId(), archivedArtifact.getProcessId());
         Decree decree = deserialize(archivedArtifact.getArchiveData().getPayload());
         assertEquals(PAYLOAD_DATA, decree.getPayload());
-        String expectedIdempotenceId = "TestDomain2Event_" + EVENT_IDEMPOTENCE_ID
-                + "_JME_Decree_" + archivedArtifact.getArchiveData().getReferenceId();
+        String expectedIdempotenceId = ArchiveArtifactIdempotenceId.create("TestDomain2Event", EVENT_IDEMPOTENCE_ID,
+                "JME", "Decree", archivedArtifact.getArchiveData().getReferenceId(), null);
         assertEquals(expectedIdempotenceId, archivedArtifact.getIdempotenceId());
     }
 

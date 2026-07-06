@@ -38,8 +38,9 @@ Several configurations may be registered for the same message/topic in `messages
 one artifact, so one message can archive multiple artifacts. Key rules:
 
 - `MessageArchiveConfigurationRepository.findByName` returns a `List`; `MessageReceiver` applies all.
-- Each artifact's idempotence id is `messageType_messageIdempotenceId_system_schema_referenceId[_version]`
-  (a discriminator making each artifact independently idempotent); `MessageArchiveService` fails fast if
+- Each artifact's idempotence id is `messageType_<sha256-hex>` where the hash covers
+  `messageIdempotenceId_system_schema_referenceId[_version]` (a discriminator making each artifact
+  independently idempotent, see `ArchiveArtifactIdempotenceId`); `MessageArchiveService` fails fast if
   two configurations of one message produce the same idempotence id.
 - When a message has multiple configurations, each must declare a non-blank, unique `id` (enforced at
   config load in `JsonMessageArchiveConfigurationRepository`). Single-config messages may omit `id`.

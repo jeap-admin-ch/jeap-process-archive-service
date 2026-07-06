@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [16.1.0] - 2026-07-06
+
+### Changed
+
+- Shorten the artifact and event idempotence ID to `<messageType>_<sha256-hex>`, hashing
+  `<messageIdempotenceId>_<system>_<schema>_<referenceId>[_<version>]` to bound the ID length.
+
 ## [16.0.0] - 2026-07-02
 
 ### Added

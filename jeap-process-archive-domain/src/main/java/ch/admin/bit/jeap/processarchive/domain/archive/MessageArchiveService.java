@@ -130,22 +130,15 @@ public class MessageArchiveService {
 
     /**
      * Create the idempotenceId for the archive from the message type, the idempotenceId of the message and a
-     * discriminator derived from the artifact (system, schema, referenceId and - if present - version).
-     * The idempotenceId of a message is only unique within the message type, and a single message may produce
-     * multiple artifacts (one per configuration registered for the message), so the discriminator is required to
-     * keep the idempotenceId unique per artifact.
+     * discriminator derived from the artifact, see {@link ArchiveArtifactIdempotenceId}.
      *
      * @param message     the message with the information to archive
      * @param archiveData the extracted archive data of the artifact
      * @return the idempotenceId for the archive
      */
     private String createArchiveArtifactIdempotenceId(Message message, ArchiveData archiveData) {
-        return message.getType().getName()
-                + "_" + message.getIdentity().getIdempotenceId()
-                + "_" + archiveData.getSystem()
-                + "_" + archiveData.getSchema()
-                + "_" + archiveData.getReferenceId()
-                + (archiveData.getVersion() != null ? "_" + archiveData.getVersion() : "");
+        return ArchiveArtifactIdempotenceId.create(
+                message.getType().getName(), message.getIdentity().getIdempotenceId(), archiveData);
     }
 
     private String readOriginProcessId(MessageArchiveConfiguration configuration, Message message) {
