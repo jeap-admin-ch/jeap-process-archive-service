@@ -136,10 +136,29 @@ public class DecreeCreatedDataProvider implements MessageArchiveDataProvider<Jme
       "archiveDataReferenceProvider": "ch.admin.bit.jeap.jme.processarchive.service.provider.DiagramVersionCreatedArchiveDataReferenceProvider",
       "condition": "ch.admin.bit.jeap.jme.processarchive.service.provider.ArchiveDiagramCondition",
       "uri": "${diagram.archive.uri}"
+    },
+    {
+      "id": "dossier",
+      "messageName": "JmeDossierClosedEvent",
+      "topicName": "jme-process-archive-dossierclosed",
+      "archiveDataReferenceProvider": "ch.admin.bit.jeap.jme.processarchive.service.provider.DossierClosedArchiveDataReferenceProvider",
+      "uri": "${dossier.archive.uri}",
+      "oauthClientId": "jme-process-archive-resource-service"
+    },
+    {
+      "id": "dossier-receipt",
+      "messageName": "JmeDossierClosedEvent",
+      "topicName": "jme-process-archive-dossierclosed",
+      "messageArchiveDataProvider": "ch.admin.bit.jeap.jme.processarchive.service.provider.DossierClosedReceiptDataProvider"
     }
   ]
 }
 ```
+
+The last two entries show [multiple artifacts per message](#multiple-artifacts-per-message):
+`JmeDossierClosedEvent` is configured twice — once fetching the dossier from a remote service and once
+archiving a receipt built from the message payload. Both configurations use the same `topicName` and
+each declares a unique `id`.
 
 ## Plugin interfaces
 
