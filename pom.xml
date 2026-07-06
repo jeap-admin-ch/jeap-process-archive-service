@@ -40,7 +40,8 @@
 
     <properties>
         <jeap-process-archive-reader.version>4.0.0</jeap-process-archive-reader.version>
-        <jeap-opensearch.version>1.5.0</jeap-opensearch.version>
+        <jeap-opensearch-searchitem-api.version>1.5.1</jeap-opensearch-searchitem-api.version>
+        <jeap-opensearch-index-type.version>1.5.0</jeap-opensearch-index-type.version>
         <file-management.version>3.2.0</file-management.version>
         <maven-invoker.version>3.3.0</maven-invoker.version>
         <json-schema-validator.version>3.0.5</json-schema-validator.version>
@@ -181,17 +182,17 @@
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-opensearch-index-type</artifactId>
-                <version>${jeap-opensearch.version}</version>
+                <version>${jeap-opensearch-index-type.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-opensearch-searchitem-model</artifactId>
-                <version>${jeap-opensearch.version}</version>
+                <version>${jeap-opensearch-searchitem-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-opensearch-searchitem-api</artifactId>
-                <version>${jeap-opensearch.version}</version>
+                <version>${jeap-opensearch-searchitem-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
