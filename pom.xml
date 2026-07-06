@@ -28,7 +28,7 @@
     <parent>
         <groupId>ch.admin.bit.jeap</groupId>
         <artifactId>jeap-spring-boot-parent</artifactId>
-        <version>36.1.0</version>
+        <version>36.2.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -50,10 +50,10 @@
         <maven-plugin-testing-harness.version>3.5.1</maven-plugin-testing-harness.version>
         <commons-io.version>2.22.0</commons-io.version>
         <plexus-xml.version>4.1.1</plexus-xml.version>
-        <avro-maven-plugin.version>1.12.0</avro-maven-plugin.version>
+        <avro-maven-plugin.version>1.12.1</avro-maven-plugin.version>
         <system-stubs-jupiter.version>2.1.8</system-stubs-jupiter.version>
         <jackson-coreutils.version>2.0</jackson-coreutils.version>
-        <checker-qual.version>4.2.0</checker-qual.version>
+        <checker-qual.version>4.2.1</checker-qual.version>
 
         <wiremock-spring-boot.version>4.2.1</wiremock-spring-boot.version>
         <shared-archived-artifact-version-created-event.version>2.0.2</shared-archived-artifact-version-created-event.version>

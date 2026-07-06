@@ -9,8 +9,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Shorten the artifact and event idempotence ID to `<messageType>_<sha256-hex>`, hashing
-  `<messageIdempotenceId>_<system>_<schema>_<referenceId>[_<version>]` to bound the ID length.
+- Shorten the artifact and event idempotence ID to `<messageType>_<sha256-hex>`, hashing the message idempotence ID
+  and the artifact discriminator (system, schema, referenceId, version) to bound the ID length. The ID format changes,
+  so messages redelivered across the upgrade are not deduplicated against their pre-upgrade events.
 
 ## [16.0.0] - 2026-07-02
 

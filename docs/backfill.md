@@ -254,6 +254,7 @@ The report includes submitter information from the JWT claims `name` and `ext_id
 - Ensure the configured source endpoint and OAuth client can read the historical data for every requested reference.
 - The backfill topic is both the publisher and consumer topic for PAS. Configure contracts and access accordingly.
 - Backfilled artifacts use a backfill-specific event idempotence id derived from the `CreateArtifactCommand` identity,
-  which differs from the discriminated idempotence id of the live message-driven path. This is intentional (one command
+  which differs from the hashed idempotence id of the live message-driven path. This is intentional (one command
   produces exactly one artifact, so the id is unique and stable across retries); an artifact archived both live and via
-  backfill is therefore not de-duplicated across the two paths by idempotence id.
+  backfill is therefore not de-duplicated across the two paths by idempotence id. The backfill id is not hashed and
+  embeds the referenceId, so keep referenceIds reasonably short.

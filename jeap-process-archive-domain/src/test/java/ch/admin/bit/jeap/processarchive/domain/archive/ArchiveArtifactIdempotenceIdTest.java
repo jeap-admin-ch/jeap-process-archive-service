@@ -18,9 +18,9 @@ class ArchiveArtifactIdempotenceIdTest {
         String idempotenceId = ArchiveArtifactIdempotenceId.create(
                 MESSAGE_TYPE, MESSAGE_IDEMPOTENCE_ID, "JME", "MySchema", "ref-1", 2);
 
-        // sha256 of "msg-idempotence-id_JME_MySchema_ref-1_2"
+        // sha256 of "18:msg-idempotence-id3:JME8:MySchema5:ref-11:2"
         assertThat(idempotenceId)
-                .isEqualTo("TestEvent_6323945aa21e854bc9b603c263e611d1025753ff7cb2b285c0ea44de161d31a4");
+                .isEqualTo("TestEvent_d15ec0324853489294ae1fc4bd550ced9a7486017780db0301b29a7b2090cef2");
     }
 
     @Test
@@ -28,9 +28,9 @@ class ArchiveArtifactIdempotenceIdTest {
         String idempotenceId = ArchiveArtifactIdempotenceId.create(
                 MESSAGE_TYPE, MESSAGE_IDEMPOTENCE_ID, "JME", "MySchema", "ref-1", null);
 
-        // sha256 of "msg-idempotence-id_JME_MySchema_ref-1"
+        // sha256 of "18:msg-idempotence-id3:JME8:MySchema5:ref-1"
         assertThat(idempotenceId)
-                .isEqualTo("TestEvent_821a17c6752f5b632f90b27fb09cc0649f8d25524dc35399ca263d55b982714a");
+                .isEqualTo("TestEvent_4361c4f785dec328d8f8deed9ece2e58379bf22c7c0c928bcd44b3e2293ed9d7");
     }
 
     @Test
@@ -59,6 +59,13 @@ class ArchiveArtifactIdempotenceIdTest {
                 ArchiveArtifactIdempotenceId.create(MESSAGE_TYPE, MESSAGE_IDEMPOTENCE_ID, "JME", "MySchema", "ref-1", null)))
                 .doesNotContain(reference)
                 .doesNotHaveDuplicates();
+    }
+
+    @Test
+    void create_fieldBoundariesAreUnambiguous() {
+        // without length-prefixing, both would hash "..._ref_2"
+        assertThat(ArchiveArtifactIdempotenceId.create(MESSAGE_TYPE, MESSAGE_IDEMPOTENCE_ID, "JME", "MySchema", "ref", 2))
+                .isNotEqualTo(ArchiveArtifactIdempotenceId.create(MESSAGE_TYPE, MESSAGE_IDEMPOTENCE_ID, "JME", "MySchema", "ref_2", null));
     }
 
     @Test
