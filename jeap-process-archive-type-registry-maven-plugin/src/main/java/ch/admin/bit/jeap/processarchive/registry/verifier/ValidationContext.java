@@ -17,4 +17,5 @@ public class ValidationContext {
     File descriptor;
     String archiveTypeName;
     File archiveTypeDir;
+    String trunkBranchName;
 }

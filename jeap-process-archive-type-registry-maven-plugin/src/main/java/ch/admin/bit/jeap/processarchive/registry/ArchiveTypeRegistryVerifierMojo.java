@@ -35,6 +35,9 @@ public class ArchiveTypeRegistryVerifierMojo extends AbstractMojo {
     @Parameter(name= "archiveTypeRepoGitTokenEnvVariableName", defaultValue = "ARCHIVE_TYPE_REPO_GIT_TOKEN")
     private String archiveTypeRepoGitTokenEnvVariableName;
     @SuppressWarnings("unused")
+    @Parameter(name = "trunkBranchName", defaultValue = "master", required = true)
+    private String trunkBranchName;
+    @SuppressWarnings("unused")
     @Getter(AccessLevel.PROTECTED)
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     private MavenProject project;
@@ -47,6 +50,7 @@ public class ArchiveTypeRegistryVerifierMojo extends AbstractMojo {
                     .descriptorDir(descriptorDirectory)
                     .oldDescriptorDir(getFolderToCompareTo())
                     .importClassLoader(importClassLoader)
+                    .trunkBranchName(trunkBranchName)
                     .build();
             ValidationResult overallResult = DescriptorDirectoryValidator.validate(validationContext);
             if (!overallResult.isValid()) {
@@ -66,10 +70,10 @@ public class ArchiveTypeRegistryVerifierMojo extends AbstractMojo {
             return descriptorDirectory;
         }
         try {
-            File tempDir = Files.createTempDirectory("master").toFile();
+            File tempDir = Files.createTempDirectory(trunkBranchName).toFile();
             FileUtils.forceDeleteOnExit(tempDir);
             GitClient gitClient = new GitClient(gitUrl, archiveTypeRepoGitTokenEnvVariableName, getLog());
-            gitClient.cloneAtBranch("master", tempDir);
+            gitClient.cloneAtBranch(trunkBranchName, tempDir);
             return new File(tempDir, descriptorDirectory.getName());
         } catch (IOException | GitClientException e) {
             throw new MojoExecutionException("Cannot checkout old repo", e);

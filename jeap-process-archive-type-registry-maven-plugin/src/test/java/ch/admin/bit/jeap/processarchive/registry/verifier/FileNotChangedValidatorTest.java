@@ -35,6 +35,7 @@ class FileNotChangedValidatorTest {
                 .descriptorDir(newDescriptor)
                 .systemName("test")
                 .archiveTypeName("decree")
+                .trunkBranchName("master")
                 .build();
         oldCommon = new File(oldDescriptor, ArchiveTypeRegistryConstants.COMMON_DIR_NAME);
         newCommon = new File(newDescriptor, ArchiveTypeRegistryConstants.COMMON_DIR_NAME);
