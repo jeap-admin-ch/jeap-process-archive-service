@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [16.6.0] - 2026-07-15
+
+### Dependencies
+- **ch.admin.bit.jeap:jeap-spring-boot-parent**: 36.7.0 → 36.9.0 (minor)
+- **ch.admin.bit.jeap:jeap-process-archive-reader**: 4.2.0 → 4.3.0 (minor)
+- **ch.admin.bit.jeap:jeap-opensearch-searchitem-model**: 1.8.0 → 1.10.0 (minor)
+- **ch.admin.bit.jeap:jeap-opensearch-searchitem-api**: 1.8.0 → 1.10.0 (minor)
+- **ch.admin.bit.jeap:jeap-opensearch-index-type**: 1.5.0 → 1.7.0 (minor)
+- **org.wiremock.integrations:wiremock-spring-boot**: 4.2.1 → 4.2.2 (patch)
+
 ## [16.5.0] - 2026-07-13
 
 ### Dependencies
