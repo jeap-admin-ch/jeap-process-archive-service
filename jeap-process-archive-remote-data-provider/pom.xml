@@ -49,7 +49,7 @@
         </dependency>
         <dependency>
             <groupId>org.wiremock.integrations</groupId>
-            <artifactId>wiremock-spring-boot</artifactId>
+            <artifactId>wiremock-spring-boot-standalone</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

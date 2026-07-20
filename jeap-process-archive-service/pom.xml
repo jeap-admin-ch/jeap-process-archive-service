@@ -90,11 +90,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.wiremock.integrations</groupId>
-            <artifactId>wiremock-spring-boot</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>ch.admin.bit.jeap</groupId>
             <artifactId>jeap-process-archive-test-types</artifactId>
             <scope>test</scope>
