@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [18.2.0] - 2026-07-23
+
+### Dependencies
+- **ch.admin.bit.jeap:jeap-spring-boot-parent**: 37.2.0 → 37.4.0 (minor)
+- **ch.admin.bit.jeap:jeap-opensearch-searchitem-model**: 2.1.0 → 2.3.0 (minor)
+- **ch.admin.bit.jeap:jeap-opensearch-searchitem-api**: 2.1.0 → 2.3.0 (minor)
+- **ch.admin.bit.jeap:jeap-opensearch-index-type**: 1.8.0 → 1.10.0 (minor)
+
 ## [18.1.0] - 2026-07-22
 
 ### Dependencies
