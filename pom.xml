@@ -40,8 +40,6 @@
 
     <properties>
         <jeap-process-archive-reader.version>5.1.0</jeap-process-archive-reader.version>
-        <jeap-opensearch-searchitem-api.version>2.3.0</jeap-opensearch-searchitem-api.version>
-        <jeap-opensearch-index-type.version>1.10.0</jeap-opensearch-index-type.version>
         <file-management.version>3.2.0</file-management.version>
         <maven-invoker.version>3.3.0</maven-invoker.version>
         <json-schema-validator.version>3.0.6</json-schema-validator.version>
@@ -178,21 +176,6 @@
                 <groupId>ch.admin.bit.jeap</groupId>
                 <artifactId>jeap-process-archive-adapter-kafka-test</artifactId>
                 <version>18.2.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.admin.bit.jeap</groupId>
-                <artifactId>jeap-opensearch-index-type</artifactId>
-                <version>${jeap-opensearch-index-type.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.admin.bit.jeap</groupId>
-                <artifactId>jeap-opensearch-searchitem-model</artifactId>
-                <version>${jeap-opensearch-searchitem-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.admin.bit.jeap</groupId>
-                <artifactId>jeap-opensearch-searchitem-api</artifactId>
-                <version>${jeap-opensearch-searchitem-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>

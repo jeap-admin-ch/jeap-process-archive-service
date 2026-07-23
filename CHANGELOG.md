@@ -13,6 +13,9 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **ch.admin.bit.jeap:jeap-opensearch-searchitem-api**: 2.1.0 → 2.3.0 (minor)
 - **ch.admin.bit.jeap:jeap-opensearch-index-type**: 1.8.0 → 1.10.0 (minor)
 
+### Changed
+- Removed the `jeap-opensearch-*` from dependency management since they are managed by the parent 
+
 ## [18.1.0] - 2026-07-22
 
 ### Dependencies
