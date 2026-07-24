@@ -90,9 +90,12 @@ public class ObjectStorageConfiguration {
         return DefaultCredentialsProvider.builder().build();
     }
 
+    // Bean name must be "processArchiveReader" (not the default "archiveReader" used by
+    // ProcessArchiveReaderAutoConfiguration in jeap-process-archive-reader) to avoid a bean
+    // name conflict when that library is included as a dependency in the same service instance.
     @Profile(JEAP_PAS_S3_STORAGE_PROFILE)
     @Bean
-    public ProcessArchiveReader archiveReader(TimedS3Client timedS3Client, Optional<KeyReferenceCryptoService> keyReferenceCryptoService){
+    public ProcessArchiveReader processArchiveReader(TimedS3Client timedS3Client, Optional<KeyReferenceCryptoService> keyReferenceCryptoService){
         return keyReferenceCryptoService
                 .map(referenceCryptoService -> new ProcessArchiveReader(new DecryptingStorageObjectRepository(timedS3Client.getS3Client(), referenceCryptoService)))
                 .orElseGet(() -> new ProcessArchiveReader(new S3StorageObjectRepository(timedS3Client.getS3Client())));
