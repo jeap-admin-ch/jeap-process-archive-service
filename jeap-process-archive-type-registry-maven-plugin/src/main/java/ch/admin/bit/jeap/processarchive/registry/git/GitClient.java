@@ -84,18 +84,18 @@ public class GitClient {
 
     private void gitCloneAtBranchWithSystemGit(String branch, File targetDirectory) {
         log.info("Using a system Git process to clone the remote repository at branch %s.".formatted(branch));
-        executeGitCommandWithSystemGit("git", "clone", "--branch", branch, gitUrl, targetDirectory.getAbsolutePath());
+        executeGitCommandWithSystemGit(targetDirectory, "git", "clone", "--branch", branch, gitUrl, targetDirectory.getAbsolutePath());
     }
 
     private void cloneAtCheckoutWithSystemGit(String checkoutAt, File targetDirectory) {
         log.info("Using a system Git process to clone the remote repository at checkout %s.".formatted(checkoutAt));
-        executeGitCommandWithSystemGit("git", "clone", gitUrl, targetDirectory.getAbsolutePath());
-        executeGitCommandWithSystemGit("git", "-C", targetDirectory.getAbsolutePath(), "checkout", checkoutAt);
+        executeGitCommandWithSystemGit(targetDirectory, "git", "clone", gitUrl, targetDirectory.getAbsolutePath());
+        executeGitCommandWithSystemGit(targetDirectory, "git", "-C", targetDirectory.getAbsolutePath(), "checkout", checkoutAt);
     }
 
-    private void executeGitCommandWithSystemGit(String... command) {
+    private void executeGitCommandWithSystemGit(File workingDirectory, String... command) {
         try {
-            ProcessBuilder pb = processBuilderFactory.createProcessBuilder(command);
+            ProcessBuilder pb = processBuilderFactory.createProcessBuilder(workingDirectory, command);
             Process process = pb.start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {

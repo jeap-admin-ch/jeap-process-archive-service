@@ -47,7 +47,7 @@ public class GitClientTest {
         mockProcessBuilder = mock(ProcessBuilder.class);
         mockProcess = mock(Process.class);
         
-        when(mockProcessBuilderFactory.createProcessBuilder(any(String[].class))).thenReturn(mockProcessBuilder);
+        when(mockProcessBuilderFactory.createProcessBuilder(any(File.class), any(String[].class))).thenReturn(mockProcessBuilder);
         when(mockProcessBuilder.start()).thenReturn(mockProcess);
         when(mockProcess.waitFor()).thenReturn(0);
     }
@@ -64,7 +64,7 @@ public class GitClientTest {
 
         gitClient.cloneAtBranch("main", tempDir);
 
-        verify(mockProcessBuilderFactory).createProcessBuilder("git", "clone", "--branch", "main", TEST_GIT_URL, tempDir.getAbsolutePath());
+        verify(mockProcessBuilderFactory).createProcessBuilder(tempDir, "git", "clone", "--branch", "main", TEST_GIT_URL, tempDir.getAbsolutePath());
         verify(mockProcess).waitFor();
         verify(mockLog).info("Using a system Git process to clone the remote repository at branch main.");
     }
@@ -76,8 +76,8 @@ public class GitClientTest {
 
         gitClient.cloneAtCheckout("abc123", tempDir);
 
-        verify(mockProcessBuilderFactory).createProcessBuilder("git", "clone", TEST_GIT_URL, tempDir.getAbsolutePath());
-        verify(mockProcessBuilderFactory).createProcessBuilder("git", "-C", tempDir.getAbsolutePath(), "checkout", "abc123");
+        verify(mockProcessBuilderFactory).createProcessBuilder(tempDir, "git", "clone", TEST_GIT_URL, tempDir.getAbsolutePath());
+        verify(mockProcessBuilderFactory).createProcessBuilder(tempDir, "git", "-C", tempDir.getAbsolutePath(), "checkout", "abc123");
         verify(mockProcess, times(2)).waitFor();
         verify(mockLog).info("Using a system Git process to clone the remote repository at checkout abc123.");
     }

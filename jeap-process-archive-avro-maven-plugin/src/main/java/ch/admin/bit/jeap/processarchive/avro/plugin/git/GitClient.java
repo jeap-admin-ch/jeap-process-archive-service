@@ -50,11 +50,15 @@ public class GitClient {
         this.processBuilderFactory = processBuilderFactory;
         FileRepositoryBuilder builder = new FileRepositoryBuilder();
         try {
-            this.repo = builder.setGitDir(new File(sourceDirectory + "/.git")).setMustExist(true).build();
+            this.repo = builder.setGitDir(gitDir(sourceDirectory)).setMustExist(true).build();
         } catch (IOException e) {
             throw new MojoExecutionException("Cannot build repo " + e.getMessage(), e);
         }
         this.git = new Git(repo);
+    }
+
+    private static File gitDir(String sourceDirectory) {
+        return new File(sourceDirectory, ".git");
     }
 
     public GitDiffDto getGitDiff(String branchName) throws MojoExecutionException {
@@ -95,7 +99,11 @@ public class GitClient {
     private void gitFetchTagsWithSystemGit() throws MojoExecutionException {
         log.info("Using a system Git process to to fetch tags from the remote repository.");
         try {
-            ProcessBuilder pb = processBuilderFactory.createProcessBuilder("git", "fetch", "--tags", "--force", remoteUrl);
+            // Pin the git process to the same repository the JGit code path uses. Without an explicit working
+            // directory and git dir, the process would inherit the working directory of the JVM and fetch the tags
+            // into whatever repository encloses it.
+            ProcessBuilder pb = processBuilderFactory.createProcessBuilder(new File(sourceDirectory),
+                    "git", "--git-dir", gitDir(sourceDirectory).getAbsolutePath(), "fetch", "--tags", "--force", remoteUrl);
             Process process = pb.start();
             int exitCode = process.waitFor();
             if (exitCode != 0) {

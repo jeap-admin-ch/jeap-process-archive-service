@@ -5,16 +5,19 @@ import lombok.SneakyThrows;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.assertj.core.api.Assertions;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.Ref;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class GitClientTest {
@@ -115,7 +118,7 @@ class GitClientTest {
         final String remoteUrl = "some-remote-url";
         ProcessBuilderFactory processBuilderFactory = mock(ProcessBuilderFactory.class);
         ProcessBuilder processBuilder = mock(ProcessBuilder.class);
-        when(processBuilderFactory.createProcessBuilder("git", "fetch", "--tags", "--force", remoteUrl)).thenReturn(processBuilder);
+        when(processBuilderFactory.createProcessBuilder(registryRepoDir(), expectedFetchTagsCommand(remoteUrl))).thenReturn(processBuilder);
         when(processBuilder.start()).thenThrow(new IOException());
         GitClient gitClient = new GitClient(testRepo.repoDir().toString(), remoteUrl, "some-trunk-branch-name", new SystemStreamLog(), processBuilderFactory);
 
@@ -132,7 +135,7 @@ class GitClientTest {
         final String remoteUrl = "some-remote-url";
         ProcessBuilderFactory processBuilderFactory = mock(ProcessBuilderFactory.class);
         ProcessBuilder processBuilder = mock(ProcessBuilder.class);
-        when(processBuilderFactory.createProcessBuilder("git", "fetch", "--tags", "--force", remoteUrl)).thenReturn(processBuilder);
+        when(processBuilderFactory.createProcessBuilder(registryRepoDir(), expectedFetchTagsCommand(remoteUrl))).thenReturn(processBuilder);
         Process process = mock(Process.class);
         when(processBuilder.start()).thenReturn(process);
         when(process.waitFor()).thenThrow(new InterruptedException());
@@ -151,7 +154,7 @@ class GitClientTest {
         final String remoteUrl = "some-remote-url";
         ProcessBuilderFactory processBuilderFactory = mock(ProcessBuilderFactory.class);
         ProcessBuilder processBuilder = mock(ProcessBuilder.class);
-        when(processBuilderFactory.createProcessBuilder("git", "fetch", "--tags", "--force", remoteUrl)).thenReturn(processBuilder);
+        when(processBuilderFactory.createProcessBuilder(registryRepoDir(), expectedFetchTagsCommand(remoteUrl))).thenReturn(processBuilder);
         Process process = mock(Process.class);
         when(processBuilder.start()).thenReturn(process);
         when(process.waitFor()).thenReturn(42);
@@ -162,6 +165,64 @@ class GitClientTest {
                 )
                 .isInstanceOf(MojoExecutionException.class)
                 .hasMessageStartingWith("The Git fetch process failed to fetch the tags from the remote repository");
+    }
+
+    @Test
+    @SneakyThrows
+    void fetchTags_WhenUsingSystemGit_thenTheGitProcessIsScopedToTheArchiveTypeRegistryRepository() {
+        final String remoteUrl = "some-remote-url";
+        ProcessBuilderFactory processBuilderFactory = mock(ProcessBuilderFactory.class);
+        ProcessBuilder processBuilder = mock(ProcessBuilder.class);
+        Process process = mock(Process.class);
+        when(processBuilderFactory.createProcessBuilder(registryRepoDir(), expectedFetchTagsCommand(remoteUrl))).thenReturn(processBuilder);
+        when(processBuilder.start()).thenReturn(process);
+        when(process.waitFor()).thenReturn(0);
+        GitClient gitClient = new GitClient(testRepo.repoDir().toString(), remoteUrl, "some-trunk-branch-name", new SystemStreamLog(), processBuilderFactory);
+
+        gitClient.gitFetchTags(null); // no token -> system git is used
+
+        // The git process must be pinned to the archive type registry repository. If it was left to inherit the
+        // working directory of the JVM, it would fetch the tags into whatever repository encloses that directory.
+        verify(processBuilderFactory).createProcessBuilder(registryRepoDir(), expectedFetchTagsCommand(remoteUrl));
+    }
+
+    @Test
+    @SneakyThrows
+    void fetchTags_WhenUsingSystemGit_thenTagsAreFetchedIntoTheArchiveTypeRegistryRepository() {
+        TestRegistryRepo remoteRepo = TestRegistryRepo.testRepoWithTwoCommitsAddingArchiveTypeV1AndV2();
+        try {
+            // A tag that only exists in the remote repository, so that it is unambiguous where the tags ended up
+            remoteRepo.repo().tag()
+                    .setObjectId(remoteRepo.commits().get(0))
+                    .setName("v9.9.9-only-in-remote")
+                    .call();
+            GitClient gitClient = new GitClient(testRepo.repoDir().toString(), remoteRepo.url(), "master", new SystemStreamLog());
+
+            gitClient.gitFetchTags(null); // no token -> system git is used
+
+            assertThat(tagNames(testRepo)).contains("refs/tags/v9.9.9-only-in-remote");
+        } finally {
+            remoteRepo.delete();
+        }
+    }
+
+    private File registryRepoDir() {
+        return testRepo.repoDir().toFile();
+    }
+
+    private String[] expectedFetchTagsCommand(String remoteUrl) {
+        String gitDir = new File(registryRepoDir(), ".git").getAbsolutePath();
+        return new String[]{"git", "--git-dir", gitDir, "fetch", "--tags", "--force", remoteUrl};
+    }
+
+    @SneakyThrows
+    private static List<String> tagNames(TestRegistryRepo repo) {
+        // Open the repository anew to read the refs as they are on disk, bypassing the ref cache of the test repo
+        try (Git git = Git.open(repo.repoDir().toFile())) {
+            return git.tagList().call().stream()
+                    .map(Ref::getName)
+                    .toList();
+        }
     }
 
     private void doFindMostRecentTag(List<Ref> tags, String expectedResult) throws MojoExecutionException {
