@@ -1,5 +1,6 @@
 package ch.admin.bit.jeap.processarchive.adapter.restapi;
 
+import ch.admin.bit.jeap.processarchive.adapter.restapi.config.BackfillYamlConverterCustomizer;
 import ch.admin.bit.jeap.processarchive.domain.backfill.*;
 import ch.admin.bit.jeap.security.resource.configuration.SemanticMethodSecurityExpressionHandler;
 import ch.admin.bit.jeap.security.resource.semanticAuthentication.SemanticApplicationRole;
@@ -10,14 +11,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.http.converter.autoconfigure.ServerHttpMessageConvertersCustomizer;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.yaml.JacksonYamlHttpMessageConverter;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -34,6 +34,7 @@ import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -72,6 +73,11 @@ class BackfillJobControllerTest {
             archiveDataReferences:
               - id: DOC-2024-001
             """;
+    private static final String LONG_ERROR_MESSAGE =
+            "Failed reading artifact from source service after 3 attempts, the last attempt was rejected with an " +
+            "unexpected status code and no further details were provided by the source service.";
+    private static final String MULTILINE_ERROR_MESSAGE =
+            "Failed reading artifact from source service\nCaused by: connection reset";
     private static final Instant STARTED = Instant.parse("2026-05-08T07:26:37.123Z");
     private static final Instant REPORT_CREATED = Instant.parse("2026-05-08T07:30:15.456Z");
 
@@ -192,18 +198,18 @@ class BackfillJobControllerTest {
                         .with(authenticationForUserRoles(READ_ROLE)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(BackfillJobController.APPLICATION_YAML_VALUE))
-                .andExpect(content().string(containsString("message: \"JmeDecreeDocumentCreatedEvent\"")))
-                .andExpect(content().string(containsString("job-state: \"open\"")))
+                .andExpect(content().string(containsString("message: JmeDecreeDocumentCreatedEvent")))
+                .andExpect(content().string(containsString("job-state: open")))
                 .andExpect(content().string(not(containsString("job-result:"))))
-                .andExpect(content().string(containsString("job-id: \"2ad48b66-472b-4a83-8efe-66a5f53ca111\"")))
-                .andExpect(content().string(containsString("started: \"2026-05-08T07:26:37.123Z\"")))
+                .andExpect(content().string(containsString("job-id: 2ad48b66-472b-4a83-8efe-66a5f53ca111")))
+                .andExpect(content().string(containsString("started: 2026-05-08T07:26:37.123Z")))
                 .andExpect(content().string(not(containsString("report-created:"))))
-                .andExpect(content().string(containsString("started-by-name: \"John Doe\"")))
-                .andExpect(content().string(containsString("started-by-ext_id: \"287365\"")))
+                .andExpect(content().string(containsString("started-by-name: John Doe")))
+                .andExpect(content().string(containsString("started-by-ext_id: 287365")))
                 .andExpect(content().string(containsString("archiveDataReferences:")))
-                .andExpect(content().string(containsString("id: \"DOC-2024-001\"")))
-                .andExpect(content().string(containsString("id: \"DOC-2024-002\"")))
-                .andExpect(content().string(containsString("state: \"open\"")));
+                .andExpect(content().string(containsString("- id: DOC-2024-001")))
+                .andExpect(content().string(containsString("- id: DOC-2024-002")))
+                .andExpect(content().string(containsString("\n  state: open")));
     }
 
     @Test
@@ -214,7 +220,7 @@ class BackfillJobControllerTest {
                         .accept(BackfillJobController.APPLICATION_YAML_VALUE)
                         .with(authenticationForUserRoles(READ_ROLE)))
                 .andExpect(status().isOk())
-                .andExpect(content().string(containsString("id: \"DOC-2024-001\"")))
+                .andExpect(content().string(containsString("- id: DOC-2024-001")))
                 .andExpect(content().string(not(containsString("version:"))));
     }
 
@@ -227,22 +233,57 @@ class BackfillJobControllerTest {
                         .with(authenticationForUserRoles(READ_ROLE)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(BackfillJobController.APPLICATION_YAML_VALUE))
-                .andExpect(content().string(containsString("message: \"JmeDecreeDocumentCreatedEvent\"")))
-                .andExpect(content().string(containsString("config-id: \"decree-doc\"")))
-                .andExpect(content().string(containsString("job-state: \"completed\"")))
-                .andExpect(content().string(containsString("job-result: \"partially-succeeded\"")))
-                .andExpect(content().string(containsString("job-id: \"2ad48b66-472b-4a83-8efe-66a5f53ca111\"")))
-                .andExpect(content().string(containsString("started: \"2026-05-08T07:26:37.123Z\"")))
-                .andExpect(content().string(containsString("report-created: \"2026-05-08T07:30:15.456Z\"")))
-                .andExpect(content().string(containsString("started-by-name: \"John Doe\"")))
-                .andExpect(content().string(containsString("started-by-ext_id: \"287365\"")))
-                .andExpect(content().string(containsString("id: \"DOC-2024-001\"")))
-                .andExpect(content().string(containsString("state: \"succeeded\"")))
-                .andExpect(content().string(containsString("id: \"DOC-2024-002\"")))
-                .andExpect(content().string(containsString("state: \"failed\"")))
-                .andExpect(content().string(containsString("error:")))
-                .andExpect(content().string(containsString("message: \"Failed reading artifact from source service\"")))
-                .andExpect(content().string(containsString("traceId: \"4bf92f3577b34da6a3ce929d0e0e4736\"")));
+                .andExpect(content().string(containsString("message: JmeDecreeDocumentCreatedEvent")))
+                .andExpect(content().string(containsString("config-id: decree-doc")))
+                .andExpect(content().string(containsString("job-state: completed")))
+                .andExpect(content().string(containsString("job-result: partially-succeeded")))
+                .andExpect(content().string(containsString("job-id: 2ad48b66-472b-4a83-8efe-66a5f53ca111")))
+                .andExpect(content().string(containsString("started: 2026-05-08T07:26:37.123Z")))
+                .andExpect(content().string(containsString("report-created: 2026-05-08T07:30:15.456Z")))
+                .andExpect(content().string(containsString("started-by-name: John Doe")))
+                .andExpect(content().string(containsString("started-by-ext_id: 287365")))
+                .andExpect(content().string(containsString("- id: DOC-2024-001")))
+                .andExpect(content().string(containsString("\n  state: succeeded")))
+                .andExpect(content().string(containsString("- id: DOC-2024-002")))
+                .andExpect(content().string(containsString("\n  state: failed")))
+                .andExpect(content().string(containsString("\n  error:")))
+                .andExpect(content().string(containsString("\n    message: Failed reading artifact from source service")))
+                .andExpect(content().string(containsString("\n    traceId: 4bf92f3577b34da6a3ce929d0e0e4736")));
+    }
+
+    @Test
+    void getReport_writesYamlWithoutDocumentStartMarker() throws Exception {
+        when(backfillJobService.getBackfillJob(JOB_ID)).thenReturn(Optional.of(runningJob()));
+
+        mockMvc.perform(get("/api/jobs/{jobId}/report", JOB_ID)
+                        .accept(BackfillJobController.APPLICATION_YAML_VALUE)
+                        .with(authenticationForUserRoles(READ_ROLE)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(not(startsWith("---"))));
+    }
+
+    @Test
+    void getReport_longErrorMessage_isNotSplitIntoMultipleLines() throws Exception {
+        when(backfillJobService.getBackfillJob(JOB_ID)).thenReturn(Optional.of(failedJob(LONG_ERROR_MESSAGE)));
+
+        mockMvc.perform(get("/api/jobs/{jobId}/report", JOB_ID)
+                        .accept(BackfillJobController.APPLICATION_YAML_VALUE)
+                        .with(authenticationForUserRoles(READ_ROLE)))
+                .andExpect(status().isOk())
+                // with SPLIT_LINES enabled the message would be wrapped and this substring would not appear as such
+                .andExpect(content().string(containsString(LONG_ERROR_MESSAGE)));
+    }
+
+    @Test
+    void getReport_multiLineErrorMessage_isWrittenAsLiteralBlock() throws Exception {
+        when(backfillJobService.getBackfillJob(JOB_ID)).thenReturn(Optional.of(failedJob(MULTILINE_ERROR_MESSAGE)));
+
+        mockMvc.perform(get("/api/jobs/{jobId}/report", JOB_ID)
+                        .accept(BackfillJobController.APPLICATION_YAML_VALUE)
+                        .with(authenticationForUserRoles(READ_ROLE)))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString(
+                        "message: |-\n      Failed reading artifact from source service\n      Caused by: connection reset\n")));
     }
 
     @Test
@@ -312,6 +353,21 @@ class BackfillJobControllerTest {
                                 "Failed reading artifact from source service", "4bf92f3577b34da6a3ce929d0e0e4736")));
     }
 
+    private BackfillJob failedJob(String errorMessage) {
+        return new BackfillJob(
+                JOB_ID,
+                "JmeDecreeDocumentCreatedEvent",
+                null,
+                BackfillJobState.COMPLETED,
+                BackfillJobResult.FAILED,
+                STARTED,
+                REPORT_CREATED,
+                "John Doe",
+                "287365",
+                List.of(new BackfillTask(1L, "DOC-2024-001", 1, BackfillTaskState.FAILED,
+                        errorMessage, "4bf92f3577b34da6a3ce929d0e0e4736")));
+    }
+
     private RequestPostProcessor authenticationForUserRoles(SemanticApplicationRole... userroles) {
         JeapAuthenticationToken authentication = JeapAuthenticationTestTokenBuilder.create().withUserRoles(userroles).build();
         return request -> {
@@ -333,16 +389,15 @@ class BackfillJobControllerTest {
         }
     }
 
+    /**
+     * Registers the YAML converter of the production auto-configuration, so that this test covers the very converter
+     * the backfill REST API uses at runtime, including its YAML output settings.
+     */
     @TestConfiguration
     static class YamlTestConfig {
         @Bean
-        JacksonYamlHttpMessageConverter yamlHttpMessageConverter() {
-            JacksonYamlHttpMessageConverter converter = new JacksonYamlHttpMessageConverter();
-            converter.setSupportedMediaTypes(java.util.List.of(
-                    MediaType.parseMediaType(BackfillJobController.APPLICATION_YAML_VALUE),
-                    MediaType.parseMediaType(BackfillJobController.APPLICATION_X_YAML_VALUE)
-            ));
-            return converter;
+        ServerHttpMessageConvertersCustomizer yamlConverterCustomizer() {
+            return new BackfillYamlConverterCustomizer();
         }
     }
 }

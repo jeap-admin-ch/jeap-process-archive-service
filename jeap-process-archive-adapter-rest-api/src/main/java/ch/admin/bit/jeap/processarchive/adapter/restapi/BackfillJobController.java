@@ -74,7 +74,7 @@ public class BackfillJobController {
                                     started: 2026-05-08T07:26:37.123Z
                                     report-created: 2026-05-08T07:30:15.456Z
                                     started-by-name: John Doe
-                                    started-by-ext_id: "287365"
+                                    started-by-ext_id: 287365
                                     archiveDataReferences:
                                     - id: DOC-2024-001
                                       version: 1

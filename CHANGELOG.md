@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [21.0.1] - 2026-08-18
+
+### Fixed
+- The YAML converter of the backfill REST API is registered on the server-side message converters only. It used to be
+  exposed as an `HttpMessageConverter` bean, which put it ahead of the JSON converter in the auto-configured
+  `RestClient.Builder` as well. Requests sent with a `RestClient` built from that shared builder without an explicit
+  content type were therefore serialized as `application/yaml` instead of `application/json`.
+
 ## [21.0.0] - 2026-08-16
 
 ### Dependencies
