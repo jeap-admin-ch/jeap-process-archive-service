@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.0.0] - 2026-08-19
+
+### Dependencies
+- **ch.admin.bit.jeap:jeap-spring-boot-parent**: 39.0.1 → 39.5.0 (minor)
+- **ch.admin.bit.jeap:jeap-process-archive-reader**: 6.5.0 → 7.0.0 (major)
+- **org.codehaus.plexus:plexus-xml**: 4.1.1 → 4.2.0 (minor)
+- **org.apache.avro:avro-maven-plugin**: 1.12.1 → 1.12.2 (patch)
+
 ## [21.0.1] - 2026-08-18
 
 ### Fixed
