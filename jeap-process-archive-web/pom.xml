@@ -5,7 +5,7 @@
     <parent>
         <artifactId>jeap-process-archive-service-parent</artifactId>
         <groupId>ch.admin.bit.jeap</groupId>
-        <version>22.0.0-SNAPSHOT</version>
+        <version>22.1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -21,6 +21,11 @@
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
+        </dependency>
+        <!-- Provides AvroClassSecurity, the Avro class whitelist required since Avro 1.12.2 -->
+        <dependency>
+            <groupId>ch.admin.bit.jeap</groupId>
+            <artifactId>jeap-messaging-avro</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

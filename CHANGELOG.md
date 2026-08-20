@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.1.0] - 2026-08-20
+
+### Fixed
+- The Avro binary REST converter of `jeap-process-archive-web` installs the jEAP Avro class whitelist. Avro 1.12.2
+  validates every class it resolves from a schema, so `AvroBinarySerializer` and `AvroBinaryDeserializer` failed with
+  `SecurityException: Forbidden <class>!` unless something had installed a whitelist before. The module did not depend
+  on jEAP Messaging so far, which means neither its Spring auto-configuration nor its JUnit listener were available -
+  and neither of them covers a consumer of the archive REST API that is not a jEAP messaging service.
+
+### Changed
+- Avro is pinned to 1.12.2, the version the jEAP Avro class whitelist requires. The pin can be removed as soon as the
+  jEAP parent manages that version itself.
+
 ## [22.0.0] - 2026-08-19
 
 ### Dependencies
