@@ -1,9 +1,11 @@
 package ch.admin.bit.jeap.processarchive.kafka.event;
 
 import ch.admin.bit.jeap.event.shared.processarchive.archivedartifactversioncreated.SharedArchivedArtifactVersionCreatedEvent;
+import ch.admin.bit.jeap.messaging.avro.security.AvroClassSecurity;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedartifact.ArchivedArtifact;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.Metadata;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -14,8 +16,16 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ArchivedArtifactVersionCreatedEventFactoryTest {
-
     private ArchivedArtifactVersionCreatedEventFactory factory;
+
+    @BeforeAll
+    static void installAvroClassWhitelist() {
+        // No Spring context installs the Avro class whitelist for this test, and Avro rejects every class resolved
+        // from a schema that is not trusted. All types used here are below ch.admin.bit.jeap, which the default
+        // whitelist trusts.
+        AvroClassSecurity.installDefaultIfMissing();
+    }
+
 
     @BeforeEach
     void createFactory() {

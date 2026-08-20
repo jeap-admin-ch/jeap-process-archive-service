@@ -43,8 +43,8 @@
              released. Avro 1.12.2 introduces the class whitelist the jeap-messaging AvroClassSecurity installs, the
              parent still manages Avro 1.12.1. -->
         <avro.version>1.12.2</avro.version>
-        <!-- TODO: Remove as soon as jeap-messaging with AvroClassSecurity is released (JEAP-7502). -->
-        <jeap-messaging.version>17.17.0-feature-JEAP-7502-SNAPSHOT</jeap-messaging.version>
+        <!-- Remove as soon as a jeap-spring-boot-parent managing jeap-messaging 18 is released. -->
+        <jeap-messaging.version>18.0.0</jeap-messaging.version>
         <jeap-process-archive-reader.version>7.0.0</jeap-process-archive-reader.version>
         <file-management.version>3.2.0</file-management.version>
         <maven-invoker.version>3.3.0</maven-invoker.version>

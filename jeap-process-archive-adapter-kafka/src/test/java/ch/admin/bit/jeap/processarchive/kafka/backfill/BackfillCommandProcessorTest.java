@@ -1,5 +1,6 @@
 package ch.admin.bit.jeap.processarchive.kafka.backfill;
 
+import ch.admin.bit.jeap.messaging.avro.security.AvroClassSecurity;
 import ch.admin.bit.jeap.processarchive.adapter.db.BackfillJobEntity;
 import ch.admin.bit.jeap.processarchive.adapter.db.BackfillJobRepository;
 import ch.admin.bit.jeap.processarchive.adapter.db.BackfillTaskEntity;
@@ -17,6 +18,7 @@ import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveDataReference;
 import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.schema.ArchiveDataSchema;
 import io.micrometer.core.instrument.MeterRegistry;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -30,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class BackfillCommandProcessorTest {
-
     private static final UUID JOB_ID = UUID.fromString("81d9f182-8d8f-4351-ab39-eae1bf79e84a");
     private static final String MESSAGE_NAME = "message-name";
     private static final String TOPIC_NAME = "topic-name";
@@ -50,6 +51,15 @@ class BackfillCommandProcessorTest {
             archiveDataObjectStore,
             eventProducer,
             backfillJobRepository);
+
+    @BeforeAll
+    static void installAvroClassWhitelist() {
+        // No Spring context installs the Avro class whitelist for this test, and Avro rejects every class resolved
+        // from a schema that is not trusted. All types used here are below ch.admin.bit.jeap, which the default
+        // whitelist trusts.
+        AvroClassSecurity.installDefaultIfMissing();
+    }
+
 
     @Test
     void processCommandArchivesRemoteDataAndCompletesJobWhenAllTasksSucceeded() {

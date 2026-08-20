@@ -66,12 +66,13 @@ and consumed as Maven dependencies:
 For a versioned artifact, add a `{version}` parameter to the endpoint and read the version in the
 controller — see the `DiagramController` in the `jme-process-archive-example` project.
 
-Since Avro 1.12.2, Avro only resolves classes from a schema that are explicitly trusted. The converter
-therefore installs the jEAP Avro class whitelist unless the application already installed one; by default
-it trusts the `ch.admin` package. Archive types outside of `ch.admin` are rejected with a `SecurityException`
-until they are trusted explicitly: a jEAP messaging service configures them with
-`jeap.messaging.avro.trusted-packages` or `jeap.messaging.avro.trusted-classes`, an application without
-jEAP Messaging calls `AvroClassSecurity.install(..)` on startup.
+Since Avro 1.12.2, Avro only resolves classes from a schema that are explicitly trusted, and the
+converter does not install that whitelist itself. A jEAP Messaging application gets it from the
+`AvroClassSecurityAutoConfiguration` of jeap-messaging and configures it with
+`jeap.messaging.avro.trusted-packages` / `jeap.messaging.avro.trusted-classes` (see the
+[configuration reference](configuration.md#avro-class-whitelist)). An application without jEAP Messaging
+installs it once on startup with `AvroClassSecurity.install(..)` or `installDefaultIfMissing()`. Archive
+types outside of the trusted packages are rejected with a `SecurityException`.
 
 ## Related
 

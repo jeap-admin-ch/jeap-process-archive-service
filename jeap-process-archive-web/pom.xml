@@ -22,11 +22,6 @@
             <groupId>org.apache.avro</groupId>
             <artifactId>avro</artifactId>
         </dependency>
-        <!-- Provides AvroClassSecurity, the Avro class whitelist required since Avro 1.12.2 -->
-        <dependency>
-            <groupId>ch.admin.bit.jeap</groupId>
-            <artifactId>jeap-messaging-avro</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -35,6 +30,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- Provides AvroClassSecurity to install the Avro class whitelist in tests. Applications get the whitelist
+             from the AvroClassSecurityAutoConfiguration of jeap-messaging, this library does not install it itself. -->
+        <dependency>
+            <groupId>ch.admin.bit.jeap</groupId>
+            <artifactId>jeap-messaging-avro</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -4,9 +4,11 @@ import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageType;
 import ch.admin.bit.jeap.messaging.avro.errorevent.MessageHandlerException;
+import ch.admin.bit.jeap.messaging.avro.security.AvroClassSecurity;
 import ch.admin.bit.jeap.processarchive.domain.archive.ProcessArchiveException;
 import ch.admin.bit.jeap.processarchive.domain.event.MessageReceiver;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,7 +24,6 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class KafkaMessageListenerTest {
-
     @Mock
     private MessageReceiver messageReceiver;
 
@@ -30,6 +31,15 @@ class KafkaMessageListenerTest {
     private Acknowledgment acknowledgment;
 
     private KafkaMessageListener listener;
+
+    @BeforeAll
+    static void installAvroClassWhitelist() {
+        // No Spring context installs the Avro class whitelist for this test, and Avro rejects every class resolved
+        // from a schema that is not trusted. All types used here are below ch.admin.bit.jeap, which the default
+        // whitelist trusts.
+        AvroClassSecurity.installDefaultIfMissing();
+    }
+
 
     @BeforeEach
     void setUp() {

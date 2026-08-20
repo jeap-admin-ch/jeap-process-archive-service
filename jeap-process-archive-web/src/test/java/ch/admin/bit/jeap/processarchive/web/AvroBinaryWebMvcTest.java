@@ -1,6 +1,8 @@
 package ch.admin.bit.jeap.processarchive.web;
 
+import ch.admin.bit.jeap.messaging.avro.security.AvroClassSecurity;
 import ch.admin.bit.jeap.processarchive.test.avro.TestRecord;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -20,6 +22,14 @@ class AvroBinaryWebMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @BeforeAll
+    static void installAvroClassWhitelist() {
+        // This library does not install the Avro class whitelist, applications get it from the
+        // AvroClassSecurityAutoConfiguration of jeap-messaging. The test context does not include that
+        // auto-configuration, so the test installs the default whitelist itself.
+        AvroClassSecurity.installDefaultIfMissing();
+    }
 
     @Test
     void testControllerReturnsBinaryAvroObjectThatCanBeSuccesfullyDeserialized() throws Exception {

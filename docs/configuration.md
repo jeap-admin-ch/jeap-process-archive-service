@@ -68,6 +68,27 @@ object store — otherwise an unavailable source service could stall the PAS.
 
 See [Backfill jobs](backfill.md) for the full list (`jeap.processarchive.backfill.*`).
 
+## Avro class whitelist
+
+Avro only instantiates classes that are explicitly trusted. The PAS does not install the whitelist
+itself — as a jEAP Messaging service it gets it from the `AvroClassSecurityAutoConfiguration` of
+jeap-messaging, which installs it before the first bean is created. It is configured with the
+jeap-messaging properties:
+
+| Property                               | Description                                 | Default                         |
+|----------------------------------------|---------------------------------------------|---------------------------------|
+| `jeap.messaging.avro.trusted-packages` | Packages whose classes Avro may instantiate | `ch.admin.bit.jeap`, `ch.admin` |
+| `jeap.messaging.avro.trusted-classes`  | Individual classes Avro may instantiate     |                                 |
+
+Archive types and messages below `ch.admin` are trusted out of the box. Archived Avro objects whose
+types live **outside** of `ch.admin` — as well as archive types read back through
+[`ProcessArchiveReader`](reading-archived-data.md) — are rejected with a `SecurityException` until their
+package or class is listed in one of those two properties. Note that setting either property drops the
+wide `ch.admin` default, so list every package the service needs.
+
+Do not install the whitelist from application code: it is installed once per JVM, and a second install
+with a differing policy fails at startup with an `IllegalStateException`.
+
 ## Metrics
 
 See [Metrics](metrics.md); set `jeap.monitor.prometheus.password` to access the endpoint.
