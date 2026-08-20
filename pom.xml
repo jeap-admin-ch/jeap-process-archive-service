@@ -28,7 +28,7 @@
     <parent>
         <groupId>ch.admin.bit.jeap</groupId>
         <artifactId>jeap-spring-boot-parent</artifactId>
-        <version>39.5.0</version>
+        <version>40.0.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -39,12 +39,6 @@
     <description>JEAP Process Archive Service</description>
 
     <properties>
-        <!-- TODO: Remove as soon as a jeap-spring-boot-parent based on jeap-internal-spring-boot-parent >= 9.0.0 is
-             released. Avro 1.12.2 introduces the class whitelist the jeap-messaging AvroClassSecurity installs, the
-             parent still manages Avro 1.12.1. -->
-        <avro.version>1.12.2</avro.version>
-        <!-- Remove as soon as a jeap-spring-boot-parent managing jeap-messaging 18 is released. -->
-        <jeap-messaging.version>18.0.0</jeap-messaging.version>
         <jeap-process-archive-reader.version>7.0.0</jeap-process-archive-reader.version>
         <file-management.version>3.2.0</file-management.version>
         <maven-invoker.version>3.3.0</maven-invoker.version>

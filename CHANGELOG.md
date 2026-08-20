@@ -8,13 +8,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [22.1.0] - 2026-08-20
 
 ### Changed
-- jEAP Messaging is pinned to 18.0.0, which introduces the Avro class whitelist. Since Avro 1.12.2, Avro only
-  instantiates classes that are explicitly trusted. The whitelist is installed by the
-  `AvroClassSecurityAutoConfiguration` of jeap-messaging, no code in this repository installs it. Archived Avro objects
-  whose types live outside of `ch.admin` have to be trusted explicitly with `jeap.messaging.avro.trusted-packages` or
-  `jeap.messaging.avro.trusted-classes` - see the [configuration reference](docs/configuration.md).
-- Avro is pinned to 1.12.2, the version introducing the class whitelist. The pin can be removed as soon as the jEAP
-  parent manages that version itself.
+- Avro 1.12.2 introduces the Avro class whitelist: Avro only instantiates classes that are explicitly trusted. The
+  whitelist is installed by the `AvroClassSecurityAutoConfiguration` of jeap-messaging, no code in this repository
+  installs it. Archived Avro objects whose types live outside of `ch.admin` have to be trusted explicitly with
+  `jeap.messaging.avro.trusted-packages` or `jeap.messaging.avro.trusted-classes` - see the
+  [configuration reference](docs/configuration.md).
+
+### Dependencies
+- **ch.admin.bit.jeap:jeap-spring-boot-parent**: 39.5.0 → 40.0.0 (major), bringing jeap-messaging 18.0.0 and Avro 1.12.2
 
 ## [22.0.0] - 2026-08-19
 
