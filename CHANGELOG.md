@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [23.3.0] - 2026-08-28
+
+### Dependencies
+- **ch.admin.bit.jeap:jeap-spring-boot-parent**: 40.2.0 → 40.4.0 (minor)
+- **ch.admin.bit.jeap:jeap-process-archive-reader**: 8.1.0 → 8.2.1 (minor)
+
 ## [23.2.1] - 2026-08-26
 
 ### Fixed
