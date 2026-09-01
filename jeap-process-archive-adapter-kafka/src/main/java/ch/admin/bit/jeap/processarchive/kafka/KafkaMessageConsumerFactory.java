@@ -95,6 +95,8 @@ public class KafkaMessageConsumerFactory {
     }
 
     private void startConsumer(String topicName, String clusterName, AcknowledgingMessageListener<AvroMessageKey, AvroMessage> messageListener) {
+        // Use an endpoint so Spring Kafka applies listener-specific factory configuration, such as record filters and
+        // acknowledgement of discarded records. createContainer(topic) followed by setupMessageListener(...) bypasses it.
         MethodKafkaListenerEndpoint<AvroMessageKey, AvroMessage> endpoint = new MethodKafkaListenerEndpoint<>();
         endpoint.setTopics(topicName);
         endpoint.setBean(messageListener);
