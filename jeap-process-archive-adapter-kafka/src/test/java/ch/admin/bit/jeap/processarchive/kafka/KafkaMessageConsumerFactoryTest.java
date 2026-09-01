@@ -12,17 +12,20 @@ import ch.admin.bit.jeap.processarchive.domain.event.MessageReceiver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.MethodKafkaListenerEndpoint;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -56,7 +59,8 @@ class KafkaMessageConsumerFactoryTest {
     @BeforeEach
     void setup(){
         when(kafkaProperties.getDefaultClusterName()).thenReturn(defaultClusterName);
-        kafkaMessageConsumerFactory = new KafkaMessageConsumerFactory(messageReceiver, contractsValidator, contractsProvider, kafkaProperties, beanFactory);
+        kafkaMessageConsumerFactory = new KafkaMessageConsumerFactory(messageReceiver, contractsValidator, contractsProvider,
+                kafkaProperties, beanFactory);
     }
 
     @Test
@@ -64,7 +68,7 @@ class KafkaMessageConsumerFactoryTest {
     void startConsumer_defaultCluster(){
 
         ConcurrentKafkaListenerContainerFactory<AvroMessageKey, AvroMessage> kafkaListenerContainerFactory = mock(ConcurrentKafkaListenerContainerFactory.class);
-        when(kafkaListenerContainerFactory.createContainer(anyString())).thenReturn(mock(ConcurrentMessageListenerContainer.class));
+        when(kafkaListenerContainerFactory.createListenerContainer(any())).thenReturn(mock(ConcurrentMessageListenerContainer.class));
         when(jeapKafkaBeanNames.getListenerContainerFactoryBeanName(defaultClusterName)).thenReturn("test");
         when(beanFactory.getBean("test")).thenReturn(kafkaListenerContainerFactory);
 
@@ -81,7 +85,7 @@ class KafkaMessageConsumerFactoryTest {
 
         final String clusterName = "myClusterName";
         ConcurrentKafkaListenerContainerFactory<AvroMessageKey, AvroMessage> kafkaListenerContainerFactory = mock(ConcurrentKafkaListenerContainerFactory.class);
-        when(kafkaListenerContainerFactory.createContainer(anyString())).thenReturn(mock(ConcurrentMessageListenerContainer.class));
+        when(kafkaListenerContainerFactory.createListenerContainer(any())).thenReturn(mock(ConcurrentMessageListenerContainer.class));
         when(jeapKafkaBeanNames.getListenerContainerFactoryBeanName(clusterName)).thenReturn("test");
         when(beanFactory.getBean("test")).thenReturn(kafkaListenerContainerFactory);
 
@@ -98,6 +102,31 @@ class KafkaMessageConsumerFactoryTest {
         Set<String> messageNames = Set.of("eventName");
 
         assertThrows(IllegalStateException.class, () -> kafkaMessageConsumerFactory.startConsumer("topicName", messageNames, "clusterNotDefined"));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void startConsumer_usesListenerEndpointSoFactoryCanApplyListenerConfiguration() {
+        ConcurrentKafkaListenerContainerFactory<AvroMessageKey, AvroMessage> containerFactory =
+                mock(ConcurrentKafkaListenerContainerFactory.class);
+        ConcurrentMessageListenerContainer<AvroMessageKey, AvroMessage> container =
+                mock(ConcurrentMessageListenerContainer.class);
+        when(containerFactory.createListenerContainer(any())).thenReturn(container);
+        when(jeapKafkaBeanNames.getListenerContainerFactoryBeanName(defaultClusterName)).thenReturn("test");
+        when(beanFactory.getBean("test")).thenReturn(containerFactory);
+        ReflectionTestUtils.setField(kafkaMessageConsumerFactory, "jeapKafkaBeanNames", jeapKafkaBeanNames);
+
+        kafkaMessageConsumerFactory.startConsumer(topicName, Set.of("eventName"), null);
+
+        ArgumentCaptor<MethodKafkaListenerEndpoint<AvroMessageKey, AvroMessage>> endpointCaptor =
+                ArgumentCaptor.forClass(MethodKafkaListenerEndpoint.class);
+        verify(containerFactory).createListenerContainer(endpointCaptor.capture());
+        MethodKafkaListenerEndpoint<AvroMessageKey, AvroMessage> endpoint = endpointCaptor.getValue();
+        assertThat(endpoint.getTopics()).containsExactly(topicName);
+        assertThat(endpoint.getBean()).isInstanceOf(KafkaMessageListener.class);
+        assertThat(endpoint.getMethod().getName()).isEqualTo("onMessage");
+        verify(container, never()).setupMessageListener(any());
+        verify(container).start();
     }
 
     @Test

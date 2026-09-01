@@ -12,14 +12,20 @@ import ch.admin.bit.jeap.processarchive.domain.event.MessageReceiver;
 import jakarta.annotation.PreDestroy;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
+import org.springframework.kafka.config.MethodKafkaListenerEndpoint;
 import org.springframework.kafka.listener.AcknowledgingMessageListener;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
+import org.springframework.kafka.listener.adapter.KafkaMessageHandlerMethodFactory;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.converter.GenericMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,6 +33,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Component
 @Slf4j
 public class KafkaMessageConsumerFactory {
+
+    private static final Method MESSAGE_LISTENER_METHOD = messageListenerMethod();
 
     private final MessageReceiver messageReceiver;
     private final ContractsValidator contractsValidator;
@@ -41,6 +49,7 @@ public class KafkaMessageConsumerFactory {
 
     private final JeapKafkaBeanNames jeapKafkaBeanNames;
 
+    private final KafkaMessageHandlerMethodFactory messageHandlerMethodFactory;
 
     public KafkaMessageConsumerFactory(MessageReceiver messageReceiver,
                                        ContractsValidator contractsValidator,
@@ -53,6 +62,7 @@ public class KafkaMessageConsumerFactory {
         this.kafkaProperties = kafkaProperties;
         this.beanFactory = beanFactory;
         this.jeapKafkaBeanNames = new JeapKafkaBeanNames(kafkaProperties.getDefaultClusterName());
+        this.messageHandlerMethodFactory = createMessageHandlerMethodFactory(beanFactory);
     }
 
 
@@ -85,10 +95,32 @@ public class KafkaMessageConsumerFactory {
     }
 
     private void startConsumer(String topicName, String clusterName, AcknowledgingMessageListener<AvroMessageKey, AvroMessage> messageListener) {
-        ConcurrentMessageListenerContainer<AvroMessageKey, AvroMessage> container = getKafkaListenerContainerFactory(clusterName).createContainer(topicName);
-        container.setupMessageListener(messageListener);
+        MethodKafkaListenerEndpoint<AvroMessageKey, AvroMessage> endpoint = new MethodKafkaListenerEndpoint<>();
+        endpoint.setTopics(topicName);
+        endpoint.setBean(messageListener);
+        endpoint.setMethod(MESSAGE_LISTENER_METHOD);
+        endpoint.setMessageHandlerMethodFactory(messageHandlerMethodFactory);
+
+        ConcurrentMessageListenerContainer<AvroMessageKey, AvroMessage> container =
+                getKafkaListenerContainerFactory(clusterName).createListenerContainer(endpoint);
         container.start();
         containers.add(container);
+    }
+
+    private static Method messageListenerMethod() {
+        try {
+            return KafkaMessageListener.class.getMethod("onMessage", ConsumerRecord.class, Acknowledgment.class);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException("Kafka message listener method not found", e);
+        }
+    }
+
+    private static KafkaMessageHandlerMethodFactory createMessageHandlerMethodFactory(BeanFactory beanFactory) {
+        KafkaMessageHandlerMethodFactory methodFactory = new KafkaMessageHandlerMethodFactory();
+        methodFactory.setBeanFactory(beanFactory);
+        methodFactory.setMessageConverter(new GenericMessageConverter());
+        methodFactory.afterPropertiesSet();
+        return methodFactory;
     }
 
     @SuppressWarnings("unchecked")

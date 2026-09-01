@@ -4,6 +4,16 @@ The PAS archives data in reaction to Kafka messages (domain events or commands).
 archiving, and how the data to archive is determined, is declared in
 `src/main/resources/processarchive/messages.json`.
 
+## Messages resubmitted by the Error Handling Service
+
+The jEAP Error Handling Service marks a resubmitted Kafka message with the
+`jeap_eh_target_service` header. The PAS processes the message when the header matches
+`jeap.messaging.kafka.serviceName`, and filters it out before archive processing when it targets another
+service. A filtered message therefore does not trigger an archive or a remote-data URI call. It is acknowledged
+so that the Kafka partition can continue with the next message.
+
+Messages without a `jeap_eh_target_service` header are normal deliveries and continue to be processed.
+
 > Before PAS version 11 this file was named `events.json` and the keys started with `event*` /
 > `domainEvent*` instead of `message*`. The old file name and keys are still supported for backward
 > compatibility.
