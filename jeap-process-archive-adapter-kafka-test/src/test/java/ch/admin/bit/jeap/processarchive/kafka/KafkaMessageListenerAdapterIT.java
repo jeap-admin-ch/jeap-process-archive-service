@@ -2,6 +2,8 @@ package ch.admin.bit.jeap.processarchive.kafka;
 
 import ch.admin.bit.jeap.messaging.avro.AvroMessage;
 import ch.admin.bit.jeap.messaging.avro.AvroMessageKey;
+import ch.admin.bit.jeap.messaging.kafka.filter.ErrorHandlingTargetFilter;
+import ch.admin.bit.jeap.messaging.kafka.signature.subscriber.DefaultSignatureAuthenticityService;
 import ch.admin.bit.jeap.messaging.kafka.test.KafkaIntegrationTestBase;
 import ch.admin.bit.jeap.processarchive.domain.archive.ArchiveDataObjectStore;
 import ch.admin.bit.jeap.processarchive.domain.archive.RemoteArchiveDataProvider;
@@ -20,17 +22,27 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.adapter.FilteringMessageListenerAdapter;
 import org.springframework.kafka.test.utils.ContainerTestUtils;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest(properties = {
         "jeap.messaging.kafka.error-topic-name=error",
         "jeap.messaging.kafka.service-name=process-archive-service",
+        "jeap.messaging.kafka.cluster.aws.bootstrap-servers=${spring.embedded.kafka.brokers}",
+        "jeap.messaging.kafka.cluster.aws.default-cluster=true",
+        "jeap.messaging.kafka.cluster.aws.error-topic-name=error",
+        "jeap.messaging.kafka.cluster.aws.security-protocol=PLAINTEXT",
+        "jeap.messaging.authentication.subscriber.require-signature=true",
+        "jeap.messaging.authentication.subscriber.accept-unsigned-messagetype-whitelist[0]=TestDomainEvent",
         "jeap.processarchive.archivedartifact.event-topic=event-topic",
         "jeap.processarchive.archivedartifact.system-id=com.test.System",
         "jeap.processarchive.archivedartifact.system-name=test"
@@ -66,13 +78,27 @@ class KafkaMessageListenerAdapterIT extends KafkaIntegrationTestBase {
     private KafkaMessageConsumerFactory kafkaMessageConsumerFactory;
     @Autowired
     private KafkaTemplate<AvroMessageKey, AvroMessage> kafkaTemplate;
+    @MockitoSpyBean
+    private ErrorHandlingTargetFilter errorHandlingTargetFilter;
+    @MockitoSpyBean
+    private DefaultSignatureAuthenticityService signatureAuthenticityService;
 
     @BeforeEach
     void setUp() {
         MessageArchiveConfiguration eventConfig = mock(MessageArchiveConfiguration.class);
         doReturn(TestDomainEvent.class.getSimpleName()).when(eventConfig).getMessageName();
         doReturn(DOMAIN_EVENT_TOPIC).when(eventConfig).getTopicName();
+        doReturn("aws").when(eventConfig).getClusterName();
         kafkaDomainEventListenerAdapter.start(List.of(eventConfig));
+        assertThat(kafkaMessageConsumerFactory.getContainers()).singleElement().satisfies(container -> {
+            Object listener = container.getContainerProperties().getMessageListener();
+            assertThat(listener).isInstanceOf(FilteringMessageListenerAdapter.class);
+            // Verify the listener adapter contains the jEAP-configured filter and acknowledges discarded records.
+            assertThat(ReflectionTestUtils.getField(listener, "recordFilterStrategy"))
+                    .isSameAs(errorHandlingTargetFilter);
+            assertThat(ReflectionTestUtils.getField(listener, "ackDiscarded"))
+                    .isEqualTo(true);
+        });
         kafkaMessageConsumerFactory.getContainers().forEach(c -> ContainerTestUtils.waitForAssignment(c, 1));
     }
 
@@ -91,8 +117,14 @@ class KafkaMessageListenerAdapterIT extends KafkaIntegrationTestBase {
         verify(messageReceiver, timeout(TEST_TIMEOUT)).messageReceived(normalEvent);
         verify(messageReceiver, never()).messageReceived(otherServiceEvent);
         verify(messageReceiver, times(2)).messageReceived(any());
-        org.assertj.core.api.Assertions.assertThat(output)
-                .contains("Filtering out message because 'jeap_eh_target_service=other-service'");
+        verify(signatureAuthenticityService, timeout(TEST_TIMEOUT).times(3))
+                .checkAuthenticityValue(any(), any(), any());
+        verify(errorHandlingTargetFilter, timeout(TEST_TIMEOUT).times(3)).filter(any());
+        assertThat(output)
+                .contains("Filtering out message because 'jeap_eh_target_service=other-service'")
+                .contains("SignatureAuthenticityService initialized, requireSignature (strict mode): true")
+                .contains("on cluster aws")
+                .contains("with messaging service name 'process-archive-service'");
     }
 
     private void sendToPartition(TestDomainEvent event, String targetService) throws Exception {

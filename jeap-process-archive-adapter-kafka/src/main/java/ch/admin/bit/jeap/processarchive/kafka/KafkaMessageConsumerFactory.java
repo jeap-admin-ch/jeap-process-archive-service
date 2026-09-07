@@ -71,7 +71,8 @@ public class KafkaMessageConsumerFactory {
             clusterName = kafkaProperties.getDefaultClusterName();
         }
 
-        log.info("Starting message listener for message(s) '{}' on topic '{}' on cluster '{}'", messageNames, topicName, clusterName);
+        log.info("Starting message listener for message(s) '{}' on topic '{}' on cluster '{}' with messaging service name '{}'",
+                messageNames, topicName, clusterName, kafkaProperties.getServiceName());
 
         messageNames.forEach(messageName -> ensureConsumerContract(topicName, messageName));
         KafkaMessageListener listener = new KafkaMessageListener(messageNames, messageReceiver);
@@ -105,6 +106,11 @@ public class KafkaMessageConsumerFactory {
 
         ConcurrentMessageListenerContainer<AvroMessageKey, AvroMessage> container =
                 getKafkaListenerContainerFactory(clusterName).createListenerContainer(endpoint);
+        if (log.isDebugEnabled()) {
+            Object listenerAdapter = container.getContainerProperties().getMessageListener();
+            log.debug("Created listener container for topic '{}' on cluster '{}' with listener adapter '{}'",
+                    topicName, clusterName, listenerAdapter == null ? "none" : listenerAdapter.getClass().getName());
+        }
         container.start();
         containers.add(container);
     }
@@ -127,9 +133,11 @@ public class KafkaMessageConsumerFactory {
 
     @SuppressWarnings("unchecked")
     private ConcurrentKafkaListenerContainerFactory<AvroMessageKey, AvroMessage> getKafkaListenerContainerFactory(String clusterName) {
+        String beanName = jeapKafkaBeanNames.getListenerContainerFactoryBeanName(clusterName);
+        log.debug("Using Kafka listener container factory bean '{}' for cluster '{}'", beanName, clusterName);
         try {
-            return (ConcurrentKafkaListenerContainerFactory<AvroMessageKey, AvroMessage>) beanFactory.getBean(jeapKafkaBeanNames.getListenerContainerFactoryBeanName(clusterName));
-        } catch (NoSuchBeanDefinitionException exception) {
+            return (ConcurrentKafkaListenerContainerFactory<AvroMessageKey, AvroMessage>) beanFactory.getBean(beanName);
+        } catch (NoSuchBeanDefinitionException _) {
             log.error("No kafkaListenerContainerFactory found for cluster with name '{}'", clusterName);
             throw new IllegalStateException("No kafkaListenerContainerFactory found for cluster with name " + clusterName);
         }
