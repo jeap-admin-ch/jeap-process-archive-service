@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [23.10.0] - 2026-09-09
+
+### Dependencies
+- **ch.admin.bit.jeap:jeap-spring-boot-parent**: 40.9.2 → 40.11.0 (minor)
+- **ch.admin.bit.jeap:jeap-process-archive-reader**: 8.6.0 → 8.7.0 (minor)
+- **org.eclipse.jgit:org.eclipse.jgit**: 7.7.1.202607240634-r → 7.8.0.202609011348-r (minor)
+- **org.apache.maven.plugin-tools:maven-plugin-annotations**: 3.15.2 → 3.16.0 (minor)
+- **org.apache.maven.plugins:maven-plugin-plugin**: 3.15.2 → 3.16.0 (minor)
+- **org.wiremock.integrations:wiremock-spring-boot-standalone**: 4.2.2 → 4.2.3 (patch)
+
 ## [23.9.1] - 2026-09-07
 
 ### Added
