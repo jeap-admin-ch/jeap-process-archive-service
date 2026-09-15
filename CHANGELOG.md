@@ -9,7 +9,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Dependencies
 - **ch.admin.bit.jeap:jeap-spring-boot-parent**: 40.11.0 → 41.3.0 (major)
-- **ch.admin.bit.jeap:jeap-process-archive-reader**: 8.7.0 → 9.0.0 (major)
+- **ch.admin.bit.jeap:jeap-process-archive-reader**: 8.7.0 → 9.2.0 (major)
 
 ## [23.10.0] - 2026-09-09
 
