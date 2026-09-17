@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [24.2.1] - 2026-09-17
+
+### Removed
+- Removed version management for maven-api, maven-plugin-annotations, json-schema-validator, commons-io, jgit, file-management and wiremock from the root pom: the same versions are already managed by `jeap-internal-spring-boot-parent`.
+- Dropping the local `json-schema-validator.version` property also stops it from forcing the unrelated `com.github.java-json-tools:json-schema-validator` to a non-existent 3.0.7.
+- Removed the redundant `maven-invoker.version`, `maven-plugin-plugin.version`, `maven-plugin-testing-harness.version` and `plexus-xml.version` properties: all repeat values the parent already sets, so the remaining `${...}` references resolve to the same versions from there.
+- Removed the explicit versions on `maven-invoker`, `plexus-xml` and `system-stubs-jupiter` in the two maven-plugin modules, plus the now-unused `system-stubs-jupiter.version` property: all resolve to the versions the parent already manages.
+
 ## [24.2.0] - 2026-09-17
 
 ### Dependencies
