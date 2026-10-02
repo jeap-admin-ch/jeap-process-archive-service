@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [24.9.0] - 2026-10-02
+
+### Dependencies
+- **ch.admin.bit.jeap:jeap-process-archive-reader**: 9.6.0 → 9.8.0 (minor)
+- **org.checkerframework:checker-qual**: 4.2.3 → 4.3.0 (minor)
+
 ## [24.8.0] - 2026-10-01
 
 ### Dependencies
