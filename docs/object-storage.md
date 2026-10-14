@@ -6,14 +6,7 @@ requirements, and how bucket/key are chosen. Retention and immutability are cove
 
 ## Connection
 
-Configure the connection under `jeap.processarchive.objectstorage.connection`:
-
-| Property     | Description     | Default      |
-|--------------|-----------------|--------------|
-| `access-url` | S3 URL          |              |
-| `region`     | S3 / AWS region | `AWS_GLOBAL` |
-| `access-key` | S3 access key   |              |
-| `secret-key` | S3 secret key   |              |
+Connection properties and defaults are listed in [Configuration](configuration.md#object-storage).
 
 On AWS, when the PAS itself is deployed in AWS, `access-url`, `access-key` and `secret-key` can be
 omitted — credentials are taken from the context (IAM role). Set `region` to the project-specific region.
@@ -31,6 +24,19 @@ archived data cannot be overwritten and can only be deleted after a retention pe
 aws s3api create-bucket --bucket <bucket-name> --object-lock-enabled-for-bucket
 ```
 
+### Inspecting bucket versioning
+
+For an S3-compatible endpoint, add `--endpoint-url` to the commands as needed. Before using the bucket,
+inspect its versioning and the stored versions:
+
+```bash
+aws s3api get-bucket-versioning --bucket <bucket-name>
+aws s3api list-object-versions --bucket <bucket-name> --prefix <object-key>
+```
+
+Reading a specific version is useful after a delete marker hides the current object. See
+[Lifecycle rules](data-expiration-and-locking.md#lifecycle-rules) for expiry and retention checks.
+
 ### Buckets without object lock
 
 Some storage backends cannot enable object lock on an existing bucket. For existing PAS instances set up
@@ -43,20 +49,19 @@ because access to archived data is not time-critical and the error handling tole
 
 ## Object storage strategy
 
-Bucket and key for an artifact are chosen by the configured `ObjectStorageStrategy`. If a source
-endpoint sets the `Archive-Storage-Bucket`/`Archive-Storage-Prefix`
-[headers](archive-data-rest-interface.md), those values take precedence.
+Bucket and key for an artifact are chosen by the configured `ObjectStorageStrategy`. The default
+strategy honors non-blank `Archive-Storage-Bucket`/`Archive-Storage-Prefix`
+[headers](archive-data-rest-interface.md) in preference to its configured bucket/date prefix.
+A custom strategy receives these values through `ArchiveData` and decides how to apply them.
 
 ### Default strategy
 
-Without a custom strategy the default one archives everything into a single configurable bucket, using
-the reference id as the key, optionally with a date prefix. Configure it under
-`jeap.processarchive.objectstorage.storage`:
-
-| Property      | Description                                     | Default |
-|---------------|-------------------------------------------------|---------|
-| `bucket`      | Target bucket for archived data                 |         |
-| `prefix-mode` | Key prefix mode: `NONE`, `DAY`, `MONTH`, `YEAR` | `DAY`   |
+Without a custom strategy, the default bucket comes from configuration. The object name is the result
+of `HashProvider.hashStorageObjectId(referenceId, referenceIdType)`, where the reference-ID type comes
+from the archive type. The complete key is the prefix followed by that name. The date prefix uses the
+date of archiving. Set the bucket and prefix mode in [Configuration](configuration.md#object-storage).
+Use the bucket, key and S3 version ID reported in the archived artifact to retrieve a stored version;
+do not assume the key equals the business reference ID.
 
 | Prefix mode | Example prefix |
 |-------------|----------------|
@@ -82,20 +87,30 @@ Register it in `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfi
 
 ## Hash provider
 
-For every archived record the PAS computes a hash and stores it in the S3 object metadata. The hashing
-algorithm is defined by a `HashProvider` plugin implementation registered as a Spring bean.
+The object-storage adapter requires a `HashProvider` Spring bean supplied by the PAS instance or one
+of its dependencies. It must implement both methods:
+
+| Method | Purpose |
+| --- | --- |
+| `hashPayload(byte[])` | Hashes archive payloads and schemas for object metadata. |
+| `hashStorageObjectId(String referenceId, String referenceIdType)` | Derives the object name used by the default storage strategy. |
+
+The interface's default `hashReferenceId` method delegates to `hashStorageObjectId`. The PAS does not
+provide a default hashing implementation. Changing the implementation can change storage-object names;
+coordinate such changes with the archive catalog and readers.
 
 ## Schema storage on the bucket
 
 For Avro archive types, the schema is stored next to the data on the bucket as a self-contained Avro
-protocol (`.avpr`), so the archived data can be read without external schema resolution. The schema is
-stored once per archive-type version at:
+protocol (`.avpr`), so the archived data can be read without external schema resolution. The schema
+contains all required type definitions without external imports. By convention, one type has the
+archive type's name. The schema is stored once per archive-type version at:
 
 ```text
-/archive-data-schema/<system>_<archivetype>_<version>.avpr      e.g. /archive-data-schema/JME_Decree_1.avpr
+archive-data-schema/<system>_<archivetype>_<version>.avpr      e.g. archive-data-schema/JME_Decree_1.avpr
 ```
 
-The location is recorded on the archived object as the `schema-file-key` metadata entry. Set
+The key has no leading slash. The location is recorded on the archived object as the `schema-file-key` metadata entry. Set
 `jeap.processarchive.objectstorage.schema-overwrite-allowed=false` to never overwrite an existing schema
 (schemas of a published archive-type version are immutable).
 

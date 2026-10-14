@@ -28,6 +28,8 @@ jeap:
       password: "..."
 ```
 
+![Example dashboard of PAS processing and object-storage timings; series depend on the deployment](images/metrics-example.png)
+
 ## Related
 
 - [Configuration reference](configuration.md)

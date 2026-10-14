@@ -12,6 +12,11 @@ archived.
 
 The PAS calls the `uri` configured for the message, substituting `{id}` (and `{version}` when the
 endpoint is versioned) from the [`ArchiveDataReference`](consuming-messages.md#event-notification-remote-data).
+The URI placeholders must match the reference exactly: `{id}` is required, and `{version}` is required
+when the provider supplies a version and must be absent otherwise. Each placeholder must occur once;
+additional or repeated placeholders fail validation. A version may be placed in a query parameter,
+for example `/api/snapshot/{id}?version={version}`.
+
 The endpoint returns the raw data in the response body and describes it with these headers:
 
 | Header                        | Required | Description                                                                                    | Example                   |
@@ -21,11 +26,13 @@ The endpoint returns the raw data in the response body and describes it with the
 | `Archive-Data-Schema`         | yes      | Archive type / schema name. Must match the archive type                                        | `Decree`                  |
 | `Archive-Data-Schema-Version` | yes      | Positive integer schema version. Must match a known archive type version                       | `1`                       |
 | `Archive-Metadata-*`          | no       | Custom metadata stored with the artifact                                                       | `Archive-Metadata-issuer` |
-| `Archive-Storage-Bucket`      | no       | Overrides the target bucket (normally set by the [object storage strategy](object-storage.md)) | `bit-jme-pas-decree-dev`  |
-| `Archive-Storage-Prefix`      | no       | Overrides the key prefix (normally set by the object storage strategy)                         | `some-prefix/`            |
+| `Archive-Storage-Bucket`      | no       | Overrides the default-strategy bucket; custom [strategies](object-storage.md) decide how to apply it | `bit-jme-pas-decree-dev`  |
+| `Archive-Storage-Prefix`      | no       | Overrides the default-strategy key prefix; custom strategies decide how to apply it                         | `some-prefix/`            |
 
-The interface supports business-object versioning; sub-resource versions are not supported. The request
-timeout is configurable via `jeap.processarchive.http.timeout` (see [Configuration](configuration.md)).
+The interface supports business-object versioning; sub-resource versions are not supported. A non-2xx
+response is treated as a processing failure; a `404` does not silently skip archiving. To skip an artifact,
+use a condition or return `null` from the provider as described in [Consuming messages](consuming-messages.md).
+See [Remote data fetch configuration](configuration.md#remote-data-fetch) for timeout behavior.
 
 ## Serving binary Avro over REST
 
@@ -66,13 +73,10 @@ and consumed as Maven dependencies:
 For a versioned artifact, add a `{version}` parameter to the endpoint and read the version in the
 controller — see the `DiagramController` in the `jme-process-archive-example` project.
 
-Since Avro 1.12.2, Avro only resolves classes from a schema that are explicitly trusted, and the
-converter does not install that whitelist itself. A jEAP Messaging application gets it from the
-`AvroClassSecurityAutoConfiguration` of jeap-messaging and configures it with
-`jeap.messaging.avro.trusted-packages` / `jeap.messaging.avro.trusted-classes` (see the
-[configuration reference](configuration.md#avro-class-whitelist)). An application without jEAP Messaging
-installs it once on startup with `AvroClassSecurity.install(..)` or `installDefaultIfMissing()`. Archive
-types outside of the trusted packages are rejected with a `SecurityException`.
+The Avro REST converter needs the application to install a class whitelist before deserialization.
+jEAP Messaging applications get this automatically; applications without it must initialize the
+whitelist themselves. See [Avro class security](https://jeap-admin-ch.github.io/docs/building-blocks/libraries/jeap-messaging/avro-class-security)
+for configuration and initialization examples. Include the generated archive types in the trusted types.
 
 ## Related
 

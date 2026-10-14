@@ -13,26 +13,39 @@ encrypts it, records retention via S3 lifecycle rules and object locks, and publ
 
 ## Documentation
 
-Start with [Getting started](docs/getting-started.md), then follow the links below.
+### Getting started
 
-| Topic                                                                     | File                                                                       |
-|---------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| Architecture (context, runtime view, modules)                             | [docs/architecture.md](docs/architecture.md)                               |
-| Getting started (set up a PAS instance)                                   | [docs/getting-started.md](docs/getting-started.md)                         |
-| Consuming messages (`messages.json`, providers, multiple artifacts)       | [docs/consuming-messages.md](docs/consuming-messages.md)                   |
-| Archive-data REST interface (remote data, Avro over REST)                 | [docs/archive-data-rest-interface.md](docs/archive-data-rest-interface.md) |
-| Archive types (Avro & config-defined, validation)                         | [docs/archive-types.md](docs/archive-types.md)                             |
-| Archive Type Registry (schema repository, plugins)                        | [docs/archive-type-registry.md](docs/archive-type-registry.md)             |
-| Object storage (S3 connection, buckets, strategy)                         | [docs/object-storage.md](docs/object-storage.md)                           |
-| Data expiration & locking (retention, lifecycle, object lock)             | [docs/data-expiration-and-locking.md](docs/data-expiration-and-locking.md) |
-| Encryption (data at rest, encrypted Kafka records)                        | [docs/encryption.md](docs/encryption.md)                                   |
-| Archived artifacts & events (listener, event, idempotence, feature flags) | [docs/archived-artifacts.md](docs/archived-artifacts.md)                   |
-| OpenSearch integration                                                    | [docs/opensearch.md](docs/opensearch.md)                                   |
-| Backfill jobs                                                             | [docs/backfill.md](docs/backfill.md)                                       |
-| Reading archived data                                                     | [docs/reading-archived-data.md](docs/reading-archived-data.md)             |
-| Metrics                                                                   | [docs/metrics.md](docs/metrics.md)                                         |
-| Configuration reference (`jeap.processarchive.*`)                         | [docs/configuration.md](docs/configuration.md)                             |
-| Local development & testing                                               | [docs/local-development.md](docs/local-development.md)                     |
+- [Getting started](docs/getting-started.md) — set up a PAS instance
+
+### Architecture
+
+- [Architecture](docs/architecture.md) — context, runtime view, modules
+
+### Configuration
+
+- [Configuration](docs/configuration.md) — `jeap.processarchive.*`
+
+### Service-specific topics
+
+- [Consuming messages](docs/consuming-messages.md) — `messages.json`, providers, multiple artifacts
+- [Archive-data REST interface](docs/archive-data-rest-interface.md) — remote data, Avro over REST
+- [Archive types](docs/archive-types.md) — Avro & config-defined, validation
+- [Archive Type Registry](docs/archive-type-registry.md) — schema repository, plugins
+- [Object storage](docs/object-storage.md) — S3 connection, buckets, strategy
+- [Encryption](docs/encryption.md) — data at rest, encrypted Kafka records
+- [Archived artifacts & events](docs/archived-artifacts.md) — listener, event, idempotence, feature flags
+- [OpenSearch integration](docs/opensearch.md)
+- [Reading archived data](docs/reading-archived-data.md)
+
+### Operations
+
+- [Data expiration & locking](docs/data-expiration-and-locking.md) — retention, lifecycle, object lock
+- [Backfill jobs](docs/backfill.md)
+- [Metrics](docs/metrics.md)
+
+### Development
+
+- [Development](docs/local-development.md) — local development & testing
 
 ## License
 

@@ -1,7 +1,7 @@
 # Encryption
 
 The PAS can encrypt archived payloads before storing them in S3, and it can consume encrypted Kafka
-records. Both use the [jEAP Crypto](https://github.com/jeap-admin-ch/jeap-crypto) library and a key
+records. Both use the [jEAP Crypto](https://jeap-admin-ch.github.io/docs/building-blocks/libraries/jeap-crypto/) library and a key
 management system (HashiCorp Vault, AWS KMS, …).
 
 ## Encrypting data at rest
@@ -53,11 +53,26 @@ Older descriptors reference a Vault transit key directly. This cannot be combine
 }
 ```
 
+Create the key in the configured Vault transit engine before using the descriptor, for example:
+
+```bash
+vault write -f transit/jme/keys/jme-process-archive-example-s3-key
+```
+
+For the modern `encryptionKey` form, configure a jEAP Crypto key ID that points to this Vault key
+or to an existing AWS KMS key. See [jEAP Crypto key management](https://jeap-admin-ch.github.io/docs/building-blocks/libraries/jeap-crypto/key-management)
+and the complete [archive example](https://github.com/jme-admin-ch/jme-process-archive-example)
+and [crypto example](https://github.com/jme-admin-ch/jme-crypto-example).
+
+![Example Vault transit key used by the legacy encryption definition](images/vault-key-example.png)
+
 ## Consuming encrypted Kafka records
 
-The PAS can consume Kafka records encrypted with jeap-messaging / jeap-crypto like any other jEAP
-Messaging consumer — nothing PAS-specific is required. See the jEAP Messaging and jEAP Crypto
-documentation for the configuration and dependencies (typically only the Vault URL and system name).
+The PAS can consume encrypted Kafka records through jEAP Messaging and jEAP Crypto. The record carries
+information about the wrapping key; the PAS instance must have access to the corresponding key management
+system. See [Encrypting messages](https://jeap-admin-ch.github.io/docs/building-blocks/libraries/jeap-messaging/encrypting-messages)
+for dependencies and configuration. Decrypting an incoming Kafka message and encrypting the archived
+payload are separate operations and can use different keys.
 
 ## Related
 

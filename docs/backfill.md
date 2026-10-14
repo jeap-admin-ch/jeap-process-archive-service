@@ -54,7 +54,7 @@ Add the database adapter dependency to the PAS application's `pom.xml` so that b
 </dependency>
 ```
 
-When using the `jeap-process-archive-service-parent`, the version is managed by dependency management. Otherwise, set the dependency version to the same version as the other `jeap-process-archive-*` modules used by the PAS instance.
+When using the `jeap-process-archive-service-instance`, the version is managed by dependency management. Otherwise, set the dependency version to the same version as the other `jeap-process-archive-*` modules used by the PAS instance.
 
 The PAS instance must also provide the usual dependencies used by archiving:
 
@@ -65,15 +65,9 @@ The PAS instance must also provide the usual dependencies used by archiving:
 
 ## Archive type configuration requirements
 
-The submitted `message` must match a configured PAS archive type. The archive type must be a remote-data configuration
-with a data reader endpoint, for example:
-
-```yaml
-messageType: JmeDecreeDocumentCreatedEvent
-topic: jme-process-archive-decreedocumentcreated
-uri: https://source-service.example/api/archive-data/{id}
-oauthClientId: source-service-client
-```
+The submitted `message` must match a [remote-data configuration in `messages.json`](consuming-messages.md#event-notification-remote-data).
+That section defines the configuration keys and provider example. The source service implements the
+[archive-data REST interface](archive-data-rest-interface.md).
 
 During processing, PAS calls the configured remote archive data provider with the `id` from the submitted reference. The source service must return archive data in the format expected by PAS, including the archive data metadata needed for schema validation.
 
@@ -100,7 +94,7 @@ Content-Type: application/yaml
 
 `jobId` is a UUID chosen by the caller. Reusing the same `jobId` with identical content is idempotent and returns `200 OK`. Reusing the same `jobId` with different content returns `409 Conflict`.
 
-Required role: `backfilljob:write`.
+Authorization: see [Security](#security).
 
 Request body for an unversioned data reader endpoint such as `https://source-service.example/api/archive-data/{id}`:
 
@@ -169,7 +163,7 @@ GET /api/jobs/{jobId}/report
 Accept: application/yaml
 ```
 
-Required role: `backfilljob:read`.
+Authorization: see [Security](#security).
 
 Responses:
 

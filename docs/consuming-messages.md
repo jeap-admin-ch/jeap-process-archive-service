@@ -29,7 +29,7 @@ for payload data.
 ### Multiple artifacts per message
 
 Since PAS 16.0.0 you may register **several configurations for the same `messageName`** (they must all
-use the same `topicName`/`clusterName`). Each configuration produces one artifact, so one message can
+use the same `topicName`/`clusterName`). Each configuration can produce one artifact, so one message can
 archive multiple artifacts. Each artifact must be distinct (distinct system/schema/reference id/version);
 the PAS validates this before storing and fails fast otherwise. See
 [Archived artifacts & events](archived-artifacts.md#idempotence) for how idempotence ids are derived.
@@ -42,7 +42,8 @@ Earlier PAS versions allowed only one configuration per message type.
 
 ## Determining the data to archive
 
-There are two mechanisms, chosen per message.
+There are two mechanisms, chosen per configuration. A condition returning `false`, or a provider
+returning `null`, skips that configuration without archiving an artifact.
 
 ### Event notification (remote data)
 
@@ -64,7 +65,7 @@ reference from the message and a `uri` template for the source endpoint:
 |--------------------------------|----------|------------------------------------------------------------------------------------------------------------------------------|
 | `archiveDataReferenceProvider` | yes      | Fully-qualified `ArchiveDataReferenceProvider` class                                                                         |
 | `uri`                          | yes      | Source endpoint with a `{id}` parameter (and optional `{version}` parameter for versioned records)                           |
-| `oauthClientId`                | no*      | OAuth2 client id (from the Spring OAuth2 config) used to obtain a token; if omitted the API is called without authentication |
+| `oauthClientId`                | no       | Spring OAuth2 client registration name used to obtain a token; if omitted the API is called without authentication |
 
 ```java
 public class DecreeDocumentCreatedArchiveDataReferenceProvider
@@ -78,7 +79,13 @@ public class DecreeDocumentCreatedArchiveDataReferenceProvider
 }
 ```
 
+`oauthClientId` selects the key below `spring.security.oauth2.client.registration`, not the
+identity provider's client ID stored in that registration's `client-id` property. For example,
+`oauthClientId: archive-source` selects `spring.security.oauth2.client.registration.archive-source`.
+
 The source service must implement the [standardized archive-data REST interface](archive-data-rest-interface.md).
+For archiving PCS snapshots, the [PCS snapshot documentation](https://jeap-admin-ch.github.io/docs/building-blocks/reusable-microservices/jeap-process-context-service/process-templates#rest-interface-for-process-snapshots)
+defines the endpoint, version parameter, authorization and schema prerequisites.
 
 ### Event-carried state transfer (payload data)
 
@@ -94,17 +101,57 @@ builds the `ArchiveData` from the message payload — no REST call is made:
 ```
 
 ```java
+package ch.admin.bit.jeap.jme.processarchive.service.provider;
+
+import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.ArchiveData;
+import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.MessageArchiveDataProvider;
+import ch.admin.bit.jeap.processarchive.test.DecreeReference;
+import ch.admin.bit.jeap.processarchive.test.decree.v3.Decree;
+import ch.admin.bit.jeap.processarchive.web.AvroBinarySerializer;
+import ch.admin.bit.jme.decree.JmeDecreeCreatedEvent;
+import ch.admin.bit.jme.decree.JmeDecreeCreatedEventPayload;
+import lombok.SneakyThrows;
+
+import java.io.ByteArrayOutputStream;
+
 public class DecreeCreatedDataProvider implements MessageArchiveDataProvider<JmeDecreeCreatedEvent> {
+
+    private final AvroBinarySerializer avroBinarySerializer;
+
+    public DecreeCreatedDataProvider() {
+        this.avroBinarySerializer = new AvroBinarySerializer();
+    }
+
     @Override
-    public ArchiveData getArchiveData(JmeDecreeCreatedEvent event) {
+    public ArchiveData getArchiveData(JmeDecreeCreatedEvent jmeDecreeCreatedEvent) {
         return ArchiveData.builder()
-                .referenceId(event.getReferences().getNewDecree().getId())
+                .referenceId(jmeDecreeCreatedEvent.getReferences().getNewDecree().getId())
                 .system("JME")
                 .schema("Decree")
                 .schemaVersion(3)
                 .contentType("avro/binary")
-                .payload(/* serialize the avro archive type */)
+                .payload(createPayload(jmeDecreeCreatedEvent.getPayload(),
+                        jmeDecreeCreatedEvent.getReferences().getNewDecree().getId()))
                 .build();
+    }
+
+    @SneakyThrows
+    private byte[] createPayload(JmeDecreeCreatedEventPayload payload, String referenceId) {
+        DecreeReference example = DecreeReference.newBuilder()
+                .setId(referenceId)
+                .setType("Example")
+                .build();
+        Decree decree = Decree.newBuilder()
+                .setTitle(payload.getTitle())
+                .setPayload(payload.getSomeDecreeData())
+                .setCreatedAt(payload.getCreatedAt())
+                .setDecreeReference(example)
+                .build();
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            avroBinarySerializer.serialize(decree, outputStream);
+            return outputStream.toByteArray();
+        }
     }
 }
 ```
@@ -160,11 +207,39 @@ The last two entries show [multiple artifacts per message](#multiple-artifacts-p
 archiving a receipt built from the message payload. Both configurations use the same `topicName` and
 each declares a unique `id`.
 
+## Process correlation
+
+By default, the artifact's process ID comes from the incoming message's `processId`. Configure a
+`MessageCorrelationProvider` if the source of the process ID differs, for example a business identifier
+in the payload. This is separate from the archive-data reference used to fetch or name the artifact.
+
+Add the provider to the corresponding entry in `processarchive/messages.json`:
+
+```json
+"correlationProvider": "ch.admin.bit.jeap.jme.processarchive.service.provider.CorrelationProvider"
+```
+
+```java
+package ch.admin.bit.jeap.jme.processarchive.service.provider;
+
+import ch.admin.bit.jeap.processarchive.plugin.api.archivedata.MessageCorrelationProvider;
+
+// MyEvent represents the application's generated message type.
+public class CorrelationProvider implements MessageCorrelationProvider<MyEvent> {
+    @Override
+    public String getOriginProcessId(MyEvent event) {
+        return event.getPayload().getOtherProcessId();
+    }
+}
+```
+
 ## Plugin interfaces
 
 The relevant SPI interfaces live in `jeap-process-archive-plugin-api`. Referenced provider classes are
-instantiated by the PAS from their fully-qualified name in `messages.json`; listeners, hash providers
-and object-storage strategies are picked up as Spring beans.
+instantiated by the PAS from their fully-qualified name in `messages.json`. These classes need an
+accessible no-argument constructor and are not obtained from the Spring bean factory; Spring dependency
+injection is therefore not performed on them. Listeners, hash providers, archive-type providers and
+object-storage strategies are picked up as Spring beans.
 
 | Interface                         | Role                                                                            |
 |-----------------------------------|---------------------------------------------------------------------------------|

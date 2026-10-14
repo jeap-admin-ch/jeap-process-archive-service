@@ -2,7 +2,7 @@
 
 PAS-specific properties live under `jeap.processarchive.*`. The PAS is also a jEAP Messaging service, so
 Kafka is configured under `jeap.messaging.kafka.*` and `spring.kafka.*` — see the
-[jEAP Messaging](https://github.com/jeap-admin-ch/jeap-messaging) documentation. Relaxed binding
+[jEAP Messaging](https://jeap-admin-ch.github.io/docs/building-blocks/libraries/jeap-messaging/) documentation. Relaxed binding
 applies, so `object-lock-enabled` and `objectLockEnabled` are equivalent.
 
 ## Archive configuration
@@ -19,12 +19,17 @@ configuration entry may carry an `id` (mandatory and unique when a message has m
 
 See [Archived artifacts & events](archived-artifacts.md).
 
-| Property                                           | Required | Description                                               | Default |
-|----------------------------------------------------|----------|-----------------------------------------------------------|---------|
-| `jeap.processarchive.archivedartifact.event-topic` | yes      | Topic for the `SharedArchivedArtifactVersionCreatedEvent` |         |
-| `jeap.processarchive.archivedartifact.system-id`   | yes      | `systemId` of the event                                   |         |
-| `jeap.processarchive.archivedartifact.system-name` | yes      | System name used in the event                             |         |
-| `jeap.processarchive.archivedartifact.enabled`     | no       | Publish the event                                         | `true`  |
+The following values must be non-empty when publication is enabled. Setting `enabled=false`
+disables the event and its property validation. The publisher identity defaults to the jEAP Messaging
+identity, so it normally does not need to be configured a second time.
+
+| Property | Required when enabled | Description | Default |
+| --- | --- | --- | --- |
+| `jeap.processarchive.archivedartifact.event-topic` | yes | Topic for `SharedArchivedArtifactVersionCreatedEvent` | None |
+| `jeap.processarchive.archivedartifact.system-id` | yes | `systemId` of the event (freely chosen) | None |
+| `jeap.processarchive.archivedartifact.system-name` | yes | Publisher system name | `jeap.messaging.kafka.system-name` |
+| `jeap.processarchive.archivedartifact.service-name` | yes | Publisher service name | `jeap.messaging.kafka.service-name` |
+| `jeap.processarchive.archivedartifact.enabled` | no | Publish the event | `true` |
 
 ## Object storage
 
@@ -40,13 +45,17 @@ See [Object storage](object-storage.md) and [Data expiration & locking](data-exp
 | `jeap.processarchive.objectstorage.storage.prefix-mode`      | Key prefix mode: `NONE`/`DAY`/`MONTH`/`YEAR` | `DAY`        |
 | `jeap.processarchive.objectstorage.object-lock-enabled`      | Enable object locking                        | `true`       |
 | `jeap.processarchive.objectstorage.object-lock-mode`         | `COMPLIANCE` or `GOVERNANCE`                 | `COMPLIANCE` |
-| `jeap.processarchive.objectstorage.schema-overwrite-allowed` | Allow overwriting Avro schemas on S3         | `false`      |
+| `jeap.processarchive.objectstorage.schema-overwrite-allowed` | Allow overwriting immutable Avro schemas on S3         | `false`      |
 
 ## Remote data fetch
 
 | Property                           | Description                                                                     | Default |
 |------------------------------------|---------------------------------------------------------------------------------|---------|
-| `jeap.processarchive.http.timeout` | Max time for one successful [remote data](archive-data-rest-interface.md) fetch | `5s`    |
+| `jeap.processarchive.http.timeout` | Read timeout for the OAuth-authenticated [remote-data](archive-data-rest-interface.md) client | `5s`    |
+
+The current implementation applies this property as a read timeout when building the OAuth client.
+It is not a total end-to-end deadline and does not configure the unauthenticated client; that client
+uses the supplied `RestClient.Builder` settings.
 
 If a source service is slow, raise this — but not too high, or a temporarily unavailable service could
 delay archiving for other services while the PAS waits for timeouts.
@@ -60,9 +69,12 @@ As for any jEAP Messaging consumer, polling must be tuned to the expected proces
 | `spring.kafka.consumer.properties.max.poll.records`     | Max records fetched per poll                                         | `10`        |
 | `spring.kafka.consumer.properties.max.poll.interval.ms` | Max time between polls before the broker considers the consumer dead | `100000`    |
 
-The main source of delay is fetching data over REST. Configure `max.poll.interval.ms` **greater than**
-`max.poll.records × jeap.processarchive.http.timeout`, plus headroom for the artifact listener and the
-object store — otherwise an unavailable source service could stall the PAS.
+Budget `max.poll.interval.ms` for the total time needed to process a poll's records. For a message
+with several archive configurations, include every remote fetch and artifact write, plus schema
+validation, encryption and listener execution. `max.poll.records × jeap.processarchive.http.timeout`
+alone is not a sufficient bound: it assumes only one fetch per record, omits other processing, and
+the read timeout is not a total request deadline. Include connection and authentication delays and
+use the effective client timeout settings when choosing the polling interval.
 
 ## Backfill
 
@@ -70,24 +82,12 @@ See [Backfill jobs](backfill.md) for the full list (`jeap.processarchive.backfil
 
 ## Avro class whitelist
 
-Avro only instantiates classes that are explicitly trusted. The PAS does not install the whitelist
-itself — as a jEAP Messaging service it gets it from the `AvroClassSecurityAutoConfiguration` of
-jeap-messaging, which installs it before the first bean is created. It is configured with the
-jeap-messaging properties:
+The PAS uses the whitelist installed by jEAP Messaging. For defaults, trusted packages/classes and
+startup initialization, see the [Avro class whitelist](https://jeap-admin-ch.github.io/docs/building-blocks/libraries/jeap-messaging/avro-class-security).
 
-| Property                               | Description                                 | Default                         |
-|----------------------------------------|---------------------------------------------|---------------------------------|
-| `jeap.messaging.avro.trusted-packages` | Packages whose classes Avro may instantiate | `ch.admin.bit.jeap`, `ch.admin` |
-| `jeap.messaging.avro.trusted-classes`  | Individual classes Avro may instantiate     |                                 |
-
-Archive types and messages below `ch.admin` are trusted out of the box. Archived Avro objects whose
-types live **outside** of `ch.admin` — as well as archive types read back through
-[`ProcessArchiveReader`](reading-archived-data.md) — are rejected with a `SecurityException` until their
-package or class is listed in one of those two properties. Note that setting either property drops the
-wide `ch.admin` default, so list every package the service needs.
-
-Do not install the whitelist from application code: it is installed once per JVM, and a second install
-with a differing policy fails at startup with an `IllegalStateException`.
+Include the generated archive types as well as the message types when configuring trusted packages.
+The same requirement applies when [reading archived data](reading-archived-data.md). The PAS does
+not install a second whitelist.
 
 ## Metrics
 

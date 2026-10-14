@@ -70,7 +70,9 @@ Depending on the archiving mode you implement a small number of
 [plugin-api](consuming-messages.md#plugin-interfaces) interfaces as Spring beans or referenced classes:
 
 - `ArchiveDataReferenceProvider` and/or `MessageArchiveDataProvider` — determine what to archive.
-- Optionally `ArchiveDataCondition`, `MessageCorrelationProvider`, `HashProvider`,
+- A `HashProvider` Spring bean for payload hashes and storage-object names — required by the
+  object-storage adapter; see [Hash provider](object-storage.md#hash-provider).
+- Optionally `ArchiveDataCondition`, `MessageCorrelationProvider`,
   `ObjectStorageStrategy`, `ArtifactArchivedListener`.
 - For Avro archive types, an `ArchiveTypeProvider` that lists the archive-type versions on the
   classpath (see [Archive types](archive-types.md)).
@@ -93,6 +95,31 @@ interface ProcessArchiveMessageContracts {
 
 For local development you need Kafka and an S3 object store (the example project starts these with
 Docker, using RustFS as the object store). See [Local development & testing](local-development.md).
+
+## Complete integration examples
+
+The following source examples include the complete build, configuration and plugin implementations.
+Use them with the version of the service you integrate; the examples evolve with their repositories.
+
+- [jme-archive-type-registry](https://github.com/jme-admin-ch/jme-archive-type-registry)
+- [jme-crypto-example](https://github.com/jme-admin-ch/jme-crypto-example)
+- [jme-process-archive-example](https://github.com/jme-admin-ch/jme-process-archive-example)
+- [jme-process-archive-example / README.md](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/README.md)
+- [jme-process-archive-example / jme-process-archive-resource-service/pom.xml](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-resource-service/pom.xml)
+- [jme-process-archive-example / jme-process-archive-resource-service / ArchiveController.java](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-resource-service/src/main/java/ch/admin/bit/jeap/jme/processarchive/resource/web/ArchiveController.java)
+- [jme-process-archive-example / jme-process-archive-resource-service / DiagramController.java](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-resource-service/src/main/java/ch/admin/bit/jeap/jme/processarchive/resource/web/DiagramController.java)
+- [jme-process-archive-example / jme-process-archive-service/pom.xml](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/pom.xml)
+- [jme-process-archive-example / jme-process-archive-service / ProcessArchiveMessageContracts.java](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/src/main/java/ch/admin/bit/jeap/jme/processarchive/service/ProcessArchiveMessageContracts.java)
+- [jme-process-archive-example / jme-process-archive-service / DecreeConverter.java](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/src/main/java/ch/admin/bit/jeap/jme/processarchive/service/indextype/DecreeConverter.java)
+- [jme-process-archive-example / jme-process-archive-service / DecreeCorrelationProvider.java](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/src/main/java/ch/admin/bit/jeap/jme/processarchive/service/provider/DecreeCorrelationProvider.java)
+- [jme-process-archive-example / jme-process-archive-service / DecreeCreatedDataProvider.java](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/src/main/java/ch/admin/bit/jeap/jme/processarchive/service/provider/DecreeCreatedDataProvider.java)
+- [jme-process-archive-example / jme-process-archive-service / DecreeDocumentCreatedArchiveDataReferenceProvider.java](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/src/main/java/ch/admin/bit/jeap/jme/processarchive/service/provider/DecreeDocumentCreatedArchiveDataReferenceProvider.java)
+- [jme-process-archive-example / jme-process-archive-service / JmeArchiveTypeProvider.java](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/src/main/java/ch/admin/bit/jeap/jme/processarchive/service/provider/JmeArchiveTypeProvider.java)
+- [jme-process-archive-example / jme-process-archive-service/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports)
+- [jme-process-archive-example / jme-process-archive-service/src/main/resources/processarchive/indextypes.json](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/src/main/resources/processarchive/indextypes.json)
+- [jme-process-archive-example / jme-process-archive-service/src/main/resources/processarchive/messages.json](https://github.com/jme-admin-ch/jme-process-archive-example/blob/main/jme-process-archive-service/src/main/resources/processarchive/messages.json)
+- [jme-process-archive-example / docker](https://github.com/jme-admin-ch/jme-process-archive-example/tree/main/docker)
+- [jme-process-archive-example / jme-process-archive-service](https://github.com/jme-admin-ch/jme-process-archive-example/tree/main/jme-process-archive-service)
 
 ## Related
 

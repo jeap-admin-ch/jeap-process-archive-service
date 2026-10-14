@@ -20,6 +20,9 @@ The Archive Type Registry is:
 - **validated on every build** by the `jeap-process-archive-type-registry-maven-plugin`, and only
   successfully validated builds may be merged to the trunk branch (`master`).
 
+Protect the registry's trunk branch: require pull requests and successful validation, and disallow
+force pushes and branch deletion. This protects the published schemas that archived data depends on.
+
 ### Layout
 
 ```text
@@ -106,6 +109,65 @@ The `jeap-process-archive-avro-maven-plugin` generates Java bindings from the Av
 deploy them to a Maven repository, so PAS instances and source services can consume them as normal
 dependencies. It offers the `compile-archive-types` and `deploy-archive-type-artifacts` goals. See the
 `jme-archive-type-registry` project for a complete example.
+
+### Maven build example
+
+Adapt the repository URL, group prefix and trunk branch to your registry. The Git metadata plugin
+supplies the branch and commit used when generating artifacts. Define `jeap.archivetypes.compile.skip`
+(e.g. `false`) and `jeap-process-archive-service.version` in the build. The `phase=none` execution below
+only disables an inherited default execution; omit it if your parent does not configure one.
+`compile-archive-types` runs in `generate-sources`; `deploy-archive-type-artifacts` runs in `deploy`.
+The latter uses `mavenDeployGoal=deploy` here to publish the generated artifacts rather than only
+installing them locally.
+
+```xml
+<build>
+  <plugins>
+            <plugin>
+                <groupId>io.github.git-commit-id</groupId>
+                <artifactId>git-commit-id-maven-plugin</artifactId>
+                <configuration>
+                    <skipPoms>false</skipPoms>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>ch.admin.bit.jeap</groupId>
+                <artifactId>jeap-process-archive-avro-maven-plugin</artifactId>
+                <version>${jeap-process-archive-service.version}</version>
+                <executions>
+                    <execution>
+                        <!-- Disable default execution from parent -->
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>compile-archive-types</id>
+                        <goals>
+                            <goal>compile-archive-types</goal>
+                        </goals>
+                        <configuration>
+                            <generateAllArchiveTypes>false</generateAllArchiveTypes>
+                            <gitUrl>https://github.com/jme-admin-ch/jme-archive-type-registry.git</gitUrl>
+                            <groupIdPrefix>ch.admin.bit.jme.archivetype</groupIdPrefix>
+                            <trunkBranchName>master</trunkBranchName>
+                            <enableDecimalLogicalType>true</enableDecimalLogicalType>
+                            <skip>${jeap.archivetypes.compile.skip}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>deploy-archive-type-artifacts</id>
+                        <goals>
+                            <goal>deploy-archive-type-artifacts</goal>
+                        </goals>
+                        <configuration>
+                            <mavenDeployGoal>deploy</mavenDeployGoal>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+   </plugins>
+</build>
+```
 
 ## Related
 

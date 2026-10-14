@@ -2,7 +2,7 @@
 
 The PAS itself only writes artifacts. To read archived artifacts back from object storage, use the
 separate **jeap-process-archive-reader** library:
-[github.com/jeap-admin-ch/jeap-process-archive-reader](https://github.com/jeap-admin-ch/jeap-process-archive-reader).
+[jEAP Process Archive Reader](https://jeap-admin-ch.github.io/docs/building-blocks/libraries/jeap-process-archive-reader/).
 
 It is a small Spring Boot library that, given a bucket and object key, fetches the binary Avro object,
 reads the writer schema stored alongside it, and deserializes it into the generated reader type

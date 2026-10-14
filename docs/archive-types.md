@@ -36,13 +36,13 @@ immutable Java binding artifacts. A PAS instance:
        @Override
        public List<Class<? extends SpecificRecordBase>> getArchiveTypeVersions() {
            return List.of(
-               ch.admin.bit.jeap.processarchive.test.decree.v1.Decree.class,
-               ch.admin.bit.jeap.processarchive.test.decree.v2.Decree.class,
-               DecreeDocument.class,
-               Diagram.class);
+               ch.admin.bit.jeap.processarchive.test.decree.v3.Decree.class);
        }
    }
    ```
+
+   This matches the version-3 dependency above. Add every other version or archive type the instance
+   must handle to both its dependencies and the returned list.
 
    Register the bean through
    `src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`.

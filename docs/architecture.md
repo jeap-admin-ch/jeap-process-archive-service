@@ -41,9 +41,17 @@ an internal listener interface.
 Archiving is **synchronous**, so the PAS needs no database of its own for the core flow (a database is
 only required for [backfill](backfill.md)). If something fails — S3 unavailable, the source REST call
 times out, etc. — the message is not lost: the retry mechanism of the
-[jEAP Messaging error handling](https://github.com/jeap-admin-ch/jeap-messaging) takes over. Because
-delivery is at-least-once, archiving is retried on failure; already-stored artifacts may be written
-again (a new S3 object version) and their events re-published on retry.
+[jEAP Messaging error handling](https://jeap-admin-ch.github.io/docs/building-blocks/libraries/jeap-messaging/) delegates the failure to the
+[EHS retry flow](https://jeap-admin-ch.github.io/docs/building-blocks/reusable-microservices/jeap-error-handling/message-flows#automatic-retry-of-temporary-errors). Because
+delivery is at-least-once, consumers must handle repeated artifacts and events; see
+[Idempotence](archived-artifacts.md#idempotence) for retry behavior and deduplication.
+
+![Archive-processing sequence: remote or message-carried data, optional encryption, object storage and artifact notification](images/pas-sequence.png)
+
+The sequence illustrates one artifact. The current implementation processes each matching archive
+configuration sequentially; see [partial failures](archived-artifacts.md). Notifications are subject to
+[publication configuration and feature flags](archived-artifacts.md). The storage lifecycle runs
+asynchronously after archiving, independently of message acknowledgment.
 
 ## Module map
 

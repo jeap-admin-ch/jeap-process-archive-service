@@ -43,12 +43,8 @@ consumers that a new artifact version exists in the archive. The event's `varian
 `<System>_<DataSchemaType>`, e.g. `JME_DecreeDocument`. The event definition lives in the jEAP Message
 Type Registry.
 
-| Property                                           | Required | Description                                            |
-|----------------------------------------------------|----------|--------------------------------------------------------|
-| `jeap.processarchive.archivedartifact.event-topic` | yes      | Topic the event is published to                        |
-| `jeap.processarchive.archivedartifact.system-id`   | yes      | Value of the event's `systemId` (freely chosen)        |
-| `jeap.processarchive.archivedartifact.system-name` | yes      | System name used in the event                          |
-| `jeap.processarchive.archivedartifact.enabled`     | no       | Set to `false` to disable publication (default `true`) |
+Configure the event topic and system identity, or disable publication, in
+[Configuration](configuration.md#archived-artifact-event).
 
 ## Idempotence
 
@@ -69,6 +65,16 @@ all artifacts of a message to be distinct and fails fast otherwise.
 
 Because delivery is at-least-once, a retried message re-archives its artifacts (a new S3 object version)
 and re-publishes their events; downstream consumers deduplicate by the event idempotence id.
+
+### Partial failures with multiple artifacts
+
+The PAS extracts the data for all matching configurations and checks for duplicate artifact idempotence
+IDs before storing any artifact. Schema validation, storage and listener notification then happen
+sequentially for each artifact. They do not form one atomic transaction across all artifacts.
+
+If a later artifact or listener fails, earlier S3 writes and notifications are not rolled back. A retry
+can therefore store and announce those earlier artifacts again. Downstream listeners and event consumers
+must tolerate redelivery using the stable artifact or event idempotence ID.
 
 ## Publication feature flag
 
