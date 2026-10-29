@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [24.19.1] - 2026-10-29
+
+### Security
+- `jeap-process-archive-test-types`: removed the local `avro.version` override (1.12.0) so that the version managed by the parent (1.12.2) is used. Avro 1.12.0 pulled in `jackson-core` / `jackson-databind` 2.17.2 and `commons-lang3` 3.14.0, which Snyk reports with known vulnerabilities (e.g. SNYK-JAVA-COMFASTERXMLJACKSONCORE-17440598, SNYK-JAVA-ORGAPACHECOMMONS-10734078).
+
 ## [24.19.0] - 2026-10-28
 
 ### Dependencies
