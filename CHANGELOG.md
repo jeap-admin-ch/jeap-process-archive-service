@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [24.19.2] - 2026-10-29
+
+### Security
+- `jeap-process-archive-test-types`: declare `jackson-core` and `jackson-databind` directly so that the parent-managed version is used instead of the version avro 1.12.2 brings in transitively (2.22.1). Fixes the findings reported for jackson 2.22.1: CVE-2026-68497 (SNYK-JAVA-COMFASTERXMLJACKSONCORE-19778370), CVE-2026-89425 (-20059179), CVE-2026-91777 (-20059683), CVE-2026-68498 (-21193287) and CVE-2026-110879, CVE-2026-54512 (-21761837).
+
 ## [24.19.1] - 2026-10-29
 
 ### Security
