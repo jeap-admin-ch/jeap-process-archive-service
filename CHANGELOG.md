@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [24.20.0] - 2026-11-09
+
+### Dependencies
+- **ch.admin.bit.jeap:jeap-spring-boot-parent**: 41.29.1 → 41.34.0 (minor)
+- **ch.admin.bit.jeap:jeap-process-archive-reader**: 9.18.0 → 9.18.1 (patch)
+- **org.checkerframework:checker-qual**: 4.3.1 → 4.4.0 (minor)
+
 ## [24.19.3] - 2026-11-01
 
 ### Dependencies
