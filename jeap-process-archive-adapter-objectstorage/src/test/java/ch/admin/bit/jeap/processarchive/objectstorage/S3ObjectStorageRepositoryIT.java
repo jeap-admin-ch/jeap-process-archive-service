@@ -285,7 +285,7 @@ class S3ObjectStorageRepositoryIT {
         connectionProperties.setAccessKey(RUSTFS_ACCESS_KEY);
         connectionProperties.setSecretKey(RUSTFS_SECRET_KEY);
         connectionProperties.setAccessUrl(url);
-        connectionProperties.setRegion("aws-global");
+        connectionProperties.setRegion("us-east-1");
 
         s3Client = new TimedS3Client(connectionProperties, StaticCredentialsProvider.create(AwsBasicCredentials.create(RUSTFS_ACCESS_KEY, RUSTFS_SECRET_KEY)));
     }
