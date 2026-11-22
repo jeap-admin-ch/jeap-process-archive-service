@@ -46,6 +46,7 @@ Apache License Version 2.0
  * ch.admin.bit.jeap:jeap-process-archive-service - [ch.admin.bit.jeap:jeap-process-archive-service](https://github.com/jeap-admin-ch/jeap-process-archive-service/tree/main/jeap-process-archive-service)
  * ch.admin.bit.jeap:jeap-process-archive-test-types - [ch.admin.bit.jeap:jeap-process-archive-test-types](https://github.com/jeap-admin-ch/jeap-process-archive-service/tree/main/jeap-process-archive-test-types)
  * ch.admin.bit.jeap:jeap-process-archive-type-registry - [ch.admin.bit.jeap:jeap-process-archive-type-registry](https://github.com/jeap-admin-ch/jeap-process-archive-service/tree/main/jeap-process-archive-type-registry)
+ * ch.admin.bit.jeap:jeap-reaction-observer-header-starter - [ch.admin.bit.jeap:jeap-reaction-observer-header-starter](https://github.com/jeap-admin-ch/jeap-reaction-observer/tree/main/jeap-reaction-observer-header-starter)
  * ch.admin.bit.jeap:jeap-spring-boot-application-starter - [ch.admin.bit.jeap:jeap-spring-boot-application-starter](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-application-starter)
  * ch.admin.bit.jeap:jeap-spring-boot-featureflag-starter - [ch.admin.bit.jeap:jeap-spring-boot-featureflag-starter](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-featureflag-starter)
  * ch.admin.bit.jeap:jeap-spring-boot-logging-starter - [ch.admin.bit.jeap:jeap-spring-boot-logging-starter](https://github.com/jeap-admin-ch/jeap-spring-boot-starters/tree/main/jeap-spring-boot-logging-starter)
