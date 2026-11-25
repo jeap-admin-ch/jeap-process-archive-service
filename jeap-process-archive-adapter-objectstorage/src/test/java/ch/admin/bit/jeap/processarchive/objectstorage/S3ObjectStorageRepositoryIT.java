@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -71,7 +72,13 @@ class S3ObjectStorageRepositoryIT {
                     .withExposedPorts(RUSTFS_PORT)
                     .withEnv("RUSTFS_ACCESS_KEY", RUSTFS_ACCESS_KEY)
                     .withEnv("RUSTFS_SECRET_KEY", RUSTFS_SECRET_KEY)
-                    .withCommand("/data");
+                    .withCommand("/data")
+                    // RustFS opens its port before storage and IAM are initialized and answers S3 requests with
+                    // 503 "Service not ready" until then. The default wait for the open port is therefore not
+                    // enough on a busy host: wait until the readiness endpoint reports the service as ready.
+                    .waitingFor(Wait.forHttp("/health/ready")
+                            .forPort(RUSTFS_PORT)
+                            .forStatusCode(200));
 
     @SneakyThrows
     @BeforeEach
